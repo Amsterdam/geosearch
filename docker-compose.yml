@@ -1,0 +1,40 @@
+database:
+    image: admin.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+        - "5405:5432"
+    environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_DB: metadata
+        POSTGRES_USER: metadata
+
+web:
+    build: ./web
+    ports:
+        - "8101:8000"
+    links:
+        - "database:atlas_db"
+        - "database:nap_db"
+        - "database:milieuthema_db"
+        - "database:panorama_db"
+        - "database:parkeervakken_db"
+    environment:
+        ATLAS_DB_NAME: atlas
+        ATLAS_DB_USER: posrtgres
+        ATLAS_DB_PASSWORD: insecure
+
+        NAP_DB_NAME: nap
+        NAP_DB_USER: postgres
+        NAP_DB_PASSWORD: insecure
+
+        MILLEUTHEMA_DB_NAME: millieuthema
+        MILLEUTHEMA_DB_USER: postgres
+        MILLEUTHEMA_DB_PASSWORD: insecure
+
+        PANORAMA_DB_NAME: panorama
+        PANORAMA_DB_USER: postgres
+        PANORAMA_DB_PASSWORD: insecure
+
+        PARKEERVAKKEN_DB_NAME: parkeervakken
+        PARKEERVAKKEN_DB_USER: postgres
+        PARKEERVAKKEN_DB_PASSWORD: insecure
+
