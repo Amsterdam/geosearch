@@ -2,15 +2,24 @@ import unittest
 
 import datasource
 
-x = 111176.768947226
-y = 467563.287934656
 
-x =52.369604918845354
-y = 4.896307341338379
+# tested with last atlas backup:
+# docker exec atlasbackend_database_1 /bin/update-atlas.sh
+# python test_dataset.py
+# > Ran 1 test in 0.062s
+
+# test data
+
+# x = 111176.768947226
+# y = 467563.287934656
+# rd = True
+
+# x =52.369604918845354
+# y = 4.896307341338379
+# rd = False
 
 x = 120993
 y = 485919
-
 rd = True
 
 
