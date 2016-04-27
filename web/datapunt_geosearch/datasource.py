@@ -45,7 +45,7 @@ class DataSourceBase(object):
     def execute_queries(self, x, y, rd=True):
         cur = self.get_cursor()
         srid = 28992 if rd else 4326
-        results, features = [], []
+        features = []
 
         for table in self.meta['tables']:
             if self.meta['operator'] == 'contains':
