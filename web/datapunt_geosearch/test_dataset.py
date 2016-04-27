@@ -3,7 +3,7 @@ import unittest
 import datasource
 
 
-# tested with last atlas backup:
+# tested running atlas_import database with latest atlas backup:
 # docker exec atlasbackend_database_1 /bin/update-atlas.sh
 # python test_dataset.py
 # > Ran 1 test in 0.062s
