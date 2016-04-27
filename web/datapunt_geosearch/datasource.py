@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.pool import SimpleConnectionPool
 from psycopg2.extras import DictCursor
 
-import settings
+import config as settings
 
 MIN_CONNECTION = 1
 MAX_CONNECTION = 2
