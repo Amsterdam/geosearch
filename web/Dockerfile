@@ -8,7 +8,7 @@ EXPOSE 8000
 RUN apt-get update \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& adduser --system datapuntapunt \
+&& adduser --system datapunt \
 && mkdir -p /static \
 && chown datapunt /static \
 && pip install uwsgi
@@ -18,5 +18,5 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 USER datapunt
-COPY atlas_geosearch /app/
+COPY datapunt_geosearch /app/
 CMD /app/docker-entrypoint.sh
