@@ -28,7 +28,7 @@ class TestAtlasDataset(unittest.TestCase):
         ds = datasource.AtlasDataSource()
         results = ds.query(x, y, rd=rd)
 
-        self.assertEqual(len(results), 10)
+        self.assertEqual(len(results['result']['features']), 10)
 
 
 if __name__ == '__main__':
