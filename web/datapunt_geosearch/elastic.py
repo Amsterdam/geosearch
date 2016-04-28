@@ -9,6 +9,9 @@ Tasks:
     - Search in polygon
 
 """
+# Python
+import json
+# Packages
 import requests
 
 
@@ -78,9 +81,15 @@ class Elastic(object):
         # Checking that the point is 2 items long
         if len(point) != 2:
             return False
+        # Making sure the values are nummeric
+        try:
+            point[0] = float(point[0])
+            point[1] = float(point[1])
+        except ValueError:
+            return False
         # The query dict
         # https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html
-        query = {
+        query = {"query":{
             "bool": {
                 "must": {
                     "match_all": {}
@@ -93,7 +102,7 @@ class Elastic(object):
                     }
                 }
             }
-        }
-        r = requests.post('http://' + self.hosts + '/' + self.index_name, data=query)
+        }}
+        r = requests.post(self.request_url + '_search', data=json.dumps(query))
         return r.json()
 

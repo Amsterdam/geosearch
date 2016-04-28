@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # Python
 import datetime
 import os
@@ -8,7 +9,7 @@ import sys
 # Packages
 from flask import *
 # Project
-from datapunt_geosearch import app
+from datapunt_geosearch import create_app
 from datapunt_geosearch.elastic import Elastic
 
 
