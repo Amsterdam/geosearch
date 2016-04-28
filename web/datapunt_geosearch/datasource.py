@@ -116,4 +116,9 @@ class AtlasDataSource(DataSourceBase):
     }
 
     def query(self, x, y, rd=False):
-        return self.execute_queries(x, y, rd)
+        return {
+            'result': {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries(x, y, rd)
+            }
+        }
