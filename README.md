@@ -47,3 +47,6 @@ View & index aanmaken wordt dan zoiets:
 
 `GISTCREATE INDEX {}_idx_wgs84 ON {}_mat USING
 ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
+
+
+
