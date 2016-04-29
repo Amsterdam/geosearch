@@ -19,7 +19,7 @@ class DataSourceBase(object):
     dsn = None
     dataset = None
     default_properties = ('id', 'display', 'type', 'uri')
-    point_distance = 5
+    radius = 5
     meta = {}
     use_rd = True
     x = None
@@ -76,7 +76,7 @@ WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992
             """.format(
                 table, self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y, self.point_distance))
+            cur.execute(sql, (self.x, self.y, self.radius))
         else:
             sql = """
 SELECT *
@@ -85,7 +85,7 @@ WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
             """.format(
                 table, self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y, self.point_distance))
+            cur.execute(sql, (self.x, self.y, self.radius))
 
         return cur.fetchall()
 
@@ -174,10 +174,13 @@ class NapMeetboutenDataSource(DataSourceBase):
         },
     }
 
-    def query(self, x, y, rd=True):
+    def query(self, x, y, radius=None, rd=True):
         self.use_rd = rd
         self.x = x
         self.y = y
+
+        if radius:
+            self.radius = radius
 
         return {
             'result': {
