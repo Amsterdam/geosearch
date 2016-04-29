@@ -8,27 +8,36 @@ import datasource
 # python test_dataset.py
 # > Ran 1 test in 0.062s
 
-# test data
-
-# x = 111176.768947226
-# y = 467563.287934656
-# rd = True
-
-# x =52.369604918845354
-# y = 4.896307341338379
-# rd = False
-
-x = 120993
-y = 485919
-rd = True
-
 
 class TestAtlasDataset(unittest.TestCase):
     def test_query(self):
-        ds = datasource.AtlasDataSource()
-        results = ds.query(x, y, rd=rd)
+        x = 120993
+        y = 485919
 
-        self.assertEqual(len(results['result']['features']), 10)
+        ds = datasource.AtlasDataSource()
+        results = ds.query(x, y)
+
+        self.assertEqual(len(results['result']['features']), 7)
+
+    def test_query_wgs84(self):
+        x = 52.36011
+        y = 4.88798
+
+        ds = datasource.AtlasDataSource()
+        results = ds.query(x, y, rd=False)
+
+        self.assertEqual(len(results['result']['features']), 7)
+
+
+class TestNapDataset(unittest.TestCase):
+    def test_query(self):
+        x = 120535.2
+        y = 486376.3
+
+        ds = datasource.NapMeetboutenDataSource()
+        results = ds.query(x, y)
+
+        self.assertEqual(len(results['result']['features']), 1)
 
 
 if __name__ == '__main__':

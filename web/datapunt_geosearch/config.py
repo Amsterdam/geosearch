@@ -16,9 +16,9 @@ DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
 )
 
 DSN_NAP = 'postgresql://{}:{}@{}:{}/{}'.format(
-    os.getenv('NAP_DB_NAME', 'postgres'),
+    os.getenv('NAP_DB_USER', 'postgres'),
     os.getenv('NAP_DB_PASSWORD', 'insecure'),
     os.getenv('NAP_DB_HOST', 'localhost'),
-    os.getenv('NAP_DB_PORT', 5405),
-    os.getenv('NAP_DB_NAME', 'postgres'),
+    os.getenv('NAP_DB_PORT', 5401),
+    os.getenv('NAP_DB_NAME', 'nap'),
 )
