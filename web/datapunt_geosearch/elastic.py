@@ -89,20 +89,62 @@ class Elastic(object):
             return False
         # The query dict
         # https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html
-        query = {"query":{
-            "bool": {
-                "must": {
-                    "match_all": {}
-                },
-                "filter": {
-                    "geo_distance": {
-                        "distance": radius,
-                        "center" : point,
-                        "distance_type": "plane"
+        query = {
+            "query":{
+                "bool": {
+                    "must": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "geo_distance": {
+                            "distance": radius,
+                            "center" : point,
+                            "distance_type": "plane"
+                        }
                     }
                 }
             }
-        }}
+        }
+        r = requests.post(self.request_url + '_search', data=json.dumps(query))
+        return r.json()
+
+    def search_box(self, limits, types=None, exclude=False):
+        """
+        Perform a geo query search at point with a radius of radiu
+        limits: a dict with top, left, bottom and right as keys
+                which contain the bounding box for the search
+        
+        The function has two optional parameters:
+        types: A list of types to use in the query. This is to limit the
+                result set.
+        exclude: Reverse the list of types to use as exclude types instead of
+                include types
+        """
+        # Verifying input
+        if len(limits) != 4:
+            return False
+        # The query dict
+        # https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html
+        query = {
+            "query": {
+                "bool": {
+                    "must": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "geo_bounding_box": {
+                            "center" : {}
+                        }
+                    }
+                }
+            }
+        }
+        for key, value in limits.items():
+            try:
+                query['query']['bool']['filter']['geo_bounding_box']['center'][key] = value
+            except KeyError:
+                # Missing a limit
+                return False
         r = requests.post(self.request_url + '_search', data=json.dumps(query))
         return r.json()
 
