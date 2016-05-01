@@ -1,12 +1,14 @@
 # Python
 import json
 # Packages
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 # PRoject
+from datapunt_geosearch.datasets import AtlasDataSource, NapMeetboutenDataSource
 from datapunt_geosearch.elastic import Elastic
 
 search = Blueprint('search', __name__)
 es = Elastic()
+
 
 @search.route('/search', methods=['GET'])
 def search_list():
@@ -55,3 +57,38 @@ def search_area():
         # bounding box complete. It is possible to query
         resp = es.search_box(limits)
     return json.dumps(resp)
+
+@search.route('/search/geosearch/nap', methods=['GET'])
+def search_geo_nap():
+    """Performing a geo search for radius around a point using postgres"""
+    resp = None
+
+    x = request.args.get('x')
+    y = request.args.get('y')
+    if not x or not y:
+        resp = {'error': 'No coordinates found'}
+
+    # If no error is found, query
+    if not resp:
+        ds = NapMeetboutenDataSource()
+        resp = ds.query(x, y, radius=request.args.get('radius'))
+
+    jsonify(resp)
+
+
+@search.route('/search/geosearch/atlas', methods=['GET'])
+def search_geo_atlas():
+    """Performing a geo search for radius around a point using postgres"""
+    resp = None
+
+    x = request.args.get('x')
+    y = request.args.get('y')
+    if not x or not y:
+        resp = {'error': 'No coordinates found'}
+
+    # If no error is found, query
+    if not resp:
+        ds = AtlasDataSource()
+        resp = ds.query(x, y)
+
+    jsonify(resp)

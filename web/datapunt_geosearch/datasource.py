@@ -19,8 +19,11 @@ class DataSourceBase(object):
     dsn = None
     dataset = None
     default_properties = ('id', 'display', 'type', 'uri')
-    point_distance = 5
+    radius = 5
     meta = {}
+    use_rd = True
+    x = None
+    y = None
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -42,49 +45,73 @@ class DataSourceBase(object):
         conn = self.pool.getconn()
         return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    def execute_queries(self, x, y, rd=True):
+    def execute_queries(self):
         cur = self.get_cursor()
-        srid = 28992 if rd else 4326
         features = []
 
-        for table in self.meta['tables']:
-            if self.meta['operator'] == 'contains':
-                rows = self.execute_polygon_query(cur, table, x, y, srid)
-            else:
-                rows = self.execute_point_query(cur, table, x, y, srid)
+        for dataset in self.meta['datasets']:
+            for dataset_ident, table in self.meta['datasets'][dataset].items():
+                if self.meta['operator'] == 'contains':
+                    rows = self.execute_polygon_query(cur, table)
+                else:
+                    rows = self.execute_point_query(cur, table)
 
-            if not len(rows):
-                self.logger.debug(table, 'no results')
-                continue
+                if not len(rows):
+                    self.logger.debug(table, 'no results')
+                    continue
 
-            for row in rows:
-                features.append({
-                    'properties': dict([(prop, row[prop]) for prop in self.default_properties if prop in row])
-                })
+                for row in rows:
+                    features.append({
+                        'properties': dict([(prop, row[prop]) for prop in self.default_properties if prop in row])
+                    })
 
         return features
 
-    def execute_point_query(self, cur, table, x, y, srid):
-        sql = """
+    def execute_point_query(self, cur, table):
+        if not self.use_rd:
+            sql = """
 SELECT *
 FROM {}
-WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', %s), %d)
-""".format(
-            table, self.meta['geofield']
-        )
-        cur.execute(sql, (x, y, srid, self.point_distance)*2)
+WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s)
+            """.format(
+                table, self.meta['geofield']
+            )
+            cur.execute(sql, (self.x, self.y, self.radius))
+        else:
+            sql = """
+SELECT *
+FROM {}
+WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
+            """.format(
+                table, self.meta['geofield']
+            )
+            cur.execute(sql, (self.x, self.y, self.radius))
 
         return cur.fetchall()
 
-    def execute_polygon_query(self, cur, table, x, y, srid):
-        sql = """
+    def execute_polygon_query(self, cur, table):
+        if not self.use_rd:
+            sql = """
 SELECT *
 FROM {}
-WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', %s) AND ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', %s))
-""".format(
-            table, self.meta['geofield'], self.meta['geofield']
-        )
-        cur.execute(sql, (x, y, srid)*2)
+WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
+AND
+ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
+            """.format(
+                table, self.meta['geofield'], self.meta['geofield']
+            )
+            cur.execute(sql, (self.y, self.x)*2)
+        else:
+            sql = """
+SELECT *
+FROM {}
+WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
+AND
+ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
+            """.format(
+                table, self.meta['geofield'], self.meta['geofield']
+            )
+            cur.execute(sql, (self.x, self.y)*2)
 
         return cur.fetchall()
 
@@ -92,33 +119,72 @@ WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', %s) AND ST_Contains({}, ST_GeomFro
 class AtlasDataSource(DataSourceBase):
     dsn = settings.DSN_ATLAS
     meta = {
-        'tables': [
-            'public.geo_bag_bouwblok_mat',
-            'public.geo_bag_buurt_mat',
-            'public.geo_bag_buurtcombinatie_mat',
-            'public.geo_bag_gebiedsgerichtwerken_mat',
-            'public.geo_bag_grootstedelijkgebied_mat',
-            'public.geo_bag_ligplaats_mat',
-            'public.geo_bag_openbareruimte_mat',
-            'public.geo_bag_pand_mat',
-            'public.geo_bag_stadsdeel_mat',
-            'public.geo_bag_standplaats_mat',
-            'public.geo_bag_unesco_mat',
-            'public.geo_bag_verblijfsobject_mat',
-            'public.geo_lki_gemeente_mat',
-            'public.geo_lki_kadastraalobject_mat',
-            'public.geo_lki_kadastralegemeente_mat',
-            'public.geo_lki_sectie_mat',
-            'public.geo_wkpb_mat',
-        ],
         'geofield': 'geometrie',
         'operator': 'contains',
+        'datasets': {
+            'bag': {
+                'openbareruimte': 'public.geo_bag_openbareruimte_mat',
+                'pand': 'public.geo_bag_pand_mat',
+                'ligplaats': 'public.geo_bag_ligplaats_mat',
+                'standplaats': 'public.geo_bag_standplaats_mat',
+            },
+            'gebieden': {
+                'stadsdeel': 'public.geo_bag_stadsdeel_mat',
+                'buurt': 'public.geo_bag_buurt_mat',
+                'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
+                'bouwblok': 'public.geo_bag_bouwblok_mat',
+                'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
+                'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
+                'unesco': 'public.geo_bag_unesco_mat',
+            },
+            'lki': {
+                'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
+            },
+            'wkpb': {
+                'beperking': 'public.geo_wkpb_mat',
+            },
+        },
     }
 
-    def query(self, x, y, rd=False):
+    def query(self, x, y, rd=True):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
         return {
             'result': {
                 'type': 'FeatureCollection',
-                'features': self.execute_queries(x, y, rd)
+                'features': self.execute_queries()
+            }
+        }
+
+
+class NapMeetboutenDataSource(DataSourceBase):
+    dsn = settings.DSN_NAP
+    meta = {
+        'geofield': 'geometrie',
+        'operator': 'within',
+        'datasets': {
+            'nap': {
+                'peilmerk': 'public.geo_nap_peilmerk_mat',
+            },
+            'meetbouten': {
+                'meetbout': 'public.geo_meetbouten_meetbout_mat',
+            },
+        },
+    }
+
+    def query(self, x, y, radius=None, rd=True):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        return {
+            'result': {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
             }
         }
