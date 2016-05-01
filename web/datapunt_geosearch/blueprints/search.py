@@ -12,10 +12,13 @@ es = Elastic()
 def search_list():
     """List search endpoints"""
     # @TODO can it be automated?
-    return jsonify({'/search/geosearch': 'Search on the basis of geo information'})
+    return json.dumps({
+        '/search/geosearch_radius': 'Search in a radius around a point',
+        '/searc/geosearch_area': 'Search within a given area'
+    })
 
-@search.route('/search/geosearch', methods=['GET', 'POST'])
-def search_geo():
+@search.route('/search/geosearch_radius', methods=['GET', 'POST'])
+def search_radius():
     """Performing a geo search for radius around a point"""
     resp = None
     # Making sure point and radius are given
@@ -34,4 +37,21 @@ def search_geo():
     # If no error is found, query
     if not resp:
         resp = es.search_radius(coords, radius)
+    return json.dumps(resp)
+
+@search.route('/search/geosearch_area', methods=['GET', 'POST'])
+def search_area():
+    """Perform geo search in an area"""
+    resp = {}
+    limits = {}
+    area_limits = ('top', 'left', 'bottom', 'right')
+    for limit in area_limits:
+        arg = request.args.get(limit)
+        if not arg:
+            resp['missing_' + limit] = 'Missing parameter ' + limit
+        else:
+            limits[limit] = arg
+    if len(limits) == 4:
+        # bounding box complete. It is possible to query
+        resp = es.search_box(limits)
     return json.dumps(resp)
