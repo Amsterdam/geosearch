@@ -3,14 +3,14 @@ import json
 # Packages
 from flask import Blueprint, request, jsonify
 # PRoject
-from datapunt_geosearch.datasets import AtlasDataSource, NapMeetboutenDataSource
+from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSource
 from datapunt_geosearch.elastic import Elastic
 
 search = Blueprint('search', __name__)
 es = Elastic()
 
 
-@search.route('/search', methods=['GET'])
+#@search.route('/search', methods=['GET'])
 def search_list():
     """List search endpoints"""
     # @TODO can it be automated?
@@ -19,7 +19,7 @@ def search_list():
         '/searc/geosearch_area': 'Search within a given area'
     })
 
-@search.route('/search/geosearch_radius', methods=['GET', 'POST'])
+#@search.route('/search/geosearch_radius', methods=['GET', 'POST'])
 def search_radius():
     """Performing a geo search for radius around a point"""
     resp = None
@@ -41,7 +41,7 @@ def search_radius():
         resp = es.search_radius(coords, radius)
     return json.dumps(resp)
 
-@search.route('/search/geosearch_area', methods=['GET', 'POST'])
+#@search.route('/search/geosearch_area', methods=['GET', 'POST'])
 def search_area():
     """Perform geo search in an area"""
     resp = {}
@@ -73,7 +73,7 @@ def search_geo_nap():
         ds = NapMeetboutenDataSource()
         resp = ds.query(x, y, radius=request.args.get('radius'))
 
-    jsonify(resp)
+    return jsonify(resp)
 
 
 @search.route('/search/geosearch/atlas', methods=['GET'])
@@ -91,4 +91,4 @@ def search_geo_atlas():
         ds = AtlasDataSource()
         resp = ds.query(x, y)
 
-    jsonify(resp)
+    return jsonify(resp)
