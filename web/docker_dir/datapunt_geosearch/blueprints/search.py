@@ -2,7 +2,7 @@
 import json
 # Packages
 from flask import Blueprint, request, jsonify
-# PRoject
+# Project
 from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSource
 from datapunt_geosearch.elastic import Elastic
 
@@ -58,7 +58,7 @@ def search_area():
         resp = es.search_box(limits)
     return json.dumps(resp)
 
-@search.route('/search/geosearch/nap', methods=['GET'])
+@search.route('/nap', methods=['GET', 'OPTIONS'])
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
@@ -76,7 +76,7 @@ def search_geo_nap():
     return jsonify(resp)
 
 
-@search.route('/search/geosearch/atlas', methods=['GET'])
+@search.route('/atlas', methods=['GET', 'OPTIONS'])
 def search_geo_atlas():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
@@ -92,3 +92,12 @@ def search_geo_atlas():
         resp = ds.query(x, y)
 
     return jsonify(resp)
+
+# Adding cors headers
+@search.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
+
