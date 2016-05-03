@@ -2,14 +2,10 @@ import atexit
 import logging
 
 import psycopg2
-from psycopg2.pool import SimpleConnectionPool
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, connect
 
 import datapunt_geosearch.config as settings
-
-MIN_CONNECTION = 1
-MAX_CONNECTION = 5
 
 
 class DataSourceException(Exception):
@@ -38,34 +34,14 @@ class DataSourceBase(object):
             raise ValueError('dsn needs to be defined')
 
         try:
-            self.pool = SimpleConnectionPool(MIN_CONNECTION, MAX_CONNECTION, self.dsn)
-            atexit.register(self._atexit_close_pool)
+            self.conn = connect(self.dsn)
         except OperationalError as err:
-            self.logger.error('Error creating pool: %s. Falling back to normal connection' % err)
+            self.logger.error('Error creating connection: %s' % err)
 
-            try:
-                self.conn = connect(self.dsn)
-            except OperationalError as err:
-                self.logger.error('Error creating connection: %s' % err)
-
-                raise DataSourceException('error connecting to datasource')
-
-    def _atexit_close_pool(self):
-        if self.pool:
-            if not self.pool.closed:
-                self.logger.debug('Closing all connections of the connection pool')
-                self.pool.closeall()
-
-        if self.conn and not self.conn.closed:
-            self.logger.debug('Closing connection')
-            self.conn.close()
+            raise DataSourceException('error connecting to datasource')
 
     def get_cursor(self):
-        if self.pool:
-            conn = self.pool.getconn()
-        else:
-            conn = self.conn
-        return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def execute_queries(self):
         cur = self.get_cursor()
