@@ -20,5 +20,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 USER datapunt
 COPY datapunt_geosearch /app/
 COPY uwsgi.ini /app/
-COPY uwsgi.py /app/
+COPY wsgi.py /app/
 CMD /app/docker-entrypoint.sh
