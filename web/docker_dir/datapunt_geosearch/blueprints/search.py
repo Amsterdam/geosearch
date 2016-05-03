@@ -62,17 +62,24 @@ def search_area():
 @search.route('/nap/', methods=['GET', 'OPTIONS'])
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
-    resp = None
+    resp, rd = None, True
 
     x = request.args.get('x')
     y = request.args.get('y')
+
     if not x or not y:
-        resp = {'error': 'No coordinates found'}
+        x = request.args.get('lat')
+        y = request.args.get('lon')
+
+        if x and y:
+            rd = False
+        else:
+            resp = {'error': 'No coordinates found'}
 
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource()
-        resp = ds.query(float(x), float(y))
+        resp = ds.query(float(x), float(y), rd=rd)
 
     return jsonify(resp)
 
@@ -80,17 +87,24 @@ def search_geo_nap():
 @search.route('/atlas/', methods=['GET', 'OPTIONS'])
 def search_geo_atlas():
     """Performing a geo search for radius around a point using postgres"""
-    resp = None
+    resp, rd = None, True
 
     x = request.args.get('x')
     y = request.args.get('y')
+
     if not x or not y:
-        resp = {'error': 'No coordinates found'}
+        x = request.args.get('lat')
+        y = request.args.get('lon')
+
+        if x and y:
+            rd = False
+        else:
+            resp = {'error': 'No coordinates found'}
 
     # If no error is found, query
     if not resp:
         ds = AtlasDataSource()
-        resp = ds.query(float(x), float(y))
+        resp = ds.query(float(x), float(y), rd=rd)
 
     return jsonify(resp)
 
@@ -102,4 +116,3 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
-

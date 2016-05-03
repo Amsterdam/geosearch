@@ -151,17 +151,13 @@ class AtlasDataSource(DataSourceBase):
 
         try:
             return {
-                'result': {
-                    'type': 'FeatureCollection',
-                    'features': self.execute_queries()
-                }
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
             }
         except DataSourceException as err:
             return {
-                'result': {
-                    'type': 'Error',
-                    'message': 'Error executing query: %s' % err.message
-                }
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
             }
 
 
