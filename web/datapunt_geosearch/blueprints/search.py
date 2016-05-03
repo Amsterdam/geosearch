@@ -58,7 +58,7 @@ def search_area():
         resp = es.search_box(limits)
     return json.dumps(resp)
 
-@search.route('/search/geosearch/nap', methods=['GET'])
+@search.route('/nap', methods=['GET', 'OPTIONS'])
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
@@ -76,7 +76,7 @@ def search_geo_nap():
     return jsonify(resp)
 
 
-@search.route('/search/geosearch/atlas', methods=['GET'])
+@search.route('/atlas', methods=['GET', 'OPTIONS'])
 def search_geo_atlas():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
