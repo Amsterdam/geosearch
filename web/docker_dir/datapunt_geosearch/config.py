@@ -7,6 +7,8 @@ local = {
     
 }
 
+DEBUG = True
+
 DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('ATLAS_DB_USER', 'postgres'),
     os.getenv('ATLAS_DB_PASSWORD', 'insecure'),

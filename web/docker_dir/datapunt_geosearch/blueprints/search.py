@@ -58,7 +58,8 @@ def search_area():
         resp = es.search_box(limits)
     return json.dumps(resp)
 
-@search.route('/nap', methods=['GET', 'OPTIONS'])
+
+@search.route('/nap/', methods=['GET', 'OPTIONS'])
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
@@ -71,12 +72,12 @@ def search_geo_nap():
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource()
-        resp = ds.query(x, y, radius=request.args.get('radius'))
+        resp = ds.query(float(x), float(y))
 
     return jsonify(resp)
 
 
-@search.route('/atlas', methods=['GET', 'OPTIONS'])
+@search.route('/atlas/', methods=['GET', 'OPTIONS'])
 def search_geo_atlas():
     """Performing a geo search for radius around a point using postgres"""
     resp = None
@@ -89,9 +90,10 @@ def search_geo_atlas():
     # If no error is found, query
     if not resp:
         ds = AtlasDataSource()
-        resp = ds.query(x, y)
+        resp = ds.query(float(x), float(y))
 
     return jsonify(resp)
+
 
 # Adding cors headers
 @search.after_request

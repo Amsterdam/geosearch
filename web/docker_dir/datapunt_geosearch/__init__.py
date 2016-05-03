@@ -4,7 +4,6 @@ from datapunt_geosearch.blueprints import search
 from datapunt_geosearch.blueprints import health
 
 
-
 def create_app(config=None):
     """
     An app factory
