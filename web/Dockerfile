@@ -15,8 +15,9 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY requirements.txt /app/
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 USER datapunt
-COPY datapunt_geosearch /app/
+COPY docker_dir /app/
 CMD /app/docker-entrypoint.sh
