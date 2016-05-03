@@ -6,7 +6,7 @@ from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSour
 health = Blueprint('health', __name__)
 
 
-@health.route('/health', methods=['GET'])
+@health.route('/health', methods=['GET', 'HEAD', 'OPTIONS'])
 def search_list():
     """Execute test query against datasources"""
     x, y, response_text = 120993, 485919, []
