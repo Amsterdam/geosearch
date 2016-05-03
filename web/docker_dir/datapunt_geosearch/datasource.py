@@ -9,7 +9,7 @@ from psycopg2 import OperationalError
 import datapunt_geosearch.config as settings
 
 MIN_CONNECTION = 1
-MAX_CONNECTION = 5
+MAX_CONNECTION = 10
 
 
 class DataSourceException(Exception):
