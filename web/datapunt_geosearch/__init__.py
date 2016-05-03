@@ -1,6 +1,8 @@
 # Packages
 from flask import Flask
-from datapunt_geosearch.blueprints.search import search
+from datapunt_geosearch.blueprints import search
+from datapunt_geosearch.blueprints import health
+
 
 
 def create_app(config=None):
@@ -12,8 +14,11 @@ def create_app(config=None):
     # Config
     if config:
         app.config.from_object(config)
+
     # Registering search blueprint
-    app.register_blueprint(search)
+    app.register_blueprint(search.search)
+
+    # Registering health blueprint
+    app.register_blueprint(health.health)
 
     return app
-

@@ -4,11 +4,16 @@ import logging
 import psycopg2
 from psycopg2.pool import SimpleConnectionPool
 from psycopg2.extras import DictCursor
+from psycopg2 import OperationalError
 
 import datapunt_geosearch.config as settings
 
 MIN_CONNECTION = 1
 MAX_CONNECTION = 2
+
+
+class DataSourceException(Exception):
+    pass
 
 
 class DataSourceBase(object):
@@ -32,8 +37,13 @@ class DataSourceBase(object):
         if not self.dsn:
             raise ValueError('dsn needs to be defined')
 
-        self.pool = SimpleConnectionPool(MIN_CONNECTION, MAX_CONNECTION, self.dsn)
-        atexit.register(self._atexit_close_pool)
+        try:
+            self.pool = SimpleConnectionPool(MIN_CONNECTION, MAX_CONNECTION, self.dsn)
+            atexit.register(self._atexit_close_pool)
+        except OperationalError as err:
+            self.logger.error('Error creating pool: %s' % err)
+
+            raise DataSourceException('error connecting to datasource')
 
     def _atexit_close_pool(self):
         if self.pool:
@@ -151,12 +161,20 @@ class AtlasDataSource(DataSourceBase):
         self.x = x
         self.y = y
 
-        return {
-            'result': {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
+        try:
+            return {
+                'result': {
+                    'type': 'FeatureCollection',
+                    'features': self.execute_queries()
+                }
             }
-        }
+        except DataSourceException as err:
+            return {
+                'result': {
+                    'type': 'Error',
+                    'message': 'Error executing query: %s' % err.message
+                }
+            }
 
 
 class NapMeetboutenDataSource(DataSourceBase):
@@ -182,9 +200,17 @@ class NapMeetboutenDataSource(DataSourceBase):
         if radius:
             self.radius = radius
 
-        return {
-            'result': {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
+        try:
+            return {
+                'result': {
+                    'type': 'FeatureCollection',
+                    'features': self.execute_queries()
+                }
             }
-        }
+        except DataSourceException as err:
+            return {
+                'result': {
+                    'type': 'Error',
+                    'message': 'Error executing query: %s' % err.message
+                }
+            }
