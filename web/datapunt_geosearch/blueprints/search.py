@@ -2,7 +2,7 @@
 import json
 # Packages
 from flask import Blueprint, request, jsonify
-# PRoject
+# Project
 from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSource
 from datapunt_geosearch.elastic import Elastic
 
@@ -92,3 +92,12 @@ def search_geo_atlas():
         resp = ds.query(x, y)
 
     return jsonify(resp)
+
+# Adding cors headers
+@search.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
+

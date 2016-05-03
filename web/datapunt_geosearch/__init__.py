@@ -2,6 +2,7 @@
 from flask import Flask
 from datapunt_geosearch.blueprints.search import search
 
+
 def create_app(config=None):
     """
     An app factory
