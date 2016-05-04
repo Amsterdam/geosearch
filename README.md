@@ -8,7 +8,7 @@ is verre van ideaal. Mapserver geojson laten retourneren met meerdere
 lagen per request gaat niet goed. Gevolg is een request per layer doen
 vanuit de frontend bij klik op kaart.
 
-Het enige wat mapserver doet in deze is de XML(!) filter vertalen naar
+Het enige wat mapserver doet in deze is een XML(!)/BBOX filter vertalen naar
 een postgis query, en de resultaten teruggeven aan de client. Iets wat
 in dit geval beter via een API kan dmv 1 request: geef me alle features
 voor dit coordinaat (optioneel beperkt tot deze layers).
