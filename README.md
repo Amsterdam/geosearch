@@ -1,3 +1,23 @@
+# setup
+
+
+Update different project databases with current data:
+atlas_backend and atlas_meetbouten for now
+
+
+   docker exec atlasbackend_database_1 /bin/update-atlas.sh
+
+
+   docker exec atlasnapmeetbouten_database_1 update-nap.sh
+
+pip install -r requirements.txt
+
+test postgres spatial queries:
+
+run python test_dataset.py
+
+
+
 # Geospatial queries
 
 Doel is zoeken op coordinaat door de (aangegeven) aanwezige database

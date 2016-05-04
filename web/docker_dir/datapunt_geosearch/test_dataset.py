@@ -2,6 +2,7 @@ import unittest
 
 import datasource
 
+import json
 
 # tested running atlas_import database with latest atlas backup:
 # docker exec atlasbackend_database_1 /bin/update-atlas.sh
@@ -16,8 +17,8 @@ class TestAtlasDataset(unittest.TestCase):
 
         ds = datasource.AtlasDataSource()
         results = ds.query(x, y)
-
-        self.assertEqual(len(results['result']['features']), 7)
+        print(json.dumps(results, indent=4))
+        self.assertEqual(len(results['features']), 7)
 
     def test_query_wgs84(self):
         x = 52.36011
@@ -25,8 +26,9 @@ class TestAtlasDataset(unittest.TestCase):
 
         ds = datasource.AtlasDataSource()
         results = ds.query(x, y, rd=False)
+        print(json.dumps(results, indent=4))
 
-        self.assertEqual(len(results['result']['features']), 7)
+        self.assertEqual(len(results['features']), 7)
 
 
 class TestNapDataset(unittest.TestCase):
@@ -36,6 +38,7 @@ class TestNapDataset(unittest.TestCase):
 
         ds = datasource.NapMeetboutenDataSource()
         results = ds.query(x, y)
+        print(json.dumps(results, indent=4))
 
         self.assertEqual(len(results['result']['features']), 1)
 

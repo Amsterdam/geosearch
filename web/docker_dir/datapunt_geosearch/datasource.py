@@ -1,11 +1,11 @@
-import atexit
+# import atexit
 import logging
 
 import psycopg2
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, connect
 
-import datapunt_geosearch.config as settings
+import config as settings
 
 
 class DataSourceException(Exception):
@@ -60,7 +60,9 @@ class DataSourceBase(object):
 
                 for row in rows:
                     features.append({
-                        'properties': dict([(prop, row[prop]) for prop in self.default_properties if prop in row])
+                        'properties': dict([
+                            (prop, row[prop])
+                            for prop in self.default_properties if prop in row])
                     })
 
         return features
