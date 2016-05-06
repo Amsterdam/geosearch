@@ -14,14 +14,18 @@ def search_list():
         atlas_dsn, nap_dsn = AtlasDataSource(), NapMeetboutenDataSource()
     except Exception as e:
         return repr(e), 500
+
     results = atlas_dsn.query(x, y)
 
-    if not len(results['result']['features']):
+    if results['type'] == 'Error':
+        return Response(results['message'], content_type='text/plain', status=500)
+
+    if not len(results['features']):
         response_text.append('No results from atlas dataset')
 
     results = nap_dsn.query(x, y)
 
-    if not len(results['result']['features']):
+    if not len(results['features']):
         response_text.append('No results from nap/meetbouten dataset')
 
     if not len(response_text):
