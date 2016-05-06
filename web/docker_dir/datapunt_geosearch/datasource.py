@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, connect
 
-import config as settings
+from . import config
 
 
 class DataSourceException(Exception):
@@ -117,7 +117,7 @@ ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
 
 
 class AtlasDataSource(DataSourceBase):
-    dsn = settings.DSN_ATLAS
+    dsn = config.DSN_ATLAS
     meta = {
         'geofield': 'geometrie',
         'operator': 'contains',
@@ -164,7 +164,7 @@ class AtlasDataSource(DataSourceBase):
 
 
 class NapMeetboutenDataSource(DataSourceBase):
-    dsn = settings.DSN_NAP
+    dsn = config.DSN_NAP
     meta = {
         'geofield': 'geometrie',
         'operator': 'within',
