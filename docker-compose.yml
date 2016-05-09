@@ -17,7 +17,7 @@ elasticsearch:
 web:
     build: ./web
     ports:
-        - "8101:8000"
+        - "8093:8000"
     links:
         - database:database
         - elasticsearch:elasticsearch
