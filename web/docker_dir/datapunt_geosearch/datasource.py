@@ -157,10 +157,15 @@ class AtlasDataSource(DataSourceBase):
                 'type': 'FeatureCollection',
                 'features': self.execute_queries()
             }
-        except (DataSourceException, ProgrammingError) as err:
+        except DataSourceException as err:
             return {
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
             }
 
 class NapMeetboutenDataSource(DataSourceBase):
