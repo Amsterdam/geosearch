@@ -33,8 +33,8 @@ class DataSourceBase(object):
         if not self.dsn:
             raise ValueError('dsn needs to be defined')
 
-    def get_cursor(self):
-        return self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    def get_cursor(self, conn):
+        return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def execute_queries(self):
         try:
@@ -45,7 +45,7 @@ class DataSourceBase(object):
             return
 
         features = []
-        with self.get_cursor() as cur:
+        with self.get_cursor(conn) as cur:
             for dataset in self.meta['datasets']:
                 for dataset_ident, table in self.meta['datasets'][dataset].items():
                     if self.meta['operator'] == 'contains':
