@@ -21,6 +21,12 @@ def run_server():
     app = create_app()
     app.run(debug=True, host='0.0.0.0', port=8000)
 
+def run_server_prod():
+    # Starts the server with prod settings
+    from datapunt_geosearch import config
+    app = create_app(config)
+    app.run(host='0.0.0.0', port=8000)
+
 def create_index():
     es = Elastic()
     es.create_index()
@@ -44,6 +50,8 @@ def main():
     else:
         if sys.argv[1] == 'run':
             run_server()
+        elif sys.argv[1] =='run_prod':
+            run_server_prod()
         elif sys.argv[1] == 'shell':
             shell()
         elif sys.argv[1] == 'recreate':

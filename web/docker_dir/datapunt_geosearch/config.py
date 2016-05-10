@@ -3,11 +3,6 @@ Contains the different configs for the datapunt geosearch application
 """
 import os
 
-local = {
-    
-}
-
-DEBUG = True
 
 DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('ATLAS_DB_USER', 'postgres'),

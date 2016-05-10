@@ -10,12 +10,16 @@ health = Blueprint('health', __name__)
 def search_list():
     """Execute test query against datasources"""
     x, y, response_text = 120993, 485919, []
+    # Trying to load the data sources
     try:
         atlas_dsn, nap_dsn = AtlasDataSource(), NapMeetboutenDataSource()
     except Exception as e:
         return repr(e), 500
-
-    results = atlas_dsn.query(x, y)
+    # Attempting to query
+    try:
+        results = atlas_dsn.query(x, y)
+    except Exception as e:
+        return repr(e), 500
 
     if results['type'] == 'Error':
         return Response(results['message'], content_type='text/plain', status=500)
