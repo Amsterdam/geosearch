@@ -3,7 +3,7 @@ import logging
 
 import psycopg2
 from psycopg2.extras import DictCursor
-from psycopg2 import OperationalError, connect
+from psycopg2 import OperationalError, ProgrammingError, connect
 
 from . import config
 
@@ -33,37 +33,38 @@ class DataSourceBase(object):
         if not self.dsn:
             raise ValueError('dsn needs to be defined')
 
-        try:
-            self.conn = connect(self.dsn)
-        except OperationalError as err:
-            self.logger.error('Error creating connection: %s' % err)
-
-            raise DataSourceException('error connecting to datasource')
-
     def get_cursor(self):
         return self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def execute_queries(self):
-        cur = self.get_cursor()
+        try:
+            conn = connect(self.dsn)
+        except OperationalError as err:
+            self.logger.error('Error creating connection: %s' % err)
+            raise DataSourceException('error connecting to datasource')
+            return
+
         features = []
+        with self.get_cursor() as cur:
+            for dataset in self.meta['datasets']:
+                for dataset_ident, table in self.meta['datasets'][dataset].items():
+                    if self.meta['operator'] == 'contains':
+                        rows = self.execute_polygon_query(cur, table)
+                    else:
+                        rows = self.execute_point_query(cur, table)
 
-        for dataset in self.meta['datasets']:
-            for dataset_ident, table in self.meta['datasets'][dataset].items():
-                if self.meta['operator'] == 'contains':
-                    rows = self.execute_polygon_query(cur, table)
-                else:
-                    rows = self.execute_point_query(cur, table)
+                    if not len(rows):
+                        self.logger.debug(table, 'no results')
+                        continue
 
-                if not len(rows):
-                    self.logger.debug(table, 'no results')
-                    continue
-
-                for row in rows:
-                    features.append({
-                        'properties': dict([
-                            (prop, row[prop])
-                            for prop in self.default_properties if prop in row])
-                    })
+                    for row in rows:
+                        features.append({
+                            'properties': dict([
+                                (prop, row[prop])
+                                for prop in self.default_properties if prop in row])
+                        })
+        # Closing the connection to the db
+        conn.close()
 
         return features
 
@@ -156,12 +157,11 @@ class AtlasDataSource(DataSourceBase):
                 'type': 'FeatureCollection',
                 'features': self.execute_queries()
             }
-        except DataSourceException as err:
+        except (DataSourceException, ProgrammingError) as err:
             return {
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-
 
 class NapMeetboutenDataSource(DataSourceBase):
     dsn = config.DSN_NAP
@@ -191,7 +191,7 @@ class NapMeetboutenDataSource(DataSourceBase):
                 'type': 'FeatureCollection',
                 'features': self.execute_queries()
             }
-        except DataSourceException as err:
+        except (DataSourceException, ProgrammingError) as err:
             return {
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
