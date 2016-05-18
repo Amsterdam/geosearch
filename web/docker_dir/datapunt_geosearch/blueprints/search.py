@@ -20,8 +20,15 @@ def search_list():
         '/search/geosearch_area': 'Search within a given area'
     })
 
+search.route('/', methods=['GET'])
+def help():
+    """Help text en query index"""
+    return json.dumps({
+        '/nap': 'Search in a radius around a point in nap',
+        '/atlas': 'Search in a radius around a point in atlas'
+    })
 
-#@search.route('/search/geosearch_radius', methods=['GET', 'POST'])
+    #@search.route('/search/geosearch_radius', methods=['GET', 'POST'])
 def search_radius():
     """Performing a geo search for radius around a point"""
     resp = None
