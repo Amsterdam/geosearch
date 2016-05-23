@@ -1,5 +1,5 @@
 # Packages
-from flask import Blueprint, Response
+from flask import Blueprint, Response, current_app
 # PRoject
 from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSource
 
@@ -12,7 +12,8 @@ def search_list():
     x, y, response_text = 120993, 485919, []
     # Trying to load the data sources
     try:
-        atlas_dsn, nap_dsn = AtlasDataSource(), NapMeetboutenDataSource()
+        atlas_dsn = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
+        nap_dsn = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
     except Exception as e:
         return repr(e), 500
     # Attempting to query
