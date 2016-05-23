@@ -168,6 +168,7 @@ class AtlasDataSource(DataSourceBase):
                 'message': 'Error in database integrity: %s' % repr(err)
             }
 
+
 class NapMeetboutenDataSource(DataSourceBase):
     dsn = config.DSN_NAP
     meta = {

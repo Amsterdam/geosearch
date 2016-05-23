@@ -89,7 +89,7 @@ def search_geo_nap():
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource()
-        resp = ds.query(float(x), float(y), rd=rd)
+        resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
 
     return jsonify(resp)
 
