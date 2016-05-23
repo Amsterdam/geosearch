@@ -1,8 +1,7 @@
 import unittest
 
+import config
 import datasource
-
-import json
 
 # tested running atlas_import database with latest atlas backup:
 # docker exec atlasbackend_database_1 /bin/update-atlas.sh
@@ -15,18 +14,17 @@ class TestAtlasDataset(unittest.TestCase):
         x = 120993
         y = 485919
 
-        ds = datasource.AtlasDataSource()
+        ds = datasource.AtlasDataSource(dsn=config.DSN_ATLAS)
         results = ds.query(x, y)
-        print(json.dumps(results, indent=4))
+
         self.assertEqual(len(results['features']), 7)
 
     def test_query_wgs84(self):
         x = 52.36011
         y = 4.88798
 
-        ds = datasource.AtlasDataSource()
+        ds = datasource.AtlasDataSource(dsn=config.DSN_ATLAS)
         results = ds.query(x, y, rd=False)
-        print(json.dumps(results, indent=4))
 
         self.assertEqual(len(results['features']), 7)
 
@@ -36,11 +34,39 @@ class TestNapDataset(unittest.TestCase):
         x = 120535.2
         y = 486376.3
 
-        ds = datasource.NapMeetboutenDataSource()
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y)
-        print(json.dumps(results, indent=4))
 
-        self.assertEqual(len(results['result']['features']), 1)
+        self.assertEqual(len(results['features']), 1)
+
+    def test_query_radius(self):
+        x = 120535.2
+        y = 486376.3
+        radius = 300
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, radius=radius)
+
+        self.assertEqual(len(results['features']), 4)
+
+    def test_query_wgs84(self):
+        x = 52.3641918658574
+        y = 4.88121013879857
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, rd=False)
+
+        self.assertEqual(len(results['features']), 1)
+
+    def test_query_wgs84_radius(self):
+        x = 52.3641918658574
+        y = 4.88121013879857
+        radius = 300
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, rd=False, radius=radius)
+
+        self.assertEqual(len(results['features']), 4)
 
 
 if __name__ == '__main__':

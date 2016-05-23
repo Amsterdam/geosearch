@@ -1,11 +1,8 @@
-# import atexit
 import logging
 
 import psycopg2
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, ProgrammingError, connect
-
-from . import config
 
 
 class DataSourceException(Exception):
@@ -26,12 +23,14 @@ class DataSourceBase(object):
     x = None
     y = None
 
-    def __init__(self):
+    def __init__(self, dsn=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.debug('Creating DataSource: %s' % self.dataset)
 
-        if not self.dsn:
+        if not dsn:
             raise ValueError('dsn needs to be defined')
+
+        self.dsn = dsn
 
     def get_cursor(self, conn):
         return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -77,7 +76,7 @@ WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992
             """.format(
                 table, self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y, self.radius))
+            cur.execute(sql, (self.y, self.x, self.radius))
         else:
             sql = """
 SELECT *
@@ -118,7 +117,6 @@ ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
 
 
 class AtlasDataSource(DataSourceBase):
-    dsn = config.DSN_ATLAS
     meta = {
         'geofield': 'geometrie',
         'operator': 'contains',
@@ -170,7 +168,6 @@ class AtlasDataSource(DataSourceBase):
 
 
 class NapMeetboutenDataSource(DataSourceBase):
-    dsn = config.DSN_NAP
     meta = {
         'geofield': 'geometrie',
         'operator': 'within',
@@ -197,8 +194,13 @@ class NapMeetboutenDataSource(DataSourceBase):
                 'type': 'FeatureCollection',
                 'features': self.execute_queries()
             }
-        except (DataSourceException, ProgrammingError) as err:
+        except DataSourceException as err:
             return {
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
             }

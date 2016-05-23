@@ -1,7 +1,7 @@
 # Python
 import json
 # Packages
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 # Project
 from datapunt_geosearch.datasource import AtlasDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
@@ -88,7 +88,7 @@ def search_geo_nap():
 
     # If no error is found, query
     if not resp:
-        ds = NapMeetboutenDataSource()
+        ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
         resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
 
     return jsonify(resp)
@@ -113,7 +113,7 @@ def search_geo_atlas():
 
     # If no error is found, query
     if not resp:
-        ds = AtlasDataSource()
+        ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
         resp = ds.query(float(x), float(y), rd=rd)
 
     return jsonify(resp)
