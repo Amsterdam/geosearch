@@ -1,4 +1,4 @@
-database:
+database_1:
     image: admin.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
         - "5405:5432"
@@ -6,6 +6,15 @@ database:
         POSTGRES_PASSWORD: insecure
         POSTGRES_DB: atlas
         POSTGRES_USER: atlas
+
+database_2:
+  image: admin.datapunt.amsterdam.nl:5000/atlas/postgres
+  ports:
+    - "5401:5432"
+  environment:
+    POSTGRES_DB: nap
+    POSTGRES_USER: nap
+    POSTGRES_PASSWORD: insecure
 
 elasticsearch:
     image: admin.datapunt.amsterdam.nl:5000/atlas/elasticsearch:latest
@@ -19,6 +28,7 @@ web:
     ports:
         - "8093:8000"
     links:
-        - database:database
+        - database_1:database_1
+        - database_2:database_2
         - elasticsearch:elasticsearch
 
