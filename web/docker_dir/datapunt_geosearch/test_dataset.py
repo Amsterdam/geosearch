@@ -43,7 +43,7 @@ class TestNapDataset(unittest.TestCase):
     def test_query_radius(self):
         x = 120535.2
         y = 486376.3
-        radius = 300
+        radius = 130
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, radius=radius)
@@ -62,7 +62,7 @@ class TestNapDataset(unittest.TestCase):
     def test_query_wgs84_radius(self):
         x = 52.3641918658574
         y = 4.88121013879857
-        radius = 300
+        radius = 130
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False, radius=radius)
