@@ -16,7 +16,7 @@ class DataSourceBase(object):
     db = None
     dsn = None
     dataset = None
-    default_properties = ('id', 'display', 'type', 'uri')
+    default_properties = ('id', 'display', 'type', 'uri',  'opr_type')
     radius = 30
     meta = {}
     use_rd = True

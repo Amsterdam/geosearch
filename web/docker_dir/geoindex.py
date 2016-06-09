@@ -30,7 +30,7 @@ class GeoIndex(object):
         """
         Makes sure that the type's geofield is mapped as such
         Important!
-        If no index_metahas been set this cannot execute
+        If no index_meta has been set this cannot execute
         """
         if not self.index_meta['dataset']:
             return None
@@ -65,7 +65,7 @@ class GeoIndex(object):
             yield (i+1, qs[start:end])
 
     def index(self):
-        """Index the model to the geoseach index"""
+        """Index the model to the geosearch index"""
         print ('indexing')
         for batch_count, qs in self.batch():
             data = []
@@ -82,7 +82,7 @@ class GeoIndex(object):
                 entry['type'] = entry['type'].replace('/', '-')
                 # @TODO switch to bulk insert
                 r = requests.post(self.elastic_url + entry['dataset'], data = json.dumps(entry))
-                
+
                 data.append(entry)
             # @TODO switch over to raw python
             #r = requests.post(self.elastic_url, data=json.dumps(data))
