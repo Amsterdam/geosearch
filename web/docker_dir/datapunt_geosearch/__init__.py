@@ -1,5 +1,7 @@
 # Packages
 from flask import Flask
+from flask_cors import CORS
+# Project
 from datapunt_geosearch.blueprints import search
 from datapunt_geosearch.blueprints import health
 
@@ -10,6 +12,8 @@ def create_app(config=None):
     Possible parameter config is a python path to the config object
     """
     app = Flask('geosearch')
+    CORS(app)
+
     # Config
     if config:
         app.config.from_object(config)
