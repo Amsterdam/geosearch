@@ -5,10 +5,9 @@ Update different project databases with current data:
 atlas_backend and atlas_meetbouten for now
 
 
-   docker exec atlasbackend_database_1 /bin/update-atlas.sh
+   docker exec -it datapuntgeosearch_database_1_1 update-atlas.sh
 
-
-   docker exec atlasnapmeetbouten_database_1 update-nap.sh
+   docker exec -it datapuntgeosearch_database_2_1 update-nap.sh
 
 pip install -r requirements.txt
 

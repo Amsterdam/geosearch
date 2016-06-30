@@ -1,10 +1,11 @@
 import unittest
 
-import config
-import datasource
+from datapunt_geosearch import config
+from datapunt_geosearch import datasource
 
 # tested running atlas_import database with latest atlas backup:
-# docker exec atlasbackend_database_1 /bin/update-atlas.sh
+# docker exec -it datapuntgeosearch_database_1_1 /bin/update-atlas.sh
+# docker exec -it datapuntgeosearch_database_2_1 /bin/update-nap.sh
 # python test_dataset.py
 # > Ran 1 test in 0.062s
 
@@ -42,7 +43,7 @@ class TestNapDataset(unittest.TestCase):
     def test_query_radius(self):
         x = 120535.2
         y = 486376.3
-        radius = 300
+        radius = 130
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, radius=radius)
@@ -61,7 +62,7 @@ class TestNapDataset(unittest.TestCase):
     def test_query_wgs84_radius(self):
         x = 52.3641918658574
         y = 4.88121013879857
-        radius = 300
+        radius = 130
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False, radius=radius)
