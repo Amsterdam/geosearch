@@ -24,8 +24,6 @@ node {
             sh "sleep 20"
             sh "docker-compose up -d"
 
-            step([$class: "JUnitResultArchiver", testResults: "reports/junit.xml"])
-
         }
         finally {
             sh "docker-compose stop"
