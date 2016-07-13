@@ -3,15 +3,9 @@
 node {
 
     String BRANCH = "${env.BRANCH_NAME}"
-    
-    if (BRANCH == "master") {
-        INVENTORY = "production"
-    } else {
-        INVENTORY = "acceptance"
-    }
-    echo "Branch is ${BRANCH}"
-    echo "Inventory is ${INVENTORY}"
+    String INVENTORY = (BRANCH == "master" ? "production" : "acceptance")
 
+    try {
 
     stage "Checkout"
         checkout scm
@@ -48,4 +42,11 @@ node {
                         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-datapunt-geosearch.yml'],
                         [$class: 'StringParameterValue', name: 'BRANCH', value: BRANCH],
                 ]
+}
+    catch (err) {
+        slackSend message: "Problem while building Atlas Metadata service: ${err}",
+                channel: '#ci-channel'
+
+        throw err
+    }
 }
