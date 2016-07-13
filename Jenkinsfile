@@ -44,7 +44,7 @@ node {
                 ]
 }
     catch (err) {
-        slackSend message: "Problem while building Atlas Metadata service: ${err}",
+        slackSend message: "Problem while building Datapunt Geosearch service: ${err}",
                 channel: '#ci-channel'
 
         throw err
