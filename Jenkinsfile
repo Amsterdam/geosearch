@@ -1,29 +1,40 @@
 #!groovy
 
-node {
+def tryStep(String message, Closure block, Closure tearDown = null) {
+    try {
+        block();
+    }
+    catch (Throwable t) {
+        slackSend message: "${env.JOB_NAME}: ${message} failure ${env.BUILD_URL}", channel: '#ci-channel', color: 'danger'
+
+        throw t;
+    }
+    finally {
+        if (tearDown) {
+            tearDown();
+        }
+    }
+}
+
 
     String BRANCH = "${env.BRANCH_NAME}"
     String INVENTORY = (BRANCH == "master" ? "production" : "acceptance")
 
-    try {
-
+node {
     stage "Checkout"
         checkout scm
 
     stage "Test"
-
-        try {
+    tryStep "Test",  {
             sh "docker-compose build"
             sh "docker-compose up -d"
             sh "sleep 20"
             sh "docker-compose up -d"
+    }, {
 
-        }
-        finally {
             sh "docker-compose stop"
             sh "docker-compose rm -f"
         }
-
 
     stage "Build"
 
@@ -33,20 +44,16 @@ node {
         if (BRANCH == "master") {
             image.push("latest")
         }
+    }
 
-    stage "Deploy"
-
+node {
+    stage name: "Deploy", concurrency: 1
+    tryStep "deployment", {
         build job: 'Subtask_Openstack_Playbook',
                 parameters: [
                         [$class: 'StringParameterValue', name: 'INVENTORY', value: INVENTORY],
                         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-datapunt-geosearch.yml'],
                         [$class: 'StringParameterValue', name: 'BRANCH', value: BRANCH],
                 ]
-}
-    catch (err) {
-        slackSend message: "Problem while building Datapunt Geosearch service: ${err}",
-                channel: '#ci-channel'
-
-        throw err
     }
 }
