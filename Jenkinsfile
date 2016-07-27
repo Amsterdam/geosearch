@@ -32,8 +32,7 @@ node {
             sh "docker-compose up -d"
     }, {
 
-            sh "docker-compose stop"
-            sh "docker-compose rm -f"
+            sh "docker-compose down"
         }
 
     stage "Build"
