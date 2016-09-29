@@ -21,10 +21,12 @@ def get_docker_host():
     return os.getenv('NAP_DB_PORT_5432_TCP_ADDR', 'localhost')
 
 
+#FIXME ATLAS_DB_NAME en NAP_DB_NAME zijn de namen van de containers en NIET van de database.
+
 DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('ATLAS_DB_USER', 'atlas'),
     os.getenv('ATLAS_DB_PASSWORD', 'insecure'),
-    get_docker_host(),
+    os.getenv('ATLAS_DB_PORT_5432_TCP_ADDR', get_docker_host()),
     os.getenv('ATLAS_DB_PORT_5432_TCP_PORT', 5405),
     os.getenv('ATLAS_DB_NAME', 'atlas'),
 )
@@ -32,7 +34,7 @@ DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
 DSN_NAP = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('NAP_DB_USER', 'nap'),
     os.getenv('NAP_DB_PASSWORD', 'insecure'),
-    get_docker_host(),
+    os.getenv('NAP_DB_PORT_5432_TCP_ADDR', get_docker_host()),
     os.getenv('NAP_DB_PORT_5432_TCP_PORT', 5401),
     os.getenv('NAP_DB_NAME', 'nap'),
 )
