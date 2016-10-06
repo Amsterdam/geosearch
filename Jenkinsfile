@@ -31,7 +31,6 @@ node {
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml up -d nap_db"
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml exec nap_db /bin/update-nap.sh"
         }, {
-            step([$class: "JUnitResultArchiver", testResults: "reports/junit.xml"])
 
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
         }
