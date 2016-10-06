@@ -1,0 +1,32 @@
+atlas_db:
+    image: admin.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+        - "5405:5432"
+    environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_DB: atlas
+        POSTGRES_USER: atlas
+
+nap_db:
+  image: admin.datapunt.amsterdam.nl:5000/atlas/postgres
+  ports:
+    - "5401:5432"
+  environment:
+    POSTGRES_DB: nap
+    POSTGRES_USER: nap
+    POSTGRES_PASSWORD: insecure
+
+elasticsearch:
+    image: admin.datapunt.amsterdam.nl:5000/atlas/elasticsearch:latest
+    command: elasticsearch -Des.network.host=0.0.0.0
+
+web_test:
+    build: ../web
+    links:
+        - atlas_db:atlas_db
+        - nap_db:nap_db
+        - elasticsearch:elasticsearch
+    environment:
+      NAP_DB_NAME: nap
+      ATLAS_DB_NAME: atlas
+    command: python test_dataset.py
