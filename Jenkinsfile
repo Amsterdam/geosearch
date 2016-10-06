@@ -30,7 +30,6 @@ node {
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml exec atlas_db /bin/update-atlas.sh"
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml up -d nap_db"
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml exec nap_db /bin/update-nap.sh"
-            sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml run -u root --rm web_test"
         }, {
             step([$class: "JUnitResultArchiver", testResults: "reports/junit.xml"])
 
@@ -69,9 +68,9 @@ stage('Waiting for approval') {
 
 node {
     stage('Push production image') {
-    tryStep "image tagging", {
-        def image = docker.image("build.datapunt.amsterdam.nl:5000/datapunt/geosearch:${env.BUILD_NUMBER}")
-        image.pull()
+	tryStep "image tagging", {
+	    def image = docker.image("build.datapunt.amsterdam.nl:5000/datapunt/geosearch:${env.BUILD_NUMBER}")
+	    image.pull()
 
             image.push("production")
             image.push("latest")
