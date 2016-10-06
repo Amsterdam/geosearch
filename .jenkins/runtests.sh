@@ -23,8 +23,8 @@ sleep 10
 echo 'lets see if databases are working'
 
 # load latest data into databases
-docker exec -it geotest_nap_db_1 /bin/update-nap.sh
-docker exec -it geotest_atlas_db_1 /bin/update-atlas.sh
+dc exec -T nap_db /bin/update-nap.sh
+dc exec -T atlas_db /bin/update-atlas.sh
 
 sleep 2
 # run da test
