@@ -25,7 +25,7 @@ node {
 
     stage('Test') {
         tryStep "Test", {
-            sh ".jenkins/runtest.sh"
+            sh ".jenkins/runtests.sh"
 	}, {
 
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
