@@ -16,6 +16,7 @@ class DataSourceBase(object):
     db = None
     dsn = None
     dataset = None
+    # opr_type = openbare_ruimte_type. Water, Weg, Terrein...
     default_properties = ('id', 'display', 'type', 'uri',  'opr_type')
     radius = 30
     meta = {}
