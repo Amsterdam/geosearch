@@ -49,18 +49,3 @@ View & index aanmaken wordt dan zoiets:
 
 `GISTCREATE INDEX {}_idx_wgs84 ON {}_mat USING
 ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
-
-# Elastic
-Deze service bevat ook code voor het indexeren en zoeken via elastic
-search. De impelemntatie is nog niet compleet en moet we op een latere
-tijd opgepakt worden. Wat moet er nog gebeuren:
-
-- Toestan van object functie als mapping waarde. Dit is om te
-  ondersteunen, b.v. het maken van de naam eigenschaap als een
-combinatie van een aantal model velden
-- Toevoegen van link URL. De link url is via DjangoRestFramework en er
-  moet implementatie komen voor het genereren van.
-- Gebruik van verschillende indices in combinatie met aliases
-- Support voor filtering gebaseerd op de indices used
-
-

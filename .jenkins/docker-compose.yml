@@ -16,16 +16,11 @@ nap_db:
     POSTGRES_USER: nap
     POSTGRES_PASSWORD: insecure
 
-elasticsearch:
-    image: build.datapunt.amsterdam.nl:5000/atlas/elasticsearch:latest
-    command: elasticsearch -Des.network.host=0.0.0.0
-
 web_test:
     build: ../web
     links:
         - atlas_db:atlas_db
         - nap_db:nap_db
-        - elasticsearch:elasticsearch
     environment:
       NAP_DB_NAME: nap
       ATLAS_DB_NAME: atlas

@@ -1,0 +1,4 @@
+Flask
+Flask-Cors
+psycopg2
+python-dateutil

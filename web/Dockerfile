@@ -19,5 +19,5 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 USER datapunt
-COPY docker_dir /app/
+COPY geosearch /app/
 CMD /app/docker-entrypoint.sh
