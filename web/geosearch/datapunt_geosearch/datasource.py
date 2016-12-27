@@ -33,6 +33,27 @@ class DataSourceBase(object):
 
         self.dsn = dsn
 
+    def filter_dataset(self, dataset_table):
+        """
+        Filters down the dataset to be just the given dataset
+        Expected parameter is dataset name that correlates to the key
+        in the dataset table mapping
+        """
+        filtered_dataset = None
+        print(self.meta)
+        for dataset_name, datasets in self.meta['datasets'].items():
+            for dataset_ident, table in datasets.items():
+                if dataset_ident == dataset_table:
+                    self.meta['datasets'] = {
+                        dataset_name: {
+                            dataset_ident: table
+                        }
+                    }
+                    return True
+
+        self.meta['datasets'] = None
+        return False
+
     def get_cursor(self, conn):
         return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
@@ -63,12 +84,14 @@ class DataSourceBase(object):
                                 (prop, row[prop])
                                 for prop in self.default_properties if prop in row])
                         })
+
         # Closing the connection to the db
         conn.close()
 
         return features
 
-    def execute_point_query(self, cur, table):
+    # Point query
+    def execute_point_query(self, cur, table): 
         if not self.use_rd:
             sql = """
 SELECT *
@@ -118,71 +141,37 @@ ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
 
 
 class AtlasDataSource(DataSourceBase):
-    meta = {
-        'geofield': 'geometrie',
-        'operator': 'contains',
-        'datasets': {
-            'bag': {
-                'openbareruimte': 'public.geo_bag_openbareruimte_mat',
-                'pand': 'public.geo_bag_pand_mat',
-                'ligplaats': 'public.geo_bag_ligplaats_mat',
-                'standplaats': 'public.geo_bag_standplaats_mat',
+    def __init__(self, *args, **kwargs):
+        super(AtlasDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'geometrie',
+            'operator': 'contains',
+            'datasets': {
+                'bag': {
+                    'openbareruimte': 'public.geo_bag_openbareruimte_mat',
+                    'pand': 'public.geo_bag_pand_mat',
+                    'ligplaats': 'public.geo_bag_ligplaats_mat',
+                    'standplaats': 'public.geo_bag_standplaats_mat',
+                },
+                'gebieden': {
+                    'stadsdeel': 'public.geo_bag_stadsdeel_mat',
+                    'buurt': 'public.geo_bag_buurt_mat',
+                    'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
+                    'bouwblok': 'public.geo_bag_bouwblok_mat',
+                    'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
+                    'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
+                    'unesco': 'public.geo_bag_unesco_mat',
+                },
+                'lki': {
+                    'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
+                },
+                'wkpb': {
+                    'beperking': 'public.geo_wkpb_mat',
+                },
             },
-            'gebieden': {
-                'stadsdeel': 'public.geo_bag_stadsdeel_mat',
-                'buurt': 'public.geo_bag_buurt_mat',
-                'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
-                'bouwblok': 'public.geo_bag_bouwblok_mat',
-                'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
-                'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
-                'unesco': 'public.geo_bag_unesco_mat',
-            },
-            'lki': {
-                'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
-            },
-            'wkpb': {
-                'beperking': 'public.geo_wkpb_mat',
-            },
-        },
-    }
+        }
 
-    def query(self, x, y, rd=True):
-        self.use_rd = rd
-        self.x = x
-        self.y = y
-
-        try:
-            return {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
-            }
-        except DataSourceException as err:
-            return {
-                'type': 'Error',
-                'message': 'Error executing query: %s' % err.message
-            }
-        except ProgrammingError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in database integrity: %s' % repr(err)
-            }
-
-
-class NapMeetboutenDataSource(DataSourceBase):
-    meta = {
-        'geofield': 'geometrie',
-        'operator': 'within',
-        'datasets': {
-            'nap': {
-                'peilmerk': 'public.geo_nap_peilmerk_mat',
-            },
-            'meetbouten': {
-                'meetbout': 'public.geo_meetbouten_meetbout_mat',
-            },
-        },
-    }
-
-    def query(self, x, y, radius=None, rd=True):
+    def query(self, x, y, rd=True, radius=None):
         self.use_rd = rd
         self.x = x
         self.y = y
@@ -205,3 +194,56 @@ class NapMeetboutenDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
             }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }
+
+
+class NapMeetboutenDataSource(DataSourceBase):
+
+    def __init__(self, *args, **kwargs):
+        super(NapMeetboutenDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'geometrie',
+            'operator': 'within',
+            'datasets': {
+                'nap': {
+                    'peilmerk': 'public.geo_nap_peilmerk_mat',
+                },
+                'meetbouten': {
+                    'meetbout': 'public.geo_meetbouten_meetbout_mat',
+                },
+            },
+        }
+
+    def query(self, x, y, rd=True, radius=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }
+
