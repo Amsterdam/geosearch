@@ -16,15 +16,16 @@ dc build --pull
 # create test databases
 dc up -d atlas_db
 dc up -d nap_db
+dc up -d milieu_db
 
 # wait for databases to boot up
-echo 'sleep sleeeep..your eyes feels heavy..'
 sleep 10
-echo 'lets see if databases are working'
+echo "let's see if databases are working"
 
 # load latest data into databases
-dc exec -T nap_db /bin/update-nap.sh
-dc exec -T atlas_db /bin/update-atlas.sh
+dc exec -T nap_db /bin/update-db.sh nap
+dc exec -T atlas_db /bin/update-db.sh atlas
+dc exec -T milieu_db /bin/update-db.sh milieuthemas
 
 sleep 2
 # run da test
