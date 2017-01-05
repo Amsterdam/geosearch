@@ -1,7 +1,10 @@
-FROM python:3.5
+FROM build.datapunt.amsterdam.nl:5000/atlas/python:latest
 MAINTAINER datapunt.ois@amsterdam.nl
 
 ENV PYTHONUNBUFFERED 1
+
+ENV CONSUL_HOST=${CONSUL_HOST:-consul.service.consul}
+ENV CONSUL_PORT=${CONSUL_PORT:-8500}
 
 EXPOSE 8000
 

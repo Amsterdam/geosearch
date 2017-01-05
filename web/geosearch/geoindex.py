@@ -12,6 +12,7 @@ import urllib.request
 # Packages
 import requests
 
+
 class GeoIndex(object):
     mapping = {
         'naam': 'naam',
@@ -62,11 +63,11 @@ class GeoIndex(object):
         total_batches = int(total / self.batch_size)
         for i, start in enumerate(range(0, total, self.batch_size)):
             end = min(start + self.batch_size, total)
-            yield (i+1, qs[start:end])
+            yield (i + 1, qs[start:end])
 
     def index(self):
         """Index the model to the geosearch index"""
-        print ('indexing')
+        print('indexing')
         for batch_count, qs in self.batch():
             data = []
             for item in qs:
@@ -81,19 +82,19 @@ class GeoIndex(object):
                 # Replacing the / for - in the type
                 entry['type'] = entry['type'].replace('/', '-')
                 # @TODO switch to bulk insert
-                r = requests.post(self.elastic_url + entry['dataset'], data = json.dumps(entry))
+                r = requests.post(self.elastic_url + entry['dataset'], data=json.dumps(entry))
 
                 data.append(entry)
-            # @TODO switch over to raw python
-            #r = requests.post(self.elastic_url, data=json.dumps(data))
-            #print (r.status_code)
-            # Posting to elastic
-            #data = urllib.parse.urlencode(data)
-            #data = data.encode('utf-8')
-            #req = urllib.request.Request(url=self.elastic_url, data=data)
-            #with urllib.request.urlopen(req) as f:
-            #    print(f.status)
-            #    print(f.reason)
+                # @TODO switch over to raw python
+                # r = requests.post(self.elastic_url, data=json.dumps(data))
+                # print (r.status_code)
+                # Posting to elastic
+                # data = urllib.parse.urlencode(data)
+                # data = data.encode('utf-8')
+                # req = urllib.request.Request(url=self.elastic_url, data=data)
+                # with urllib.request.urlopen(req) as f:
+                #    print(f.status)
+                #    print(f.reason)
 
 
 class GeoIndexTask(GeoIndex):
@@ -101,6 +102,7 @@ class GeoIndexTask(GeoIndex):
     A task friendly subclass
     It allows for giving a queryset
     """
+
     def get_queryset(self):
         # If no query set is explistily given but a model is create initial query set
         if self.model and not self.queryset:
@@ -111,9 +113,7 @@ class GeoIndexTask(GeoIndex):
         queryset = self.queryset.order_by('id')[:50]
         return queryset
 
-
     def execute(self):
         self.update_mapping()
         self.map_geofield()
         return self.index()
-

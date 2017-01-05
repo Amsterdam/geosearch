@@ -4,14 +4,15 @@
 Update different project databases with current data:
 atlas_backend and atlas_meetbouten for now
 
-   docker-compose exec atlas_db update-atlas.sh
-   docker-compose exec  nap_db update-nap.sh
 
-pip install -r requirements.txt
+    docker-compose exec atlas_db update-db.sh  atlas
+    docker-compose exec nap_db update-db.sh nap
+    docker-compose exec milieu_db update-db.sh milieuthemas
+    pip install -r requirements.txt
 
 test postgres spatial queries:
 
-run python test_dataset.py
+`run python test_dataset.py`
 
 
 

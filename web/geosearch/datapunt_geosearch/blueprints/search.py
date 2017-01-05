@@ -3,7 +3,7 @@ import json
 # Packages
 from flask import Blueprint, request, jsonify, current_app
 # Project
-from datapunt_geosearch.datasource import AtlasDataSource
+from datapunt_geosearch.datasource import AtlasDataSource, BommenMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 
 search = Blueprint('search', __name__)
@@ -96,6 +96,19 @@ def search_geo_nap():
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
+        resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
+
+    return jsonify(resp)
+
+
+@search.route('/bommen/', methods=['GET', 'OPTIONS'])
+def search_geo_minutie():
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, resp = get_coords_and_type(request.args)
+    print(resp)
+    # If no error is found, query
+    if not resp:
+        ds = BommenMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
         resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
 
     return jsonify(resp)

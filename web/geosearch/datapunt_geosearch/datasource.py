@@ -1,8 +1,8 @@
 import logging
 
 import psycopg2
-from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError, ProgrammingError, connect
+from psycopg2.extras import DictCursor
 
 
 class DataSourceException(Exception):
@@ -17,7 +17,7 @@ class DataSourceBase(object):
     dsn = None
     dataset = None
     # opr_type = openbare_ruimte_type. Water, Weg, Terrein...
-    default_properties = ('id', 'display', 'type', 'uri',  'opr_type')
+    default_properties = ('id', 'display', 'type', 'uri', 'opr_type')
     radius = 30
     meta = {}
     use_rd = True
@@ -63,7 +63,6 @@ class DataSourceBase(object):
         except OperationalError as err:
             self.logger.error('Error creating connection: %s' % err)
             raise DataSourceException('error connecting to datasource')
-            return
 
         features = []
         with self.get_cursor(conn) as cur:
@@ -80,10 +79,8 @@ class DataSourceBase(object):
 
                     for row in rows:
                         features.append({
-                            'properties': dict([
-                                (prop, row[prop])
-                                for prop in self.default_properties if prop in row])
-                        })
+                            'properties': dict([(prop, row[prop])
+                                                for prop in self.default_properties if prop in row])})
 
         # Closing the connection to the db
         conn.close()
@@ -91,7 +88,7 @@ class DataSourceBase(object):
         return features
 
     # Point query
-    def execute_point_query(self, cur, table): 
+    def execute_point_query(self, cur, table):
         if not self.use_rd:
             sql = """
 SELECT *
@@ -124,7 +121,7 @@ ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
             """.format(
                 table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.y, self.x)*2)
+            cur.execute(sql, (self.y, self.x) * 2)
         else:
             sql = """
 SELECT *
@@ -135,7 +132,7 @@ ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
             """.format(
                 table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y)*2)
+            cur.execute(sql, (self.x, self.y) * 2)
 
         return cur.fetchall()
 
@@ -202,7 +199,6 @@ class AtlasDataSource(DataSourceBase):
 
 
 class NapMeetboutenDataSource(DataSourceBase):
-
     def __init__(self, *args, **kwargs):
         super(NapMeetboutenDataSource, self).__init__(*args, **kwargs)
         self.meta = {
@@ -247,3 +243,51 @@ class NapMeetboutenDataSource(DataSourceBase):
                 'message': 'Error in handling, {}'.format(repr(err))
             }
 
+
+class BommenMilieuDataSource(DataSourceBase):
+    def __init__(self, *args, **kwargs):
+        super(BommenMilieuDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'geometrie',
+            'operator': 'within',
+            'datasets': {
+                'bommen': {
+                    'bominslag': 'public.geo_bommenkaart_bominslag_point',
+                    'gevrijwaardgebied': 'public.geo_bommenkaart_gevrijwaardgebied_polygon',
+                    'uitgevoerdonderzoek': 'public.geo_bommenkaart_uitgevoerdonderzoek_polygon',
+                    'verdachtgebied': 'public.geo_bommenkaart_verdachtgebied_polygon'
+
+                }
+            },
+        }
+
+    default_properties = ('id', 'kenmerk', 'type', 'pdf', 'opr_type')
+
+    def query(self, x, y, rd=True, radius=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }

@@ -38,3 +38,11 @@ DSN_NAP = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('NAP_DB_PORT_5432_TCP_PORT', 5401),
     os.getenv('NAP_DB_NAME', 'nap'),
 )
+
+DSN_MILIEU = 'postgresql://{}:{}@{}:{}/{}'.format(
+    os.getenv('MILIEU_DB_USER', 'milieuthemas'),
+    os.getenv('MILIEU_DB_PASSWORD', 'insecure'),
+    os.getenv('MILIEU_DB_PORT_5432_TCP_ADDR', get_docker_host()),
+    os.getenv('MILIEU_DB_PORT_5432_TCP_PORT', 5402),
+    os.getenv('MILIEU_DB_NAME', 'milieuthemas'),
+)
