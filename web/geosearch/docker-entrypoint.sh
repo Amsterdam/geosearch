@@ -19,5 +19,9 @@ else
   export DOCKER_EXTERNAL_IP=$(curl ${METADATA_URL})
 fi
 
+if [ "${CONSUL_HOST:-notset}" == 'notset' ]; then
+    export CONSUL_HOST=${DOCKER_EXTERNAL_IP}
+fi
+
 echo Starting server
 uwsgi --ini uwsgi.ini

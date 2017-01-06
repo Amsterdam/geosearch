@@ -36,7 +36,7 @@ services:
         - nap_db:nap_db
         - milieu_db:milieu_db
       environment:
-        - CONSUL_HOST=${CONSUL_HOST:-consul.service.consul}
+        - CONSUL_HOST=${CONSUL_HOST:-notset}
         - CONSUL_PORT=${CONSUL_PORT:-8500}
         - MILIEU_DB_NAME=milieuthemas
         - NAP_DB_NAME=nap
