@@ -67,6 +67,8 @@ def search_in_radius():
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
+    elif item in ['bominslag', 'gevrijwaardgebied', 'uitgevoerdonderzoek', 'verdachtgebied']:
+        ds = BommenMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
     # Filtering to the required dataset

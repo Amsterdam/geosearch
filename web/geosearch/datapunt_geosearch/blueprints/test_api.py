@@ -2,10 +2,11 @@ import unittest
 import datapunt_geosearch
 from datapunt_geosearch import config
 
+
 class ApiTest(unittest.TestCase):
 
     def setUp(self):
-       self.app = datapunt_geosearch.create_app(config=config)
+        self.app = datapunt_geosearch.create_app(config=config)
 
     def test_cors_header(self):
         with self.app.test_client() as client:
