@@ -40,7 +40,6 @@ class DataSourceBase(object):
         in the dataset table mapping
         """
         filtered_dataset = None
-        print(self.meta)
         for dataset_name, datasets in self.meta['datasets'].items():
             for dataset_ident, table in datasets.items():
                 if dataset_ident == dataset_table:
