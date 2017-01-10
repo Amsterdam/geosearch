@@ -261,7 +261,7 @@ class BommenMilieuDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('id', 'kenmerk', 'type', 'pdf', 'opr_type')
+    default_properties = ('id', 'kenmerk', 'type', 'uri', 'opr_type')
 
     def query(self, x, y, rd=True, radius=None):
         self.use_rd = rd
