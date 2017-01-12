@@ -167,6 +167,15 @@ class AtlasDataSource(DataSourceBase):
             },
         }
 
+    def filter_dataset(self, dataset_table):
+        # Adding custom support voor verblijfsobject as it is not needed
+        # in atlas but is needed in type specific geosearch
+        if dataset_table == 'verblijfsobject':
+            self.meta['datasets'] = {'bag': {'verblijfsobject': 'public.geo_bag_verblijfsobject_mat'}}
+            return True
+        else:
+            return super(AtlasDataSource, self).filter_dataset(dataset_table)
+
     def query(self, x, y, rd=True, radius=None):
         self.use_rd = rd
         self.x = x

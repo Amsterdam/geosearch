@@ -23,13 +23,11 @@ def run_server():
     app.run(debug=True, host='localhost', port=8000)
 
 
-
 def run_server_prod():
     # Starts the server with prod settings
     from datapunt_geosearch import config
     app = create_app(config)
     app.run(host='0.0.0.0', port=8000)
-
 
 
 def help_txt():
@@ -39,7 +37,6 @@ def help_txt():
         "create - create the geoindex in elastic\n"
         "recreate - drop the old index and create a new one in elastic"
     )
-
 
 
 def main():

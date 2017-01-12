@@ -3,4 +3,3 @@ from datapunt_geosearch import config
 
 
 app = create_app(config=config)
-

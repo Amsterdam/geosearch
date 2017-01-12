@@ -4,6 +4,7 @@ Contains the different configs for the datapunt geosearch application
 import re
 import os
 
+
 def get_docker_host():
     """
     Looks for the DOCKER_HOST environment variable to find the VM
@@ -21,7 +22,7 @@ def get_docker_host():
     return os.getenv('NAP_DB_PORT_5432_TCP_ADDR', 'localhost')
 
 
-#FIXME ATLAS_DB_NAME en NAP_DB_NAME zijn de namen van de containers en NIET van de database.
+# FIXME ATLAS_DB_NAME en NAP_DB_NAME zijn de namen van de containers en NIET van de database.
 
 DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('ATLAS_DB_USER', 'atlas'),
