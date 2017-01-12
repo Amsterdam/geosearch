@@ -75,6 +75,8 @@ def search_in_radius():
         ds = BommenMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
+    # Setting query to always be point query
+    ds.meta['operator'] = 'within'
     # Filtering to the required dataset
     known_dataset = ds.filter_dataset(item)
     if not known_dataset:
