@@ -7,9 +7,7 @@ To minimize impact on the models no external dependencies are used
 """
 # Python
 import json
-import urllib.parse
-import urllib.request
-# Packages
+
 import requests
 
 
@@ -44,7 +42,9 @@ class GeoIndex(object):
             },
         }
         # Setting the mapping for the type creating
-        r = requests.put(self.elastic_url + '_mapping/' + self.index_meta['dataset'], data=json.dumps(mapping))
+        r = requests.put(
+            self.elastic_url + '_mapping/' + self.index_meta['dataset'],
+            data=json.dumps(mapping))
         return r.status_code
 
     def get_queryset(self):
@@ -82,7 +82,8 @@ class GeoIndex(object):
                 # Replacing the / for - in the type
                 entry['type'] = entry['type'].replace('/', '-')
                 # @TODO switch to bulk insert
-                r = requests.post(self.elastic_url + entry['dataset'], data=json.dumps(entry))
+                r = requests.post(self.elastic_url + entry['dataset'],
+                                  data=json.dumps(entry))
 
                 data.append(entry)
                 # @TODO switch over to raw python

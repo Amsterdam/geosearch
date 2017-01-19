@@ -1,9 +1,11 @@
 # Python
 import json
-# Packages
+
 from flask import Blueprint, request, jsonify, current_app
-# Project
-from datapunt_geosearch.datasource import AtlasDataSource, BommenMilieuDataSource
+from flask import send_from_directory
+
+from datapunt_geosearch.datasource import AtlasDataSource
+from datapunt_geosearch.datasource import MinutieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 
 search = Blueprint('search', __name__)
@@ -40,7 +42,13 @@ def get_coords_and_type(args):
         else:
             resp = {'error': 'No coordinates found'}
 
-    return (x, y, rd, resp)
+    return x, y, rd, resp
+
+
+@search.route('/docs/openapi', methods=['GET', 'OPTIONS'])
+def send_doc():
+    return send_from_directory('static', 'geosearch.yml',
+                               mimetype='application/x-yaml')
 
 
 @search.route('/search/', methods=['GET', 'OPTIONS'])
@@ -71,8 +79,9 @@ def search_in_radius():
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
-    elif item in ['bominslag', 'gevrijwaardgebied', 'uitgevoerdonderzoek', 'verdachtgebied']:
-        ds = BommenMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+    elif item in ['bominslag', 'gevrijwaardgebied', 'uitgevoerdonderzoek',
+                  'verdachtgebied']:
+        ds = MinutieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
     # Setting query to always be point query
@@ -87,7 +96,7 @@ def search_in_radius():
 
 
 @search.route('/help/', methods=['GET', 'OPTIONS'])
-def help():
+def get_help():
     print(current_app.config)
     """Help text en query index"""
     return json.dumps({
@@ -104,20 +113,22 @@ def search_geo_nap():
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
-        resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
+        resp = ds.query(float(x), float(y), rd=rd,
+                        radius=request.args.get('radius'))
 
     return jsonify(resp)
 
 
-@search.route('/bommen/', methods=['GET', 'OPTIONS'])
+@search.route('/minutie/', methods=['GET', 'OPTIONS'])
 def search_geo_minutie():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, resp = get_coords_and_type(request.args)
     print(resp)
     # If no error is found, query
     if not resp:
-        ds = BommenMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
-        resp = ds.query(float(x), float(y), rd=rd, radius=request.args.get('radius'))
+        ds = MinutieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        resp = ds.query(float(x), float(y), rd=rd,
+                        radius=request.args.get('radius'))
 
     return jsonify(resp)
 

@@ -1,7 +1,8 @@
 # Packages
 from flask import Blueprint, Response, current_app
-# PRoject
-from datapunt_geosearch.datasource import AtlasDataSource, NapMeetboutenDataSource
+
+from datapunt_geosearch.datasource import AtlasDataSource, \
+    NapMeetboutenDataSource
 
 health = Blueprint('health', __name__)
 
@@ -23,7 +24,9 @@ def search_list():
         return repr(e), 500
 
     if results['type'] == 'Error':
-        return Response(results['message'], content_type='text/plain', status=500)
+        return Response(results['message'],
+                        content_type='text/plain; charset=utf-8',
+                        status=500)
 
     if not len(results['features']):
         response_text.append('No results from atlas dataset')
@@ -34,6 +37,9 @@ def search_list():
         response_text.append('No results from nap/meetbouten dataset')
 
     if not len(response_text):
-        return Response(' - '.join(response_text), content_type='text/plain', status=500)
+        return Response(' - '.join(response_text),
+                        content_type='text/plain; charset=utf-8',
+                        status=500)
 
-    return Response('Connectivity OK', content_type='text/plain')
+    return Response('Connectivity OK',
+                    content_type='text/plain; charset=utf-8')

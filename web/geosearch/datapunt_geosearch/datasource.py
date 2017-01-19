@@ -79,7 +79,9 @@ class DataSourceBase(object):
                     for row in rows:
                         features.append({
                             'properties': dict([(prop, row[prop])
-                                                for prop in self.default_properties if prop in row])})
+                                                for prop in
+                                                self.default_properties if
+                                                prop in row])})
 
         # Closing the connection to the db
         conn.close()
@@ -252,19 +254,22 @@ class NapMeetboutenDataSource(DataSourceBase):
             }
 
 
-class BommenMilieuDataSource(DataSourceBase):
+class MinutieMilieuDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
-        super(BommenMilieuDataSource, self).__init__(*args, **kwargs)
+        super(MinutieMilieuDataSource, self).__init__(*args, **kwargs)
         self.meta = {
             'geofield': 'geometrie',
             'operator': 'within',
             'datasets': {
-                'bommen': {
-                    'bominslag': 'public.geo_bommenkaart_bominslag_point',
-                    'gevrijwaardgebied': 'public.geo_bommenkaart_gevrijwaardgebied_polygon',
-                    'uitgevoerdonderzoek': 'public.geo_bommenkaart_uitgevoerdonderzoek_polygon',
-                    'verdachtgebied': 'public.geo_bommenkaart_verdachtgebied_polygon'
-
+                'minutie': {
+                    'bominslag':
+                        'public.geo_bommenkaart_bominslag_point',
+                    'gevrijwaardgebied':
+                        'public.geo_bommenkaart_gevrijwaardgebied_polygon',
+                    'uitgevoerdonderzoek':
+                        'public.geo_bommenkaart_uitgevoerdonderzoek_polygon',
+                    'verdachtgebied':
+                        'public.geo_bommenkaart_verdachtgebied_polygon'
                 }
             },
         }

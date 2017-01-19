@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
 # Python
-import datetime
 import os
-from pprint import pprint
-import readline
 import sys
-# Packages
-from flask import *
-# Project
+
 from datapunt_geosearch import create_app
 
 

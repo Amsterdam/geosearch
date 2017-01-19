@@ -70,5 +70,45 @@ class TestNapDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 4)
 
 
+class TestMinutieDataset(unittest.TestCase):
+    def test_query(self):
+        x = 120535.2
+        y = 486376.3
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y)
+
+        self.assertEqual(len(results['features']), 1)
+
+    def test_query_radius(self):
+        x = 120535.2
+        y = 486376.3
+        radius = 130
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, radius=radius)
+
+        self.assertEqual(len(results['features']), 4)
+
+    def test_query_wgs84(self):
+        x = 52.3641918658574
+        y = 4.88121013879857
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, rd=False)
+
+        self.assertEqual(len(results['features']), 1)
+
+    def test_query_wgs84_radius(self):
+        x = 52.3641918658574
+        y = 4.88121013879857
+        radius = 130
+
+        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        results = ds.query(x, y, rd=False, radius=radius)
+
+        self.assertEqual(len(results['features']), 4)
+
+
 if __name__ == '__main__':
     unittest.main()

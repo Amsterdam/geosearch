@@ -41,7 +41,7 @@ node {
     }
 }
 
-String BRANCH = "${env.BRANCH_NAME}"
+String BRANCH = "${env.BRANCH_NAME}".toString()
 
 if (BRANCH == "master") {
 
