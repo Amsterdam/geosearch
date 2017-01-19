@@ -70,7 +70,7 @@ class TestNapDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 4)
 
 
-class TestMinutieDataset(unittest.TestCase):
+class TestMunitieDataset(unittest.TestCase):
     def test_query(self):
         x = 120535.2
         y = 486376.3

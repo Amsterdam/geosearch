@@ -254,14 +254,14 @@ class NapMeetboutenDataSource(DataSourceBase):
             }
 
 
-class MinutieMilieuDataSource(DataSourceBase):
+class MunitieMilieuDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
-        super(MinutieMilieuDataSource, self).__init__(*args, **kwargs)
+        super(MunitieMilieuDataSource, self).__init__(*args, **kwargs)
         self.meta = {
             'geofield': 'geometrie',
             'operator': 'within',
             'datasets': {
-                'minutie': {
+                'munitie': {
                     'bominslag':
                         'public.geo_bommenkaart_bominslag_point',
                     'gevrijwaardgebied':

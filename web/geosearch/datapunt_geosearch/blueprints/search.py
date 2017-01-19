@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 
 from datapunt_geosearch.datasource import AtlasDataSource
-from datapunt_geosearch.datasource import MinutieMilieuDataSource
+from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 
 search = Blueprint('search', __name__)
@@ -81,7 +81,7 @@ def search_in_radius():
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
     elif item in ['bominslag', 'gevrijwaardgebied', 'uitgevoerdonderzoek',
                   'verdachtgebied']:
-        ds = MinutieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
     # Setting query to always be point query
@@ -119,14 +119,14 @@ def search_geo_nap():
     return jsonify(resp)
 
 
-@search.route('/minutie/', methods=['GET', 'OPTIONS'])
-def search_geo_minutie():
+@search.route('/munitie/', methods=['GET', 'OPTIONS'])
+def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, resp = get_coords_and_type(request.args)
     print(resp)
     # If no error is found, query
     if not resp:
-        ds = MinutieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
         resp = ds.query(float(x), float(y), rd=rd,
                         radius=request.args.get('radius'))
 

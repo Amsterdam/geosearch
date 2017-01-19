@@ -113,11 +113,11 @@ paths:
       responses:
         200:
           description: An array of items that are located within the given radius of the given location that match the requested type(s)
-  /minutie/:
+  /munitie/:
     get:
-      summary: Search all of the Minutie dataset
+      summary: Search all of the Munitie dataset
       description: >
-        The Minutie dataset contains information about explosives from the second world war. It includes locations of impact, areas that are suspected of having unexploded ammunition and areas that have been searched for explosives.
+        The Munitie dataset contains information about explosives from the second world war. It includes locations of impact, areas that are suspected of having unexploded ammunition and areas that have been searched for explosives.
         You need to supply either x/y or lat/lon. Providing both sets has no guaranteed order!
       parameters:
         - $ref: "#/parameters/xParam"
