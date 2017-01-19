@@ -45,7 +45,7 @@ def get_coords_and_type(args):
     return x, y, rd, resp
 
 
-@search.route('/docs/openapi', methods=['GET', 'OPTIONS'])
+@search.route('/docs/geosearch.yml', methods=['GET', 'OPTIONS'])
 def send_doc():
     return send_from_directory('static', 'geosearch.yml',
                                mimetype='application/x-yaml')
