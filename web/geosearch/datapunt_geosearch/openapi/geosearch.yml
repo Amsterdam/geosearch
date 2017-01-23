@@ -21,14 +21,14 @@ parameters:
   xParam:
     name: x
     in: query
-    description:  X coordinate to search for. Requires a complementing Y parameter.
+    description:  X (rd) coordinate to search for. Requires a complementing Y parameter. example (121848)
     required: false
     type: number
     format: double
   yParam:
     name: y
     in: query
-    description: Y coordinate to search for. Requires a complementing X parameter.
+    description: Y (rd) coordinate to search for. Requires a complementing X parameter. example (487307)
     required: false
     type: number
     format: double
