@@ -258,7 +258,7 @@ class MunitieMilieuDataSource(DataSourceBase):
         super(MunitieMilieuDataSource, self).__init__(*args, **kwargs)
         self.meta = {
             'geofield': 'geometrie',
-            'operator': 'within',
+            'operator': 'contains',
             'datasets': {
                 'munitie': {
                     'bominslag':
