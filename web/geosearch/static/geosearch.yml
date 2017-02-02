@@ -21,14 +21,14 @@ parameters:
   xParam:
     name: x
     in: query
-    description:  X coordinate to search for. Requires a complementing Y parameter.
+    description:  X (rd) coordinate to search for. Requires a complementing Y parameter. example (121848)
     required: false
     type: number
     format: double
   yParam:
     name: y
     in: query
-    description: Y coordinate to search for. Requires a complementing X parameter.
+    description: Y (rd) coordinate to search for. Requires a complementing X parameter. example (487307)
     required: false
     type: number
     format: double
@@ -115,7 +115,23 @@ paths:
           description: An array of items that are located within the given radius of the given location that match the requested type(s)
   /munitie/:
     get:
-      summary: Search all of the Munitie dataset
+      summary: Search for gevrijwaardgebied, uitgevoerdonderzoek and verdachtgebied areas in Munitie dataset
+      description: >
+        The Munitie dataset contains information about explosives from the second world war. It includes locations of impact, areas that are suspected of having unexploded ammunition and areas that have been searched for explosives.
+        You need to supply either x/y or lat/lon. Providing both sets has no guaranteed order!
+      parameters:
+        - $ref: "#/parameters/xParam"
+        - $ref: "#/parameters/yParam"
+        - $ref: "#/parameters/latParam"
+        - $ref: "#/parameters/lonParam"
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: A list of areas, mathing the requested type, that the given location falls within.
+  /bominslag/:
+    get:
+      summary: Search for bominslag in Munitie dataset
       description: >
         The Munitie dataset contains information about explosives from the second world war. It includes locations of impact, areas that are suspected of having unexploded ammunition and areas that have been searched for explosives.
         You need to supply either x/y or lat/lon. Providing both sets has no guaranteed order!
@@ -146,4 +162,4 @@ paths:
         - Geosearch
       responses:
         200:
-          description: An array of items that are located within the given radius of the given location that match the requested type(s)
+          description: A list of areas, mathing the requested type, that the given location falls within.
