@@ -71,8 +71,10 @@ def search_in_radius():
 
     # Checking for radius and item type
     radius = request.args.get('radius')
-    if not radius:
-        return jsonify({'error': 'No radius found'})
+    if radius:
+        ds.meta['operator'] = 'within'
+    else:
+        ds.meta['operator'] = 'contains'
     item = request.args.get('item')
     if not item:
         return jsonify({'error': 'No item type found'})
@@ -80,13 +82,16 @@ def search_in_radius():
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
-    elif item in ['bominslag', 'gevrijwaardgebied', 'uitgevoerdonderzoek',
+    elif item in ['gevrijwaardgebied', 'uitgevoerdonderzoek',
                   'verdachtgebied']:
         ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+    elif:
+        item == 'bominslag'
+        ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
     # Setting query to always be point query
-    ds.meta['operator'] = 'within'
+
     # Filtering to the required dataset
     known_dataset = ds.filter_dataset(item)
     if not known_dataset:
