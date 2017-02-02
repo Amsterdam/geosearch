@@ -261,8 +261,6 @@ class MunitieMilieuDataSource(DataSourceBase):
             'operator': 'contains',
             'datasets': {
                 'munitie': {
-                    'bominslag':
-                        'public.geo_bommenkaart_bominslag_point',
                     'gevrijwaardgebied':
                         'public.geo_bommenkaart_gevrijwaardgebied_polygon',
                     'uitgevoerdonderzoek':
@@ -303,3 +301,13 @@ class MunitieMilieuDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
+
+class BominslagMilieuDataSource(MunitieMilieuDataSource):
+
+    def __init__(self, *args, **kwargs):
+        super(BominslagMilieuDataSource, self).__init__(*args, **kwargs)
+        self.meta['datasets']['munitie'] = {
+            'bominslag': 'public.geo_bommenkaart_bominslag_point'
+        }
+        self.meta['operator'] = 'within'

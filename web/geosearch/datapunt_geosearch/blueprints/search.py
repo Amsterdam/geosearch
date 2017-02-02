@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 
 from datapunt_geosearch.datasource import AtlasDataSource
+from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 
@@ -95,21 +96,11 @@ def search_in_radius():
     return jsonify(resp)
 
 
-@search.route('/help/', methods=['GET', 'OPTIONS'])
-def get_help():
-    print(current_app.config)
-    """Help text en query index"""
-    return json.dumps({
-        '/nap': 'Search in a radius around a point in nap',
-        '/atlas': 'Search in a radius around a point in atlas'
-    })
-
-
 @search.route('/nap/', methods=['GET', 'OPTIONS'])
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, resp = get_coords_and_type(request.args)
-    print(resp)
+
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
@@ -123,10 +114,22 @@ def search_geo_nap():
 def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, resp = get_coords_and_type(request.args)
-    print(resp)
+
     # If no error is found, query
     if not resp:
         ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        resp = ds.query(float(x), float(y), rd=rd)
+
+    return jsonify(resp)
+
+@search.route('/bominslag/', methods=['GET', 'OPTIONS'])
+def search_geo_bominslag():
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, resp = get_coords_and_type(request.args)
+
+    # If no error is found, query
+    if not resp:
+        ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
         resp = ds.query(float(x), float(y), rd=rd,
                         radius=request.args.get('radius'))
 
