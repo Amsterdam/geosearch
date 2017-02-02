@@ -53,7 +53,7 @@ def send_doc():
 
 
 @search.route('/search/', methods=['GET', 'OPTIONS'])
-def search_in_radius():
+def search_in_datasets():
     """
     General geosearch endpoint.
     Required arguments:
