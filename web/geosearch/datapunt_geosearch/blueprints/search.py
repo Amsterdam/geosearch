@@ -69,12 +69,6 @@ def search_in_datasets():
     if resp:
         return jsonify(resp)
 
-    # Checking for radius and item type
-    radius = request.args.get('radius')
-    if radius:
-        ds.meta['operator'] = 'within'
-    else:
-        ds.meta['operator'] = 'contains'
     item = request.args.get('item')
     if not item:
         return jsonify({'error': 'No item type found'})
@@ -89,7 +83,13 @@ def search_in_datasets():
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
-    # Setting query to always be point query
+
+    # Checking for radius and item type
+    radius = request.args.get('radius')
+    if radius:
+        ds.meta['operator'] = 'within'
+    else:
+        ds.meta['operator'] = 'contains'
 
     # Filtering to the required dataset
     known_dataset = ds.filter_dataset(item)
