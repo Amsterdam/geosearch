@@ -311,3 +311,50 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
             'bominslag': 'public.geo_bommenkaart_bominslag_point'
         }
         self.meta['operator'] = 'within'
+
+
+class TellusDataSource(DataSourceBase):
+    def __init__(self, *args, **kwargs):
+        super(TellusDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'geometrie',
+            'operator': 'within',
+            'datasets': {
+                'tellus': {
+                    'tellus':
+                        'public.geo_tellus_point'
+                }
+            },
+        }
+
+    default_properties = ('display', 'standplaats', 'type', 'uri')
+
+    def query(self, x, y, rd=True, radius=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }
+
