@@ -5,7 +5,6 @@ import os
 import re
 
 
-
 def get_docker_host():
     """
     Looks for the DOCKER_HOST environment variable to find the VM

@@ -126,6 +126,7 @@ def search_geo_munitie():
 
     return jsonify(resp)
 
+
 @search.route('/bominslag/', methods=['GET', 'OPTIONS'])
 def search_geo_bominslag():
     """Performing a geo search for radius around a point using postgres"""

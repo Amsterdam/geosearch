@@ -50,7 +50,7 @@ parameters:
     name: radius
     in: query
     description: The radius the search in approximate meters. The search is actually performed in fractions of degrees and does not take curvature and terrain into account.
-    required: true
+    required: false
     type: number
     format: double
 paths:

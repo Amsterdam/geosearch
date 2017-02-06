@@ -48,3 +48,16 @@ View & index aanmaken wordt dan zoiets:
 
 `GISTCREATE INDEX {}_idx_wgs84 ON {}_mat USING
 ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
+
+
+## Api Endpoints
+
+De volgende endpoints zijn beschikbaar voor geosearch:
+
+- `/nap/` zoek voor NAP data - Locatie en radius verplict
+- `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
+- `/bominslag/` zoek voor bominslag data - Locatie en radius verplict
+- `/atlas/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
+- `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
+
+Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
