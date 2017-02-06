@@ -85,8 +85,7 @@ def search_in_datasets():
     elif item in ['gevrijwaardgebied', 'uitgevoerdonderzoek',
                   'verdachtgebied']:
         ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
-    elif:
-        item == 'bominslag'
+    elif item == 'bominslag':
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
