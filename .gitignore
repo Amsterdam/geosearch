@@ -65,3 +65,7 @@ target/
 # Pycharm & IntelliJ
 .idea
 *.iml
+
+# virtualenv
+.venv/
+venv/

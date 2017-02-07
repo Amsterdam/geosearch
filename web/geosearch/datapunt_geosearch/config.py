@@ -45,3 +45,11 @@ DSN_MILIEU = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('MILIEU_DB_PORT_5432_TCP_PORT', 5402),
     os.getenv('MILIEU_DB_NAME', 'milieuthemas'),
 )
+
+DSN_TELLUS = 'postgresql://{}:{}@{}:{}/{}'.format(
+    os.getenv('TELLUS_DB_USER', 'tellus'),
+    os.getenv('TELLUS_DB_PASSWORD', 'insecure'),
+    os.getenv('TELLUS_DB_PORT_5432_TCP_ADDR', get_docker_host()),
+    os.getenv('TELLUS_DB_PORT_5432_TCP_PORT', 5409),
+    os.getenv('TELLUS_DB_NAME', 'tellus'),
+)
