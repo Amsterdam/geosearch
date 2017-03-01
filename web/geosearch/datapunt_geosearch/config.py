@@ -23,35 +23,6 @@ def get_var(db, varname, default):
 
 DB_SETTINGS = {
     'ATLAS': {
-        'host': get_var('atlas', 'host', 'localhost'),
-        'port': get_var('atlas', 'port', 5405),
-        'database': get_var('atlas', 'database', 'atlas'),
-        'user': get_var('atlas', 'user', 'atlas'),
-        'password': get_var('atlas', 'password', 'insecure')
-    },
-    'NAP': {
-        'host': get_var('nap', 'host', 'localhost'),
-        'port': get_var('nap', 'port', 5401),
-        'database': get_var('nap', 'database', 'nap'),
-        'user': get_var('nap', 'user', 'nap'),
-        'password': get_var('nap', 'password', 'insecure')
-    },
-    'MILIEU': {
-        'host': get_var('milieu', 'host', 'localhost'),
-        'port': get_var('milieu', 'port', 5402),
-        'database': get_var('milieu', 'database', 'milieuthemas'),
-        'user': get_var('milieu', 'user', 'milieuthemas'),
-        'password': get_var('milieu', 'password', 'insecure')
-    },
-    'TELLUS': {
-        'host': get_var('tellus', 'host', 'localhost'),
-        'port': get_var('tellus', 'port', 5409),
-        'database': get_var('tellus', 'database', 'tellus'),
-        'user': get_var('tellus', 'user', 'tellus'),
-        'password': get_var('tellus', 'password', 'insecure')
-    }
-} if in_docker() else {
-    'ATLAS': {
         'host': get_var('atlas', 'host', 'atlas_db'),
         'port': get_var('atlas', 'port', 5432),
         'database': get_var('atlas', 'database', 'atlas'),
@@ -79,8 +50,38 @@ DB_SETTINGS = {
         'user': get_var('tellus', 'user', 'tellus'),
         'password': get_var('tellus', 'password', 'insecure')
     }
+} if in_docker() else {
+    'ATLAS': {
+        'host': get_var('atlas', 'host', 'localhost'),
+        'port': get_var('atlas', 'port', 5405),
+        'database': get_var('atlas', 'database', 'atlas'),
+        'user': get_var('atlas', 'user', 'atlas'),
+        'password': get_var('atlas', 'password', 'insecure')
+    },
+    'NAP': {
+        'host': get_var('nap', 'host', 'localhost'),
+        'port': get_var('nap', 'port', 5401),
+        'database': get_var('nap', 'database', 'nap'),
+        'user': get_var('nap', 'user', 'nap'),
+        'password': get_var('nap', 'password', 'insecure')
+    },
+    'MILIEU': {
+        'host': get_var('milieu', 'host', 'localhost'),
+        'port': get_var('milieu', 'port', 5402),
+        'database': get_var('milieu', 'database', 'milieuthemas'),
+        'user': get_var('milieu', 'user', 'milieuthemas'),
+        'password': get_var('milieu', 'password', 'insecure')
+    },
+    'TELLUS': {
+        'host': get_var('tellus', 'host', 'localhost'),
+        'port': get_var('tellus', 'port', 5409),
+        'database': get_var('tellus', 'database', 'tellus'),
+        'user': get_var('tellus', 'user', 'tellus'),
+        'password': get_var('tellus', 'password', 'insecure')
+    }
 }
 
+print(DB_SETTINGS)
 
 DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
     DB_SETTINGS['ATLAS']['user'],
