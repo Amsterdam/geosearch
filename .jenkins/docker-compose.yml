@@ -23,7 +23,7 @@ services:
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: milieuthemas
-tellus_db:
+  tellus_db:
       image: build.datapunt.amsterdam.nl:5000/atlas/postgres
       ports:
         - "5409:5432"
