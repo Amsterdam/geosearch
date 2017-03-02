@@ -16,13 +16,9 @@ search = Blueprint('search', __name__)
 
 def get_coords_and_type(args):
     """
-    Retrieves the coordinates from the request
-    and identifies if the request is in RD or in
-    wgs84
-    If no coordinates are found an error message is set in a
-    response dict.
-    The RD flag is set to true if the coords
-    given are in rd.
+    Retrieves the coordinates from the request and identifies if the request is
+    in RD or in wgs84. If no coordinates are found an error message is set in a
+    response dict. The RD flag is set to true if the coords given are in rd.
 
     @params
     args - The request args
