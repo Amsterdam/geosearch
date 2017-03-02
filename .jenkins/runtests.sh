@@ -17,6 +17,8 @@ dc build --pull
 dc up -d atlas_db
 dc up -d nap_db
 dc up -d milieu_db
+dc up -d tellus_db
+dc up -d monumenten_db
 
 # wait for databases to boot up
 sleep 10
@@ -27,7 +29,7 @@ dc exec -T nap_db /bin/update-db.sh nap
 dc exec -T atlas_db /bin/update-db.sh atlas
 dc exec -T milieu_db /bin/update-db.sh milieuthemas
 dc exec -T tellus_db /bin/update-db.sh tellus
-dc exec -T tellus_db /bin/update-db.sh monumenten
+dc exec -T monumenten /bin/update-db.sh monumenten
 
 sleep 2
 # run da test
