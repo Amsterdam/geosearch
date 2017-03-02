@@ -29,7 +29,14 @@ services:
         - "5409:5432"
       environment:
         POSTGRES_PASSWORD: insecure
-        POSTGRES_USER: milieuthemas
+        POSTGRES_USER: tellus
+  monumenten_db:
+      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      ports:
+        - "5409:5432"
+      environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_USER: monumenten
   web_test:
     build: ../web
     command: python test_dataset.py
