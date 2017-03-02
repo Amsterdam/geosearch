@@ -26,6 +26,14 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: milieuthemas
+  monumenten_db:
+    network_mode: bridge
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5412:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: monumenten
   web:
       network_mode: bridge
       build: ./web
@@ -35,6 +43,7 @@ services:
         - atlas_db:atlas_db
         - nap_db:nap_db
         - milieu_db:milieu_db
+        - monumenten_db:monumenten_db
       environment:
         - CONSUL_HOST=${CONSUL_HOST:-notset}
         - CONSUL_PORT=${CONSUL_PORT:-8500}

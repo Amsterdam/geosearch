@@ -8,6 +8,8 @@ atlas_backend and atlas_meetbouten for now
     docker-compose exec atlas_db update-db.sh  atlas
     docker-compose exec nap_db update-db.sh nap
     docker-compose exec milieu_db update-db.sh milieuthemas
+    docker-compose exec monumenten_db update-db.sh monumenten
+
     pip install -r requirements.txt
 
 test postgres spatial queries:

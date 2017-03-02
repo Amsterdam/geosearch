@@ -4,7 +4,6 @@ import psycopg2
 from psycopg2 import OperationalError, ProgrammingError, connect
 from psycopg2.extras import DictCursor
 
-
 class DataSourceException(Exception):
     pass
 
@@ -358,3 +357,47 @@ class TellusDataSource(DataSourceBase):
                 'message': 'Error in handling, {}'.format(repr(err))
             }
 
+class MonumentenDataSource(DataSourceBase):
+    def __init__(self, *args, **kwargs):
+        super(MonumentenDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'geometrie',
+            'operator': 'within',
+            'datasets': {
+                'monumenten': {
+                    'monument':
+                        'public.geo_monument_point'
+                }
+            },
+        }
+
+    default_properties = ('display', 'type', 'uri')
+
+    def query(self, x, y, rd=True, radius=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }

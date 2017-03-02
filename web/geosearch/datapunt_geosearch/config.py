@@ -53,3 +53,11 @@ DSN_TELLUS = 'postgresql://{}:{}@{}:{}/{}'.format(
     os.getenv('TELLUS_DB_PORT_5432_TCP_PORT', 5409),
     os.getenv('TELLUS_DB_NAME', 'tellus'),
 )
+
+DSN_MONUMENTEN = 'postgresql://{}:{}@{}:{}/{}'.format(
+    os.getenv('MONUMENTEN_DB_USER', 'monumenten'),
+    os.getenv('MONUMENTEN_DB_PASSWORD', 'insecure'),
+    os.getenv('MONUMENTEN_DB_PORT_5432_TCP_ADDR', get_docker_host()),
+    os.getenv('MONUMENTEN_DB_PORT_5432_TCP_PORT', 5412),
+    os.getenv('MONUMENTEN_DB_NAME', 'monumenten'),
+)
