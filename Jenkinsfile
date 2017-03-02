@@ -28,7 +28,7 @@ node {
             sh ".jenkins/runtests.sh"
 	}, {
 
-            sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
+            sh "docker-compose -p geotest -f .jenkins/docker-compose.yml down"
         }
     }
 
