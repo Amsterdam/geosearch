@@ -9,6 +9,7 @@ atlas_backend and atlas_meetbouten for now
     docker-compose exec nap_db update-db.sh nap
     docker-compose exec milieu_db update-db.sh milieuthemas
     docker-compose exec monumenten_db update-db.sh monumenten
+    docker-compose exec tellus_db update-db.sh tellus
 
     pip install -r requirements.txt
 

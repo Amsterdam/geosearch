@@ -49,6 +49,13 @@ DB_SETTINGS = {
         'database': get_var('tellus', 'database', 'tellus'),
         'user': get_var('tellus', 'user', 'tellus'),
         'password': get_var('tellus', 'password', 'insecure')
+    },
+    'MONUMENTEN': {
+        'host': get_var('monumenten', 'host', 'monumenten_db'),
+        'port': get_var('monumenten', 'port', 5432),
+        'database': get_var('monumenten', 'database', 'monumenten'),
+        'user': get_var('monumenten', 'user', 'monumenten'),
+        'password': get_var('monumenten', 'password', 'insecure')
     }
 } if in_docker() else {
     'ATLAS': {
@@ -78,6 +85,13 @@ DB_SETTINGS = {
         'database': get_var('tellus', 'database', 'tellus'),
         'user': get_var('tellus', 'user', 'tellus'),
         'password': get_var('tellus', 'password', 'insecure')
+    },
+    'MONUMENTEN': {
+        'host': get_var('monumenten', 'host', 'localhost'),
+        'port': get_var('monumenten', 'port', 5412),
+        'database': get_var('monumenten', 'database', 'monumenten'),
+        'user': get_var('monumenten', 'user', 'monumenten'),
+        'password': get_var('monumenten', 'password', 'insecure')
     }
 }
 
@@ -116,9 +130,9 @@ DSN_TELLUS = 'postgresql://{}:{}@{}:{}/{}'.format(
 )
 
 DSN_MONUMENTEN = 'postgresql://{}:{}@{}:{}/{}'.format(
-    os.getenv('MONUMENTEN_DB_USER', 'monumenten'),
-    os.getenv('MONUMENTEN_DB_PASSWORD', 'insecure'),
-    os.getenv('MONUMENTEN_DB_PORT_5432_TCP_ADDR', get_docker_host()),
-    os.getenv('MONUMENTEN_DB_PORT_5432_TCP_PORT', 5412),
-    os.getenv('MONUMENTEN_DB_NAME', 'monumenten'),
+    DB_SETTINGS['MONUMENTEN']['user'],
+    DB_SETTINGS['MONUMENTEN']['password'],
+    DB_SETTINGS['MONUMENTEN']['host'],
+    DB_SETTINGS['MONUMENTEN']['port'],
+    DB_SETTINGS['MONUMENTEN']['database']
 )

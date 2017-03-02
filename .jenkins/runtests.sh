@@ -27,6 +27,7 @@ dc exec -T nap_db /bin/update-db.sh nap
 dc exec -T atlas_db /bin/update-db.sh atlas
 dc exec -T milieu_db /bin/update-db.sh milieuthemas
 dc exec -T tellus_db /bin/update-db.sh tellus
+dc exec -T tellus_db /bin/update-db.sh monumenten
 
 sleep 2
 # run da test
