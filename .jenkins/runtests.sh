@@ -26,6 +26,7 @@ echo "let's see if databases are working"
 dc exec -T nap_db /bin/update-db.sh nap
 dc exec -T atlas_db /bin/update-db.sh atlas
 dc exec -T milieu_db /bin/update-db.sh milieuthemas
+dc exec -T tellus_db /bin/update-db.sh tellus
 
 sleep 2
 # run da test
