@@ -145,25 +145,25 @@ class AtlasDataSource(DataSourceBase):
             'operator': 'contains',
             'datasets': {
                 'bag': {
-                    'openbareruimte': 'public.geo_bag_openbareruimte',
-                    'pand': 'public.geo_bag_pand',
-                    'ligplaats': 'public.geo_bag_ligplaats',
-                    'standplaats': 'public.geo_bag_standplaats',
+                    'openbareruimte': 'public.geo_bag_openbareruimte_mat',
+                    'pand': 'public.geo_bag_pand_mat',
+                    'ligplaats': 'public.geo_bag_ligplaats_mat',
+                    'standplaats': 'public.geo_bag_standplaats_mat',
                 },
                 'gebieden': {
-                    'stadsdeel': 'public.geo_bag_stadsdeel',
-                    'buurt': 'public.geo_bag_buurt',
-                    'buurtcombinatie': 'public.geo_bag_buurtcombinatie',
-                    'bouwblok': 'public.geo_bag_bouwblok',
-                    'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied',
-                    'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken',
-                    'unesco': 'public.geo_bag_unesco',
+                    'stadsdeel': 'public.geo_bag_stadsdeel_mat',
+                    'buurt': 'public.geo_bag_buurt_mat',
+                    'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
+                    'bouwblok': 'public.geo_bag_bouwblok_mat',
+                    'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
+                    'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
+                    'unesco': 'public.geo_bag_unesco_mat',
                 },
                 'lki': {
-                    'kadastraal_object': 'public.geo_lki_kadastraalobject',
+                    'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
                 },
                 'wkpb': {
-                    'beperking': 'public.geo_wkpb',
+                    'beperking': 'public.geo_wkpb_mat',
                 },
             },
         }
@@ -173,7 +173,7 @@ class AtlasDataSource(DataSourceBase):
         # in atlas but is needed in type specific geosearch
         if dataset_table == 'verblijfsobject':
             self.meta['datasets'] = {'bag': {
-                'verblijfsobject': 'public.geo_bag_verblijfsobject'}}
+                'verblijfsobject': 'public.geo_bag_verblijfsobject_mat'}}
             return True
         else:
             return super(AtlasDataSource, self).filter_dataset(dataset_table)
@@ -216,10 +216,10 @@ class NapMeetboutenDataSource(DataSourceBase):
             'operator': 'within',
             'datasets': {
                 'nap': {
-                    'peilmerk': 'public.geo_nap_peilmerk',
+                    'peilmerk': 'public.geo_nap_peilmerk_mat',
                 },
                 'meetbouten': {
-                    'meetbout': 'public.geo_meetbouten_meetbout',
+                    'meetbout': 'public.geo_meetbouten_meetbout_mat',
                 },
             },
         }
