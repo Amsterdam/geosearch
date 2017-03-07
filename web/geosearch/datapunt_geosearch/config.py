@@ -2,6 +2,7 @@
 Contains the different configs for the datapunt geosearch application
 """
 import os
+from typing import Dict
 
 
 def in_docker():
@@ -17,122 +18,60 @@ def in_docker():
         return False
 
 
-def get_var(db, varname, default):
-    return os.getenv(f"{db}_DB_{varname}_OVERRIDE".upper(), default)
+def get_variable(db: str, varname: str, docker_default: str,
+                 sa_default: str = None) -> str:
+    """
+    Retrieve variables taking into account env overrides and wetter we are
+    running in Docker or standalone (development)
+    :param db: The database for which we are retrieving settings
+    :param varname: The variable to retrieve
+    :param docker_default: The default value (Running in docker)
+    :param sa_default: The default value (Running standalone)
+    :return: The applicable value of the requested variable
+    """
+    sa_default = docker_default if sa_default is None else sa_default
+
+    return os.getenv(f"{db}_DB_{varname}_OVERRIDE".upper(),
+                     docker_default if in_docker() else sa_default)
 
 
-DB_SETTINGS = {
-    'ATLAS': {
-        'host': get_var('atlas', 'host', 'atlas_db'),
-        'port': get_var('atlas', 'port', 5432),
-        'database': get_var('atlas', 'database', 'atlas'),
-        'user': get_var('atlas', 'user', 'atlas'),
-        'password': get_var('atlas', 'password', 'insecure')
-    },
-    'NAP': {
-        'host': get_var('nap', 'host', 'nap_db'),
-        'port': get_var('nap', 'port', 5432),
-        'database': get_var('nap', 'database', 'nap'),
-        'user': get_var('nap', 'user', 'nap'),
-        'password': get_var('nap', 'password', 'insecure')
-    },
-    'MILIEU': {
-        'host': get_var('milieu', 'host', 'milieu_db'),
-        'port': get_var('milieu', 'port', 5432),
-        'database': get_var('milieu', 'database', 'milieuthemas'),
-        'user': get_var('milieu', 'user', 'milieuthemas'),
-        'password': get_var('milieu', 'password', 'insecure')
-    },
-    'TELLUS': {
-        'host': get_var('tellus', 'host', 'tellus_db'),
-        'port': get_var('tellus', 'port', 5432),
-        'database': get_var('tellus', 'database', 'tellus'),
-        'user': get_var('tellus', 'user', 'tellus'),
-        'password': get_var('tellus', 'password', 'insecure')
-    },
-    'MONUMENTEN': {
-        'host': get_var('monumenten', 'host', 'monumenten_db'),
-        'port': get_var('monumenten', 'port', 5432),
-        'database': get_var('monumenten', 'database', 'monumenten'),
-        'user': get_var('monumenten', 'user', 'monumenten'),
-        'password': get_var('monumenten', 'password', 'insecure')
+def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[str, str]:
+    """
+    Get the complete settings for a given database. Taking all possible
+    environments into account.
+    :param db:
+    :param consul_host:
+    :param localport:
+    :return: A dict containing all settings:
+             'username', 'password', 'host', 'port' and 'db'
+    """
+    return {
+        'username': get_variable(db, 'user', db),
+        'password': get_variable(db, 'password', 'insecure'),
+        'host': get_variable(db, 'host', consul_host, 'localhost'),
+        'port': get_variable(db, 'port', '5432', localport),
+        'db': get_variable(db, 'database', db)
     }
-} if in_docker() else {
-    'ATLAS': {
-        'host': get_var('atlas', 'host', 'localhost'),
-        'port': get_var('atlas', 'port', 5405),
-        'database': get_var('atlas', 'database', 'atlas'),
-        'user': get_var('atlas', 'user', 'atlas'),
-        'password': get_var('atlas', 'password', 'insecure')
-    },
-    'NAP': {
-        'host': get_var('nap', 'host', 'localhost'),
-        'port': get_var('nap', 'port', 5401),
-        'database': get_var('nap', 'database', 'nap'),
-        'user': get_var('nap', 'user', 'nap'),
-        'password': get_var('nap', 'password', 'insecure')
-    },
-    'MILIEU': {
-        'host': get_var('milieu', 'host', 'localhost'),
-        'port': get_var('milieu', 'port', 5402),
-        'database': get_var('milieu', 'database', 'milieuthemas'),
-        'user': get_var('milieu', 'user', 'milieuthemas'),
-        'password': get_var('milieu', 'password', 'insecure')
-    },
-    'TELLUS': {
-        'host': get_var('tellus', 'host', 'localhost'),
-        'port': get_var('tellus', 'port', 5409),
-        'database': get_var('tellus', 'database', 'tellus'),
-        'user': get_var('tellus', 'user', 'tellus'),
-        'password': get_var('tellus', 'password', 'insecure')
-    },
-    'MONUMENTEN': {
-        'host': get_var('monumenten', 'host', 'localhost'),
-        'port': get_var('monumenten', 'port', 5412),
-        'database': get_var('monumenten', 'database', 'monumenten'),
-        'user': get_var('monumenten', 'user', 'monumenten'),
-        'password': get_var('monumenten', 'password', 'insecure')
-    }
-}
 
-print(DB_SETTINGS)
 
-DSN_ATLAS = 'postgresql://{}:{}@{}:{}/{}'.format(
-    DB_SETTINGS['ATLAS']['user'],
-    DB_SETTINGS['ATLAS']['password'],
-    DB_SETTINGS['ATLAS']['host'],
-    DB_SETTINGS['ATLAS']['port'],
-    DB_SETTINGS['ATLAS']['database']
+DSN_ATLAS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+    **get_db_settings(db='atlas', consul_host='atlas_db', localport='5405')
 )
 
-DSN_NAP = 'postgresql://{}:{}@{}:{}/{}'.format(
-    DB_SETTINGS['NAP']['user'],
-    DB_SETTINGS['NAP']['password'],
-    DB_SETTINGS['NAP']['host'],
-    DB_SETTINGS['NAP']['port'],
-    DB_SETTINGS['NAP']['database']
+DSN_NAP = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+    **get_db_settings(db='nap', consul_host='nap_db', localport='5401')
 )
 
-DSN_MILIEU = 'postgresql://{}:{}@{}:{}/{}'.format(
-    DB_SETTINGS['MILIEU']['user'],
-    DB_SETTINGS['MILIEU']['password'],
-    DB_SETTINGS['MILIEU']['host'],
-    DB_SETTINGS['MILIEU']['port'],
-    DB_SETTINGS['MILIEU']['database']
+DSN_MILIEU = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+    **get_db_settings(db='milieu', consul_host='milieu_db', localport='5402')
 )
 
-DSN_TELLUS = 'postgresql://{}:{}@{}:{}/{}'.format(
-    DB_SETTINGS['TELLUS']['user'],
-    DB_SETTINGS['TELLUS']['password'],
-    DB_SETTINGS['TELLUS']['host'],
-    DB_SETTINGS['TELLUS']['port'],
-    DB_SETTINGS['TELLUS']['database']
+DSN_TELLUS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+    **get_db_settings(db='tellus', consul_host='tellus_db', localport='5409')
 )
 
-DSN_MONUMENTEN = 'postgresql://{}:{}@{}:{}/{}'.format(
-    DB_SETTINGS['MONUMENTEN']['user'],
-    DB_SETTINGS['MONUMENTEN']['password'],
-    DB_SETTINGS['MONUMENTEN']['host'],
-    DB_SETTINGS['MONUMENTEN']['port'],
-    DB_SETTINGS['MONUMENTEN']['database']
+DSN_MONUMENTEN = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+    **get_db_settings(db='monumenten', consul_host='monumenten_db', localport='5412')
 )
+
+print(DSN_ATLAS, DSN_MILIEU, DSN_NAP, DSN_TELLUS, DSN_MONUMENTEN, sep='\n')
