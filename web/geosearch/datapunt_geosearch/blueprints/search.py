@@ -9,6 +9,7 @@ from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
+from datapunt_geosearch.datasource import MonumentenDataSource
 
 search = Blueprint('search', __name__)
 
@@ -80,6 +81,8 @@ def search_in_datasets():
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     elif item == 'tellus':
         ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
+    elif item == 'monument':
+        ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
 
