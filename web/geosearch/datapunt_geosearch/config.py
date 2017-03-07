@@ -41,15 +41,14 @@ def get_variable(db: str, varname: str, docker_default: str,
                      docker_default if in_docker() else sa_default)
 
 
-def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[
-    str, str]:
+def get_db_settings(db: str, docker_host: str, localport: str) -> Dict[str, str]:
     """
     Get the complete settings for a given database. Taking all possible
     environments into account.
 
     :rtype: Dict[str, str]
     :param db:
-    :param consul_host:
+    :param docker_host:
     :param localport:
     :return: A dict containing all settings:
              'username', 'password', 'host', 'port' and 'db'
@@ -58,7 +57,7 @@ def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[
         'username': get_variable(db=db, varname='user', docker_default=db),
         'password': get_variable(db=db, varname='password',
                                  docker_default='insecure'),
-        'host': get_variable(db=db, varname='host', docker_default=consul_host,
+        'host': get_variable(db=db, varname='host', docker_default=docker_host,
                              sa_default='localhost'),
         'port': get_variable(db=db, varname='port', docker_default='5432',
                              sa_default=localport),
@@ -66,29 +65,31 @@ def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[
     }
 
 
-DSN_ATLAS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+_db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
+
+DSN_ATLAS = _db_connection_string.format(
     **get_db_settings(db='atlas',
-                      consul_host='atlas_db',
+                      docker_host='atlas_db',
                       localport='5405'))
 
-DSN_NAP = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+DSN_NAP = _db_connection_string.format(
     **get_db_settings(db='nap',
-                      consul_host='nap_db',
+                      docker_host='nap_db',
                       localport='5401'))
 
-DSN_MILIEU = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+DSN_MILIEU = _db_connection_string.format(
     **get_db_settings(db='milieuthemas',
-                      consul_host='milieuthemas_db',
+                      docker_host='milieuthemas_db',
                       localport='5402'))
 
-DSN_TELLUS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+DSN_TELLUS = _db_connection_string.format(
     **get_db_settings(db='tellus',
-                      consul_host='tellus_db',
+                      docker_host='tellus_db',
                       localport='5409'))
 
-DSN_MONUMENTEN = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
+DSN_MONUMENTEN = _db_connection_string.format(
     **get_db_settings(db='monumenten',
-                      consul_host='monumenten_db',
+                      docker_host='monumenten_db',
                       localport='5412'))
 
 logging.debug('Database config:\n'
