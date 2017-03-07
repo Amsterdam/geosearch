@@ -16,7 +16,7 @@ services:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
-  milieu_db:
+  milieuthemas_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
       - "5402:5432"

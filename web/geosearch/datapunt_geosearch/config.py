@@ -1,14 +1,18 @@
 """
 Contains the different configs for the datapunt geosearch application
 """
+import logging
 import os
 from typing import Dict
 
+logger = logging.getLogger(__name__)
 
-def in_docker():
+
+def in_docker() -> bool:
     """
     Checks pid 1 cgroup settings to check with reasonable certainty we're in a
     docker env.
+    :rtype: bool
     :return: true when running in a docker container, false otherwise
     """
     # noinspection PyBroadException
@@ -23,6 +27,8 @@ def get_variable(db: str, varname: str, docker_default: str,
     """
     Retrieve variables taking into account env overrides and wetter we are
     running in Docker or standalone (development)
+
+    :rtype: str
     :param db: The database for which we are retrieving settings
     :param varname: The variable to retrieve
     :param docker_default: The default value (Running in docker)
@@ -35,10 +41,13 @@ def get_variable(db: str, varname: str, docker_default: str,
                      docker_default if in_docker() else sa_default)
 
 
-def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[str, str]:
+def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[
+    str, str]:
     """
     Get the complete settings for a given database. Taking all possible
     environments into account.
+
+    :rtype: Dict[str, str]
     :param db:
     :param consul_host:
     :param localport:
@@ -46,32 +55,46 @@ def get_db_settings(db: str, consul_host: str, localport: str) -> Dict[str, str]
              'username', 'password', 'host', 'port' and 'db'
     """
     return {
-        'username': get_variable(db, 'user', db),
-        'password': get_variable(db, 'password', 'insecure'),
-        'host': get_variable(db, 'host', consul_host, 'localhost'),
-        'port': get_variable(db, 'port', '5432', localport),
-        'db': get_variable(db, 'database', db)
+        'username': get_variable(db=db, varname='user', docker_default=db),
+        'password': get_variable(db=db, varname='password',
+                                 docker_default='insecure'),
+        'host': get_variable(db=db, varname='host', docker_default=consul_host,
+                             sa_default='localhost'),
+        'port': get_variable(db=db, varname='port', docker_default='5432',
+                             sa_default=localport),
+        'db': get_variable(db=db, varname='database', docker_default=db)
     }
 
 
 DSN_ATLAS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
-    **get_db_settings(db='atlas', consul_host='atlas_db', localport='5405')
-)
+    **get_db_settings(db='atlas',
+                      consul_host='atlas_db',
+                      localport='5405'))
 
 DSN_NAP = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
-    **get_db_settings(db='nap', consul_host='nap_db', localport='5401')
-)
+    **get_db_settings(db='nap',
+                      consul_host='nap_db',
+                      localport='5401'))
 
 DSN_MILIEU = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
-    **get_db_settings(db='milieu', consul_host='milieu_db', localport='5402')
-)
+    **get_db_settings(db='milieuthemas',
+                      consul_host='milieuthemas_db',
+                      localport='5402'))
 
 DSN_TELLUS = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
-    **get_db_settings(db='tellus', consul_host='tellus_db', localport='5409')
-)
+    **get_db_settings(db='tellus',
+                      consul_host='tellus_db',
+                      localport='5409'))
 
 DSN_MONUMENTEN = 'postgresql://{username}:{password}@{host}:{port}/{db}'.format(
-    **get_db_settings(db='monumenten', consul_host='monumenten_db', localport='5412')
-)
+    **get_db_settings(db='monumenten',
+                      consul_host='monumenten_db',
+                      localport='5412'))
 
-print(DSN_ATLAS, DSN_MILIEU, DSN_NAP, DSN_TELLUS, DSN_MONUMENTEN, sep='\n')
+logging.debug('Database config:\n'
+              'Atlas: %s\n'
+              'Nap: %s\n'
+              'Milieu: %s\n'
+              'Tellus: %s\n'
+              'Monumenten: %s',
+              DSN_ATLAS, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN)
