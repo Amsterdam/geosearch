@@ -24,5 +24,4 @@ if [ "${CONSUL_HOST:-notset}" == 'notset' ]; then
 fi
 
 echo Starting server
-# run uwsgi
-exec uwsgi
+uwsgi --ini uwsgi.ini
