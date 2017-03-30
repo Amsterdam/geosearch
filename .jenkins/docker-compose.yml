@@ -1,7 +1,6 @@
 version: '2.1'
 services:
   atlas_db:
-    network_mode: bridge
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
       - "5405:5432"
@@ -10,7 +9,6 @@ services:
       POSTGRES_DB: atlas
       POSTGRES_USER: atlas
   nap_db:
-    network_mode: bridge
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
       - "5401:5432"
@@ -18,22 +16,27 @@ services:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
-  milieu_db:
-      network_mode: bridge
+  milieuthemas_db:
       image: build.datapunt.amsterdam.nl:5000/atlas/postgres
       ports:
         - "5402:5432"
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: milieuthemas
+  tellus_db:
+      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      ports:
+        - "5409:5432"
+      environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_USER: tellus
+  monumenten_db:
+      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      ports:
+        - "5412:5432"
+      environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_USER: monumenten
   web_test:
-    network_mode: bridge
     build: ../web
-    links:
-      - atlas_db:atlas_db
-      - nap_db:nap_db
-      - milieu_db:milieu_db
-    environment:
-      NAP_DB_NAME: nap
-      ATLAS_DB_NAME: atlas
     command: python test_dataset.py

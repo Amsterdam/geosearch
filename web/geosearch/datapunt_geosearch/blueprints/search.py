@@ -9,19 +9,16 @@ from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
+from datapunt_geosearch.datasource import MonumentenDataSource
 
 search = Blueprint('search', __name__)
 
 
 def get_coords_and_type(args):
     """
-    Retrieves the coordinates from the request
-    and identifies if the request is in RD or in
-    wgs84
-    If no coordinates are found an error message is set in a
-    response dict.
-    The RD flag is set to true if the coords
-    given are in rd.
+    Retrieves the coordinates from the request and identifies if the request is
+    in RD or in wgs84. If no coordinates are found an error message is set in a
+    response dict. The RD flag is set to true if the coords given are in rd.
 
     @params
     args - The request args
@@ -84,6 +81,8 @@ def search_in_datasets():
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     elif item == 'tellus':
         ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
+    elif item == 'monument':
+        ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     else:
         ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
 
