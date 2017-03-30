@@ -11,7 +11,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0
-host: api.datapunt.amsterdam.nl
+host: api.data.amsterdam.nl
 basePath: /geosearch
 schemes:
   - https
