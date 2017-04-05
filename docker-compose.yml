@@ -44,3 +44,9 @@ services:
       environment:
         - CONSUL_HOST=${CONSUL_HOST:-notset}
         - CONSUL_PORT=${CONSUL_PORT:-8500}
+        - UWSGI_HTTP=0.0.0.0:8000
+        - UWSGI_STATS=0.0.0.0:9191
+        - UWSGI_MODULE=wsgi
+        - UWSGI_CALLABLE=app
+        - UWSGI_MASTER=1
+        - UWSGI_MASTER=4
