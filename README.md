@@ -68,6 +68,9 @@ Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om
 
 ### Voorbeelden Api endpoints
 <http://localhost:8000/monumenten/?lat=52.372239620672204&lon=4.900848228657843&radius=25000>
+
 <http://localhost:8000/monumenten/?x=121879&y=487262&radius=25000>
+
 <http://localhost:8000/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
+
 <http://localhost:8000/search/?x=121879&y=487262&radius=25000&item=monument>
