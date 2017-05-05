@@ -116,6 +116,20 @@ def search_geo_nap():
     return jsonify(resp)
 
 
+@search.route('/monumenten/', methods=['GET', 'OPTIONS'])
+def search_geo_monumenten():
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, resp = get_coords_and_type(request.args)
+
+    # If no error is found, query
+    if not resp:
+        ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
+        resp = ds.query(float(x), float(y), rd=rd,
+                        radius=request.args.get('radius'))
+
+    return jsonify(resp)
+
+
 @search.route('/munitie/', methods=['GET', 'OPTIONS'])
 def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
