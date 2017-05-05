@@ -1,5 +1,5 @@
 FROM amsterdam/docker_python:latest
-MAINTAINER datapunt.ois@amsterdam.nl
+MAINTAINER datapunt@amsterdam.nl
 
 ENV PYTHONUNBUFFERED 1
 
@@ -8,13 +8,12 @@ ENV CONSUL_PORT=${CONSUL_PORT:-8500}
 
 EXPOSE 8000
 
-RUN apt-get update \
-&& apt-get clean \
-&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& adduser --system datapunt \
-&& mkdir -p /static \
-&& chown datapunt /static \
-&& pip install uwsgi
+RUN apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && adduser --system datapunt \
+    && mkdir -p /static \
+    && chown datapunt /static \
+    && pip install uwsgi
 
 WORKDIR /app
 COPY requirements.txt /app/
