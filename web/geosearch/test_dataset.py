@@ -75,7 +75,7 @@ class TestMunitieDataset(unittest.TestCase):
         x = 120535.2
         y = 486376.3
 
-        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
