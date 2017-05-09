@@ -88,7 +88,7 @@ class TestMunitieDataset(unittest.TestCase):
         ds = datasource.MunitieMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 3
+        self.assertEqual(len(results['features']), 3)
 
     def test_query_wgs84(self):
         x = 52.364559349655
