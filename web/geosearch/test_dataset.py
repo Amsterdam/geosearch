@@ -43,12 +43,12 @@ class TestNapDataset(unittest.TestCase):
     def test_query_radius(self):
         x = 120535.2
         y = 486376.3
-        radius = 160
+        radius = 130
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 4)
+        self.assertEqual(len(results['features']), 2)
 
     def test_query_wgs84(self):
         x = 52.3641918658574
@@ -75,7 +75,7 @@ class TestMunitieDataset(unittest.TestCase):
         x = 120535.2
         y = 486376.3
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.MunitieMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
@@ -85,7 +85,7 @@ class TestMunitieDataset(unittest.TestCase):
         y = 486376.3
         radius = 130
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.MunitieMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y, radius=radius)
 
         self.assertEqual(len(results['features']), 4)
@@ -94,7 +94,7 @@ class TestMunitieDataset(unittest.TestCase):
         x = 52.3641918658574
         y = 4.88121013879857
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.MunitieMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 1)
@@ -104,7 +104,7 @@ class TestMunitieDataset(unittest.TestCase):
         y = 4.88121013879857
         radius = 130
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.MunitieMilieuDataSource(dsn=config.DSN_MILIEU)
         results = ds.query(x, y, rd=False, radius=radius)
 
         self.assertEqual(len(results['features']), 4)
