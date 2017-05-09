@@ -43,7 +43,7 @@ class TestNapDataset(unittest.TestCase):
     def test_query_radius(self):
         x = 120535.2
         y = 486376.3
-        radius = 130
+        radius = 150
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, radius=radius)
@@ -67,7 +67,7 @@ class TestNapDataset(unittest.TestCase):
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 4)
+        self.assertEqual(len(results['features']), 2)
 
 
 class TestMunitieDataset(unittest.TestCase):
