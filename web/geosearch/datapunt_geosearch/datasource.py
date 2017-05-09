@@ -307,8 +307,8 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
 
     def __init__(self, *args, **kwargs):
         super(BominslagMilieuDataSource, self).__init__(*args, **kwargs)
-        self.meta['datasets']['munitie'] = {
-            'bominslag': 'public.geo_bommenkaart_bominslag_point'
+        self.meta['datasets'] = {
+            'munitie': {'bominslag': 'public.geo_bommenkaart_bominslag_point'}
         }
         self.meta['operator'] = 'within'
 
