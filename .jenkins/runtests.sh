@@ -31,7 +31,7 @@ dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
 
-sleep 2
+sleep 1m
 # run da test
 
 dc run --rm web_test python test_dataset.py
