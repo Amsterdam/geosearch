@@ -146,6 +146,25 @@ paths:
       responses:
         200:
           description: An array of items that are located within the given radius of the given location that match the requested type(s)
+
+  /monumenten/:
+    get:
+      summary: Search for monumenten in Monumenten dataset
+      description: >
+        The Monumenten dataset contains information about monuments including name, status, the grouping of monuments into complexes and the adjacent adresses of monuments.
+        You need to supply either x/y or lat/lon. Providing both sets has no guaranteed order!
+      parameters:
+        - $ref: "#/parameters/xParam"
+        - $ref: "#/parameters/yParam"
+        - $ref: "#/parameters/latParam"
+        - $ref: "#/parameters/lonParam"
+        - $ref: "#/parameters/radiusParam"
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: An array of items that are located within the given radius of the given location that match the requested type(s)
+
   /atlas/:
     get:
       summary: Search all of the Atlas dataset
