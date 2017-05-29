@@ -9,7 +9,7 @@ dc() {
 	docker-compose -p geotest -f ${DIR}/docker-compose.yml $*;
 }
 
-#trap 'dc kill ; dc rm -f' EXIT
+trap 'dc kill ; dc rm -f' EXIT
 
 dc build --pull
 
