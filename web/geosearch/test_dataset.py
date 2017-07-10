@@ -147,7 +147,7 @@ class TestTellusDataset(unittest.TestCase):
         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 8)
+        self.assertEqual(len(results['features']), 9)
 
 
 class TestMonumentenDataset(unittest.TestCase):
