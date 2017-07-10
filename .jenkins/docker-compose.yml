@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.0'
 services:
   atlas_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
