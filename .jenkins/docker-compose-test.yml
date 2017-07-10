@@ -1,0 +1,33 @@
+version: '3.0'
+services:
+  atlas_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_DB: atlas
+      POSTGRES_USER: atlas
+  nap_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    environment:
+      POSTGRES_DB: nap
+      POSTGRES_USER: nap
+      POSTGRES_PASSWORD: insecure
+  milieuthemas_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: milieuthemas
+  tellus_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    environment:
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: tellus
+  monumenten_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: monumenten
+  web_test:
+    build: ../web
+    command: python test_dataset.py

@@ -6,10 +6,10 @@ set -u
 DIR="$(dirname $0)"
 
 dc() {
-	docker-compose -p geotest -f ${DIR}/docker-compose.yml $*;
+	docker-compose -p geotest -f ${DIR}/docker-compose-test.yml $*;
 }
 
-#trap 'dc kill ; dc rm -f' EXIT
+trap 'dc kill ; dc rm -f' EXIT
 
 dc build --pull
 

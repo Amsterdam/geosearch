@@ -7,7 +7,7 @@ atlas_backend and atlas_meetbouten for now
 
     docker-compose exec atlas_db update-db.sh  atlas
     docker-compose exec nap_db update-db.sh nap
-    docker-compose exec milieu_db update-db.sh milieuthemas
+    docker-compose exec milieuthemas_db update-db.sh milieuthemas
     docker-compose exec monumenten_db update-db.sh monumenten
     docker-compose exec tellus_db update-db.sh tellus
 
@@ -58,9 +58,19 @@ ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
 De volgende endpoints zijn beschikbaar voor geosearch:
 
 - `/nap/` zoek voor NAP data - Locatie en radius verplict
+- `/monumenten/` zoek voor monumenten- Locatie en radius verplicht
 - `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
 - `/bominslag/` zoek voor bominslag data - Locatie en radius verplict
 - `/atlas/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
 - `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
 
 Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
+
+### Voorbeelden Api endpoints
+<http://localhost:8000/monumenten/?lat=52.372239620672204&lon=4.900848228657843&radius=25000>
+
+<http://localhost:8000/monumenten/?x=121879&y=487262&radius=25000>
+
+<http://localhost:8000/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
+
+<http://localhost:8000/search/?x=121879&y=487262&radius=25000&item=monument>
