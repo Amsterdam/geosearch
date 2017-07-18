@@ -16,8 +16,9 @@ class DataSourceBase(object):
     dsn = None
     dataset = None
     # opr_type = openbare_ruimte_type. Water, Weg, Terrein...
-    default_properties = ('id', 'display', 'type', 'uri', 'opr_type')
+    default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
     radius = 30
+    limit = None
     meta = {}
     use_rd = True
     x = None
@@ -90,48 +91,59 @@ class DataSourceBase(object):
     def execute_point_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *
+SELECT *, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s)
+ORDER BY distance
             """.format(
-                table, self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield']
             )
-            cur.execute(sql, (self.y, self.x, self.radius))
+            if self.limit:
+                sql += "LIMIT %s"
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius, self.limit))
+            else:
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         else:
             sql = """
-SELECT *
+SELECT *, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
+ORDER BY distance
             """.format(
-                table, self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y, self.radius))
-
+            if self.limit:
+                sql += "LIMIT %s"
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius, self.limit))
+            else:
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *
+SELECT *, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
 AND
 ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
+ORDER BY distance
             """.format(
-                table, self.meta['geofield'], self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.y, self.x) * 2)
+            cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT *
+SELECT *, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
 AND
 ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
+ORDER BY distance
             """.format(
-                table, self.meta['geofield'], self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y) * 2)
+            cur.execute(sql, (self.x, self.y) * 3)
 
         return cur.fetchall()
 
@@ -177,13 +189,16 @@ class AtlasDataSource(DataSourceBase):
         else:
             return super(AtlasDataSource, self).filter_dataset(dataset_table)
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -223,13 +238,16 @@ class NapMeetboutenDataSource(DataSourceBase):
             },
         }
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -271,15 +289,18 @@ class MunitieMilieuDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('id', 'display', 'type', 'uri', 'opr_type')
+    default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -327,9 +348,9 @@ class TellusDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('display', 'standplaats', 'type', 'uri')
+    default_properties = ('display', 'standplaats', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
@@ -372,15 +393,18 @@ class MonumentenDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('display', 'type', 'uri')
+    default_properties = ('display', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
