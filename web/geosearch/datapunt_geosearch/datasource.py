@@ -114,9 +114,9 @@ ORDER BY distance
             )
             if self.limit:
                 sql += "LIMIT %s"
-                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius, self.limit))
+                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius, self.limit))
             else:
-                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
+                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius))
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table):
