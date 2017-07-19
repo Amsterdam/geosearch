@@ -53,6 +53,13 @@ parameters:
     required: false
     type: number
     format: double
+  limitParam:
+    name: limt
+    in: query
+    description: The amount of results. This will only work on specific itemized resultsets (/nap, /bominslagen, /monumenten)
+    required: false
+    type: number
+    format: integer
 paths:
   /search/:
     get:
@@ -91,6 +98,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
 
       tags:
         - Geosearch
@@ -108,6 +116,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
@@ -141,6 +150,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
@@ -159,6 +169,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
