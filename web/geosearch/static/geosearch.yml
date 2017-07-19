@@ -54,12 +54,12 @@ parameters:
     type: number
     format: double
   limitParam:
-    name: limt
+    name: limit
     in: query
     description: The amount of results. This will only work on specific itemized resultsets (/nap, /bominslagen, /monumenten)
     required: false
-    type: number
-    format: integer
+    type: integer
+    format: int32
 paths:
   /search/:
     get:
