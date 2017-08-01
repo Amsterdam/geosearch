@@ -91,6 +91,8 @@ paths:
             - standplaats
             - unesco
             - verblijfsobject
+            - beperking
+            - kadastraal_object
           description: >
             Type of item(s) to look for.
         - $ref: "#/parameters/xParam"
