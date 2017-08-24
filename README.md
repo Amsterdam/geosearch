@@ -4,7 +4,7 @@
 Update different project databases with current data:
 atlas_backend and atlas_meetbouten for now
 
-
+	docker-compose up -d
     docker-compose exec atlas_db update-db.sh  atlas
     docker-compose exec nap_db update-db.sh nap
     docker-compose exec milieuthemas_db update-db.sh milieuthemas
@@ -15,7 +15,8 @@ atlas_backend and atlas_meetbouten for now
 
 test postgres spatial queries:
 
-`run python test_dataset.py`
+    cd web/geosearch
+	python test_dataset.py
 
 
 
@@ -26,7 +27,7 @@ views en features teruggeven aan de client in geojson formaat.
 
 ## Taal/framework keuze
 
-Flask/SQLAlchemy
+Flask
 
 ## Soorten queries
 Er zijn twee soorten postgis queries van toepassing voor de usecase:

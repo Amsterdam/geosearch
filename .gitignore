@@ -66,6 +66,10 @@ target/
 .idea
 *.iml
 
+# PyDev
+.project
+.pydevproject
+
 # virtualenv
 .venv/
 venv/
