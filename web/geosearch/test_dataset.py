@@ -168,7 +168,7 @@ class TestMonumentenDataset(unittest.TestCase):
         ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 43)
+        self.assertEqual(len(results['features']), 46)
 
     def test_query_wgs84(self):
         x = 52.3553072
