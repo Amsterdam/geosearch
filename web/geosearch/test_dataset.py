@@ -19,6 +19,7 @@ class TestAtlasDataset(unittest.TestCase):
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 7)
+        self.assertIn('distance', results['features'][0]['properties'])
 
     def test_query_wgs84(self):
         x = 52.36011
@@ -39,16 +40,21 @@ class TestNapDataset(unittest.TestCase):
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
+        self.assertIn('distance', results['features'][0]['properties'])
 
-    def test_query_radius(self):
+    def test_query_radius_and_limit(self):
         x = 120535.2
         y = 486376.3
         radius = 130
+        limit = 1
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
-        results = ds.query(x, y, radius=radius)
 
+        results = ds.query(x, y, radius=radius)
         self.assertEqual(len(results['features']), 4)
+
+        results = ds.query(x, y, radius=radius, limit=limit)
+        self.assertEqual(len(results['features']), 2)
 
     def test_query_wgs84(self):
         x = 52.3641918658574
@@ -79,16 +85,21 @@ class TestMunitieDataset(unittest.TestCase):
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
+        self.assertIn('distance', results['features'][0]['properties'])
 
-    def test_query_radius(self):
+    def test_query_radius_and_limit(self):
         x = 120535.2
         y = 486376.3
         radius = 600
+        limit = 2
 
         ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
-        results = ds.query(x, y, radius=radius)
 
+        results = ds.query(x, y, radius=radius)
         self.assertEqual(len(results['features']), 3)
+
+        results = ds.query(x, y, radius=radius, limit=limit)
+        self.assertEqual(len(results['features']), 2)
 
     def test_query_wgs84(self):
         x = 52.364559349655
@@ -119,6 +130,7 @@ class TestTellusDataset(unittest.TestCase):
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
+        self.assertIn('distance', results['features'][0]['properties'])
 
     def test_query_radius(self):
         x = 112995
@@ -159,16 +171,22 @@ class TestMonumentenDataset(unittest.TestCase):
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
+        self.assertIn('distance', results['features'][0]['properties'])
 
     def test_query_radius(self):
         x = 112995
         y = 485325
         radius = 2500
+        limit = 4
 
         ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+
         results = ds.query(x, y, radius=radius)
 
         self.assertEqual(len(results['features']), 46)
+
+        results = ds.query(x, y, radius=radius, limit=limit)
+        self.assertEqual(len(results['features']), 4)
 
     def test_query_wgs84(self):
         x = 52.3553072

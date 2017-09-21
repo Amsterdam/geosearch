@@ -1,8 +1,85 @@
+import contextlib
+import functools
 import logging
 
-import psycopg2
-from psycopg2 import OperationalError, ProgrammingError, connect
-from psycopg2.extras import DictCursor
+import psycopg2.extras
+
+_logger = logging.getLogger(__name__)
+
+
+@functools.lru_cache()
+def dbconnection(dsn):
+    """Creates an instance of _DBConnection and remembers the last one made."""
+    return _DBConnection(dsn)
+
+
+class _DBConnection:
+    """ Wraps a PostgreSQL database connection that reports crashes and tries
+    its best to repair broken connections.
+
+    NOTE: doesn't always work, but the failure scenario is very hard to
+      reproduce. Also see https://github.com/psycopg/psycopg2/issues/263
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.conn_args = args
+        self.conn_kwargs = kwargs
+        self._conn = None
+        self._connect()
+
+    def _connect(self):
+        if self._conn is None:
+            self._conn = psycopg2.connect(*self.conn_args, **self.conn_kwargs)
+            self._conn.autocommit = True
+
+    def _is_usable(self):
+        """ Checks whether the connection is usable.
+
+        :returns boolean: True if we can query the database, False otherwise
+        """
+        try:
+            self._conn.cursor().execute("SELECT 1")
+        except psycopg2.Error:
+            return False
+        else:
+            return True
+
+    @contextlib.contextmanager
+    def _connection(self):
+        """ Contextmanager that catches tries to ensure we have a database
+        connection. Yields a Connection object.
+
+        If a :class:`psycopg2.DatabaseError` occurs then it will check whether
+        the connection is still usable, and if it's not, close and remove it.
+        """
+        try:
+            self._connect()
+            yield self._conn
+        except psycopg2.Error as e:
+            _logger.critical('AUTHZ DatabaseError: {}'.format(e))
+            if not self._is_usable():
+                with contextlib.suppress(psycopg2.Error):
+                    self._conn.close()
+                self._conn = None
+            raise e
+
+    @contextlib.contextmanager
+    def transaction_cursor(self, cursor_factory=None):
+        """ Yields a cursor with transaction.
+        """
+        with self._connection() as transaction:
+            with transaction:
+                with transaction.cursor(cursor_factory=cursor_factory) as cur:
+                    yield cur
+
+    @contextlib.contextmanager
+    def cursor(self, cursor_factory=None):
+        """ Yields a cursor without transaction.
+        """
+        with self._connection() as conn:
+            with conn.cursor(cursor_factory=cursor_factory) as cur:
+                yield cur
+
 
 class DataSourceException(Exception):
     pass
@@ -16,21 +93,25 @@ class DataSourceBase(object):
     dsn = None
     dataset = None
     # opr_type = openbare_ruimte_type. Water, Weg, Terrein...
-    default_properties = ('id', 'display', 'type', 'uri', 'opr_type')
+    default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
     radius = 30
+    limit = None
     meta = {}
     use_rd = True
     x = None
     y = None
 
     def __init__(self, dsn=None):
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.debug('Creating DataSource: %s' % self.dataset)
+        _logger.debug('Creating DataSource: %s' % self.dataset)
 
         if not dsn:
             raise ValueError('dsn needs to be defined')
 
-        self.dsn = dsn
+        try:
+            self.dbconn = dbconnection(dsn)
+        except psycopg2.Error as e:
+            _logger.error('Error creating connection: %s' % e)
+            raise DataSourceException('error connecting to datasource') from e
 
     def filter_dataset(self, dataset_table):
         """
@@ -51,27 +132,18 @@ class DataSourceBase(object):
         self.meta['datasets'] = None
         return False
 
-    def get_cursor(self, conn):
-        return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
     def execute_queries(self):
-        try:
-            conn = connect(self.dsn)
-        except OperationalError as err:
-            self.logger.error('Error creating connection: %s' % err)
-            raise DataSourceException('error connecting to datasource')
-
         features = []
-        with self.get_cursor(conn) as cur:
+        with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta['datasets']:
-                for dataset_ident, table in self.meta['datasets'][dataset].items():
+                for _, table in self.meta['datasets'][dataset].items():
                     if self.meta['operator'] == 'contains':
                         rows = self.execute_polygon_query(cur, table)
                     else:
                         rows = self.execute_point_query(cur, table)
 
                     if not len(rows):
-                        self.logger.debug(table, 'no results')
+                        _logger.debug(table, 'no results')
                         continue
 
                     for row in rows:
@@ -80,58 +152,65 @@ class DataSourceBase(object):
                                                 for prop in
                                                 self.default_properties if
                                                 prop in row])})
-
-        # Closing the connection to the db
-        conn.close()
-
         return features
 
     # Point query
     def execute_point_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *
+SELECT *, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s)
+ORDER BY distance
             """.format(
-                table, self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield']
             )
-            cur.execute(sql, (self.y, self.x, self.radius))
+            if self.limit:
+                sql += "LIMIT %s"
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius, self.limit))
+            else:
+                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         else:
             sql = """
-SELECT *
+SELECT *, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
+ORDER BY distance
             """.format(
-                table, self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y, self.radius))
-
+            if self.limit:
+                sql += "LIMIT %s"
+                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius, self.limit))
+            else:
+                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius))
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *
+SELECT *, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
 AND
 ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
+ORDER BY distance
             """.format(
-                table, self.meta['geofield'], self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.y, self.x) * 2)
+            cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT *
+SELECT *, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
 AND
 ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
+ORDER BY distance
             """.format(
-                table, self.meta['geofield'], self.meta['geofield']
+                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
-            cur.execute(sql, (self.x, self.y) * 2)
+            cur.execute(sql, (self.x, self.y) * 3)
 
         return cur.fetchall()
 
@@ -177,13 +256,16 @@ class AtlasDataSource(DataSourceBase):
         else:
             return super(AtlasDataSource, self).filter_dataset(dataset_table)
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -195,7 +277,7 @@ class AtlasDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except ProgrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
@@ -223,13 +305,16 @@ class NapMeetboutenDataSource(DataSourceBase):
             },
         }
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -241,7 +326,7 @@ class NapMeetboutenDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except ProgrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
@@ -271,15 +356,18 @@ class MunitieMilieuDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('id', 'display', 'type', 'uri', 'opr_type')
+    default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -291,7 +379,7 @@ class MunitieMilieuDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except ProgrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
@@ -327,9 +415,9 @@ class TellusDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('display', 'standplaats', 'type', 'uri')
+    default_properties = ('display', 'standplaats', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
@@ -347,7 +435,7 @@ class TellusDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except ProgrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
@@ -357,6 +445,7 @@ class TellusDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
 
 class MonumentenDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
@@ -372,15 +461,18 @@ class MonumentenDataSource(DataSourceBase):
             },
         }
 
-    default_properties = ('display', 'type', 'uri')
+    default_properties = ('display', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None):
+    def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
         self.x = x
         self.y = y
 
         if radius:
             self.radius = radius
+
+        if limit:
+            self.limit = limit
 
         try:
             return {
@@ -392,7 +484,7 @@ class MonumentenDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except ProgrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)

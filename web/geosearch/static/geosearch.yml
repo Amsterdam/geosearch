@@ -53,6 +53,13 @@ parameters:
     required: false
     type: number
     format: double
+  limitParam:
+    name: limit
+    in: query
+    description: The amount of results. This will only work on specific itemized resultsets (/nap, /bominslagen, /monumenten)
+    required: false
+    type: integer
+    format: int32
 paths:
   /search/:
     get:
@@ -84,6 +91,8 @@ paths:
             - standplaats
             - unesco
             - verblijfsobject
+            - beperking
+            - kadastraal_object
           description: >
             Type of item(s) to look for.
         - $ref: "#/parameters/xParam"
@@ -91,6 +100,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
 
       tags:
         - Geosearch
@@ -108,6 +118,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
@@ -141,6 +152,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
@@ -159,6 +171,7 @@ paths:
         - $ref: "#/parameters/latParam"
         - $ref: "#/parameters/lonParam"
         - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
       tags:
         - Geosearch
       responses:
