@@ -8,12 +8,6 @@ services:
       POSTGRES_PASSWORD: insecure
       POSTGRES_DB: atlas
       POSTGRES_USER: atlas
-      LOCAL: "True"
-    extra_hosts:
-      admin.datapunt.amsterdam.nl: 10.99.157.24
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-
   nap_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
@@ -22,11 +16,6 @@ services:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
-      LOCAL: "True"
-    extra_hosts:
-      admin.datapunt.amsterdam.nl: 10.99.157.24
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   milieuthemas_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
@@ -34,11 +23,6 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: milieuthemas
-      LOCAL: "True"
-    extra_hosts:
-      admin.datapunt.amsterdam.nl: 10.99.157.24
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   monumenten_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
@@ -46,9 +30,6 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
-      LOCAL: "True"
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   tellus_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
@@ -56,9 +37,6 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: tellus
-      LOCAL: "True"
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   web:
       build: ./web
       ports:
