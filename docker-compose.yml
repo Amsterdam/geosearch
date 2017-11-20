@@ -47,8 +47,6 @@ services:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
       LOCAL: "True"
-    extra_hosts:
-      admin.datapunt.amsterdam.nl: 10.99.157.24
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   tellus_db:
@@ -59,8 +57,6 @@ services:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: tellus
       LOCAL: "True"
-    extra_hosts:
-      admin.datapunt.amsterdam.nl: 10.99.157.24
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   web:
