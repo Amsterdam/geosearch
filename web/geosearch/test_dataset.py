@@ -140,7 +140,7 @@ class TestTellusDataset(unittest.TestCase):
         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 27)
+        self.assertEqual(len(results['features']), 28)
 
     def test_query_wgs84(self):
         x = 52.3542193
@@ -159,7 +159,7 @@ class TestTellusDataset(unittest.TestCase):
         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 9)
+        self.assertEqual(len(results['features']), 10)
 
 
 class TestMonumentenDataset(unittest.TestCase):
