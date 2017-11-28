@@ -122,11 +122,19 @@ def search_geo_monumenten():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
+    nopand = request.args.get('nopand')
+
     # If no error is found, query
     if not resp:
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit,
-                        radius=request.args.get('radius'))
+        kwargs = {
+            'rd':rd,
+            'limit':limit,
+            'radius':request.args.get('radius')
+        }
+        if nopand is not None:
+            kwargs['nopand'] = 1
+        resp = ds.query(float(x), float(y), **kwargs)
 
     return jsonify(resp)
 

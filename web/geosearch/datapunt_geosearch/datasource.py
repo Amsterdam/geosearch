@@ -101,6 +101,8 @@ class DataSourceBase(object):
     use_rd = True
     x = None
     y = None
+    fields = '*'
+    extra_where = ''
 
     def __init__(self, dsn=None):
         _logger.debug('Creating DataSource: %s' % self.dataset)
@@ -136,8 +138,6 @@ class DataSourceBase(object):
     def execute_queries(self):
         if 'fields' in self.meta:
             self.fields = ','.join(self.meta['fields'])
-        else:
-            self.fields = '*'
 
         features = []
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
@@ -166,10 +166,10 @@ class DataSourceBase(object):
             sql = """
 SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
-WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s)
+WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.extra_where
             )
             if self.limit:
                 sql += "LIMIT %s"
@@ -180,10 +180,10 @@ ORDER BY distance
             sql = """
 SELECT {}, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
-WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
+WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s) {}
 ORDER BY distance
             """.format(
-                self.fields,self.meta['geofield'], table, self.meta['geofield']
+                self.fields,self.meta['geofield'], table, self.meta['geofield'], self.extra_where
             )
             if self.limit:
                 sql += "LIMIT %s"
@@ -199,10 +199,10 @@ SELECT {}, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s 
 FROM {}
 WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
 AND
-ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
+ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
             )
             cur.execute(sql, (self.y, self.x) * 3)
         else:
@@ -211,10 +211,10 @@ SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)
 FROM {}
 WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
 AND
-ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
+ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
             )
             cur.execute(sql, (self.x, self.y) * 3)
 
@@ -471,15 +471,16 @@ class MonumentenDataSource(DataSourceBase):
                 # "'/monument/' || lower(monumenttype) as type",
                 f"'{DATAPUNT_API_URL}monumenten/monumenten/' || id || '/'  as uri",
                 "monumentcoordinaten as geometrie",
-            ]
+            ],
         }
 
     default_properties = ('display', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None, limit=None):
+    def query(self, x, y, rd=True, radius=None, limit=None, nopand=None):
         self.use_rd = rd
         self.x = x
         self.y = y
+        self.nopand = nopand
 
         if radius:
             self.radius = radius
@@ -487,6 +488,8 @@ class MonumentenDataSource(DataSourceBase):
         if limit:
             self.limit = limit
 
+        if self.nopand:
+            self.extra_where = ' and monumenttype <> \'Pand\' '
         try:
             return {
                 'type': 'FeatureCollection',

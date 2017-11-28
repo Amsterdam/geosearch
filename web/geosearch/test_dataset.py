@@ -207,5 +207,27 @@ class TestMonumentenDataset(unittest.TestCase):
 
         self.assertEqual(len(results['features']), 529)
 
+    def test_query_nopand(self):
+        x = 52.3620372560367
+        y = 4.95020269748781
+        radius = 200
+        nopand = 1
+
+        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        results = ds.query(x, y, rd=False, radius=radius, nopand=nopand)
+
+        self.assertEqual(len(results['features']), 1)
+
+    def test_query_pand(self):
+        x = 52.3620372560367
+        y = 4.95020269748781
+        radius = 200
+
+        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        results = ds.query(x, y, rd=False, radius=radius)
+
+        self.assertEqual(len(results['features']), 3)
+
+
 if __name__ == '__main__':
     unittest.main()
