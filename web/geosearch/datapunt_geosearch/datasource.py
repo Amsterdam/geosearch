@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import logging
+from .config import DATAPUNT_API_URL
 
 import psycopg2.extras
 
@@ -133,6 +134,11 @@ class DataSourceBase(object):
         return False
 
     def execute_queries(self):
+        if 'fields' in self.meta:
+            self.fields = ','.join(self.meta['fields'])
+        else:
+            self.fields = '*'
+
         features = []
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta['datasets']:
@@ -158,12 +164,12 @@ class DataSourceBase(object):
     def execute_point_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
+SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s)
 ORDER BY distance
             """.format(
-                self.meta['geofield'], table, self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield']
             )
             if self.limit:
                 sql += "LIMIT %s"
@@ -172,12 +178,12 @@ ORDER BY distance
                 cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         else:
             sql = """
-SELECT *, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
+SELECT {}, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s)
 ORDER BY distance
             """.format(
-                self.meta['geofield'], table, self.meta['geofield']
+                self.fields,self.meta['geofield'], table, self.meta['geofield']
             )
             if self.limit:
                 sql += "LIMIT %s"
@@ -189,26 +195,26 @@ ORDER BY distance
     def execute_polygon_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT *, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
+SELECT {}, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
 FROM {}
 WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
 AND
 ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992))
 ORDER BY distance
             """.format(
-                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
             cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT *, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
+SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
 FROM {}
 WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
 AND
 ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992))
 ORDER BY distance
             """.format(
-                self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield']
             )
             cur.execute(sql, (self.x, self.y) * 3)
 
@@ -451,14 +457,20 @@ class MonumentenDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
         super(MonumentenDataSource, self).__init__(*args, **kwargs)
         self.meta = {
-            'geofield': 'geometrie',
+            'geofield': 'monumentcoordinaten',
             'operator': 'within',
             'datasets': {
                 'monumenten': {
                     'monument':
-                        'public.geo_monument_point'
+                        'public.dataset_monument'
                 }
             },
+            'fields' : [
+                "display_naam as display",
+                "'/monument/' || lower(monumenttype) as type",
+                f"'{DATAPUNT_API_URL}monumenten/monumenten/' || id || '/'  as uri",
+                "monumentcoordinaten as geometrie",
+            ]
         }
 
     default_properties = ('display', 'type', 'uri', 'distance')

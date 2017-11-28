@@ -99,3 +99,6 @@ logging.debug('Database config:\n'
               'Tellus: %s\n'
               'Monumenten: %s',
               DSN_ATLAS, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN)
+
+DATAPUNT_API_URL = os.getenv(
+    'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')
