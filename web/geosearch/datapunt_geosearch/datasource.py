@@ -491,10 +491,11 @@ class MonumentenDataSource(DataSourceBase):
         if self.monumenttype:
             monumenttype_list = self.monumenttype.split('_')
             monumenttypes = {'pand', 'bouwwerk', 'parkterrein', 'beeldhouwkunst', 'bouwblok'}
-            if len(monumenttype_list) == 2 and (monumenttype_list[0] == 'is' or monumenttype_list[0] == 'isnot') and \
-                            monumenttype_list[1] in monumenttypes:
-                operator = '=' if monumenttype_list[0] == 'is' else '<>'
-                self.extra_where = f' and lower(monumenttype) {operator} \'{monumenttype_list[1]}\''
+            if len(monumenttype_list) >= 2 and (monumenttype_list[0] == 'is' or monumenttype_list[0] == 'isnot') and \
+                            all(i in monumenttypes for i in monumenttype_list[1:]):
+                operator = 'in' if monumenttype_list[0] == 'is' else 'not in'
+                condition = "('" + "','".join(monumenttype_list[1:]) + "')"
+                self.extra_where = f' and lower(monumenttype) {operator} {condition}'
             else:
                 _logger.warning(f"Invalid monumenttype {self.monumenttype}")
         try:

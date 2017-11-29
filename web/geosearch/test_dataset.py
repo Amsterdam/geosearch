@@ -214,7 +214,7 @@ class TestMonumentenDataset(unittest.TestCase):
         nopand = 1
 
         ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
-        results = ds.query(x, y, rd=False, radius=radius, monumenttype='isnot_pand')
+        results = ds.query(x, y, rd=False, radius=radius, monumenttype='isnot_pand_bouwblok')
 
         self.assertEqual(len(results['features']), 1)
 
