@@ -476,11 +476,11 @@ class MonumentenDataSource(DataSourceBase):
 
     default_properties = ('display', 'type', 'uri', 'distance')
 
-    def query(self, x, y, rd=True, radius=None, limit=None, nopand=None):
+    def query(self, x, y, rd=True, radius=None, limit=None, monumenttype=None):
         self.use_rd = rd
         self.x = x
         self.y = y
-        self.nopand = nopand
+        self.monumenttype = monumenttype
 
         if radius:
             self.radius = radius
@@ -488,8 +488,15 @@ class MonumentenDataSource(DataSourceBase):
         if limit:
             self.limit = limit
 
-        if self.nopand:
-            self.extra_where = ' and monumenttype <> \'Pand\' '
+        if self.monumenttype:
+            monumenttype_list = self.monumenttype.split('_')
+            monumenttypes = {'pand', 'bouwwerk', 'parkterrein', 'beeldhouwkunst', 'bouwblok'}
+            if len(monumenttype_list) == 2 and (monumenttype_list[0] == 'is' or monumenttype_list[0] == 'isnot') and \
+                            monumenttype_list[1] in monumenttypes:
+                operator = '=' if monumenttype_list[0] == 'is' else '<>'
+                self.extra_where = f' and lower(monumenttype) {operator} \'{monumenttype_list[1]}\''
+            else:
+                _logger.warning(f"Invalid monumenttype {self.monumenttype}")
         try:
             return {
                 'type': 'FeatureCollection',
