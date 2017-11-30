@@ -164,9 +164,9 @@ class DataSourceBase(object):
     def execute_point_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
+SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) as distance
 FROM {}
-WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992), %s) {}
+WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992), %s) {}
 ORDER BY distance
             """.format(
                 self.fields, self.meta['geofield'], table, self.meta['geofield'], self.extra_where
@@ -178,9 +178,9 @@ ORDER BY distance
                 cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         else:
             sql = """
-SELECT {}, ST_Distance({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
+SELECT {}, ST_Distance({}, ST_GeomFromText('POINT(%s %s)', 28992)) as distance
 FROM {}
-WHERE ST_DWithin({}, ST_GeomFromText(\'POINT(%s %s)\', 28992), %s) {}
+WHERE ST_DWithin({}, ST_GeomFromText('POINT(%s %s)', 28992), %s) {}
 ORDER BY distance
             """.format(
                 self.fields,self.meta['geofield'], table, self.meta['geofield'], self.extra_where
@@ -195,11 +195,11 @@ ORDER BY distance
     def execute_polygon_query(self, cur, table):
         if not self.use_rd:
             sql = """
-SELECT {}, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) as distance
+SELECT {}, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) as distance
 FROM {}
-WHERE {} && ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)
+WHERE {} && ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)
 AND
-ST_Contains({}, ST_Transform(ST_GeomFromText(\'POINT(%s %s)\', 4326), 28992)) {}
+ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
 ORDER BY distance
             """.format(
                 self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
@@ -207,11 +207,11 @@ ORDER BY distance
             cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText(\'POINT(%s %s)\', 28992)) as distance
+SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText('POINT(%s %s)', 28992)) as distance
 FROM {}
-WHERE {} && ST_GeomFromText(\'POINT(%s %s)\', 28992)
+WHERE {} && ST_GeomFromText('POINT(%s %s)', 28992)
 AND
-ST_Contains({}, ST_GeomFromText(\'POINT(%s %s)\', 28992)) {}
+ST_Contains({}, ST_GeomFromText('POINT(%s %s)', 28992)) {}
 ORDER BY distance
             """.format(
                 self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
