@@ -25,6 +25,7 @@ sleep 10
 echo "let's see if databases are working"
 
 # load latest data into databases
+# TODO only tables!
 dc exec -T nap_db /bin/update-db.sh nap
 dc exec -T bag_db /bin/update-db.sh bag
 dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
