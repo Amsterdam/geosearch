@@ -1,7 +1,7 @@
 # Packages
 from flask import Blueprint, Response, current_app
 
-from datapunt_geosearch.datasource import AtlasDataSource, \
+from datapunt_geosearch.datasource import BagDataSource, \
     NapMeetboutenDataSource
 
 health = Blueprint('health', __name__)
@@ -13,13 +13,13 @@ def search_list():
     x, y, response_text = 120993, 485919, []
     # Trying to load the data sources
     try:
-        atlas_dsn = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
+        bag_dsn = BagDataSource(dsn=current_app.config['DSN_BAG'])
         nap_dsn = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
     except Exception as e:
         return repr(e), 500
     # Attempting to query
     try:
-        results = atlas_dsn.query(x, y)
+        results = bag_dsn.query(x, y)
     except Exception as e:
         return repr(e), 500
 
@@ -29,7 +29,7 @@ def search_list():
                         status=500)
 
     if not len(results['features']):
-        response_text.append('No results from atlas dataset')
+        response_text.append('No results from bag dataset')
 
     results = nap_dsn.query(x, y)
 

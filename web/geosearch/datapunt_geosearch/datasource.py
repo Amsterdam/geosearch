@@ -221,9 +221,9 @@ ORDER BY distance
         return cur.fetchall()
 
 
-class AtlasDataSource(DataSourceBase):
+class BagDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
-        super(AtlasDataSource, self).__init__(*args, **kwargs)
+        super(BagDataSource, self).__init__(*args, **kwargs)
         self.meta = {
             'geofield': 'geometrie',
             'operator': 'contains',
@@ -254,13 +254,13 @@ class AtlasDataSource(DataSourceBase):
 
     def filter_dataset(self, dataset_table):
         # Adding custom support voor verblijfsobject as it is not needed
-        # in atlas but is needed in type specific geosearch
+        # in bag but is needed in type specific geosearch
         if dataset_table == 'verblijfsobject':
             self.meta['datasets'] = {'bag': {
                 'verblijfsobject': 'public.geo_bag_verblijfsobject_mat'}}
             return True
         else:
-            return super(AtlasDataSource, self).filter_dataset(dataset_table)
+            return super(BagDataSource, self).filter_dataset(dataset_table)
 
     def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd

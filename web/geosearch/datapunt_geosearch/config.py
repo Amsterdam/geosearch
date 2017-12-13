@@ -67,9 +67,9 @@ def get_db_settings(db: str, docker_host: str, localport: str) -> Dict[str, str]
 
 _db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
 
-DSN_ATLAS = _db_connection_string.format(
-    **get_db_settings(db='atlas',
-                      docker_host='atlas_db',
+DSN_BAG = _db_connection_string.format(
+    **get_db_settings(db='bag',
+                      docker_host='bag_db',
                       localport='5405'))
 
 DSN_NAP = _db_connection_string.format(
@@ -93,12 +93,12 @@ DSN_MONUMENTEN = _db_connection_string.format(
                       localport='5412'))
 
 logging.debug('Database config:\n'
-              'Atlas: %s\n'
+              'Bag: %s\n'
               'Nap: %s\n'
               'Milieu: %s\n'
               'Tellus: %s\n'
               'Monumenten: %s',
-              DSN_ATLAS, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN)
+              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN)
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')
