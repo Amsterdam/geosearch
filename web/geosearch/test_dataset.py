@@ -15,7 +15,7 @@ class TestBAGDataset(unittest.TestCase):
         x = 120993
         y = 485919
 
-        ds = datasource.BagDataSource(dsn=config.DSN_ATLAS)
+        ds = datasource.BagDataSource(dsn=config.DSN_BAG)
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 7)
@@ -25,7 +25,7 @@ class TestBAGDataset(unittest.TestCase):
         x = 52.36011
         y = 4.88798
 
-        ds = datasource.BagDataSource(dsn=config.DSN_ATLAS)
+        ds = datasource.BagDataSource(dsn=config.DSN_BAG)
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 7)
