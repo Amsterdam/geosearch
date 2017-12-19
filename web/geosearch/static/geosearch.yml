@@ -180,7 +180,25 @@ paths:
 
   /atlas/:
     get:
-      summary: Search all of the Atlas dataset
+      summary: Search all of the BAG dataset (OLD) please use /bag endpoint.
+      description: >
+        This includes mainly BAG (Basisregistratie Adressen en gebouwen) information. (DEPRICATED) use BAG
+        Like all other geo searches either an x/y or a lat/lon tuple needs to be supplied along with a radius. When both x/y and lat/long are provided no guarantees about the coordinates used is given.
+      parameters:
+        - $ref: "#/parameters/xParam"
+        - $ref: "#/parameters/yParam"
+        - $ref: "#/parameters/latParam"
+        - $ref: "#/parameters/lonParam"
+        - $ref: "#/parameters/radiusParam"
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: A list of areas, mathing the requested type, that the given location falls within.
+
+ /bag/:
+    get:
+      summary: Search all of the Bag dataset
       description: >
         This includes mainly BAG (Basisregistratie Adressen en gebouwen) information.
         Like all other geo searches either an x/y or a lat/lon tuple needs to be supplied along with a radius. When both x/y and lat/long are provided no guarantees about the coordinates used is given.

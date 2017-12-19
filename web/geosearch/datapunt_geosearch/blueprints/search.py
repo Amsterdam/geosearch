@@ -4,7 +4,7 @@ import json
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 
-from datapunt_geosearch.datasource import AtlasDataSource
+from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
@@ -85,7 +85,7 @@ def search_in_datasets():
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     else:
-        ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
+        ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
 
     # Checking for radius and item type
     radius = request.args.get('radius')
@@ -122,11 +122,19 @@ def search_geo_monumenten():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
+    monumenttype = request.args.get('monumenttype')
+
     # If no error is found, query
     if not resp:
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit,
-                        radius=request.args.get('radius'))
+        kwargs = {
+            'rd':rd,
+            'limit':limit,
+            'radius':request.args.get('radius')
+        }
+        if monumenttype is not None:
+            kwargs['monumenttype'] = monumenttype
+        resp = ds.query(float(x), float(y), **kwargs)
 
     return jsonify(resp)
 
@@ -158,17 +166,28 @@ def search_geo_bominslag():
     return jsonify(resp)
 
 
-@search.route('/atlas/', methods=['GET', 'OPTIONS'])
-def search_geo_atlas():
+def _search_geo_bag():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
     # If no error is found, query
     if not resp:
-        ds = AtlasDataSource(dsn=current_app.config['DSN_ATLAS'])
+        ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
     return jsonify(resp)
+
+
+@search.route('/bag/', methods=['GET', 'OPTIONS'])
+def search_geo_bag():
+    # shine new endpoint
+    return _search_geo_bag()
+
+
+@search.route('/atlas/', methods=['GET', 'OPTIONS'])
+def search_geo_atlas():
+    # old should be replaced
+    return _search_geo_bag()
 
 
 # Adding cors headers

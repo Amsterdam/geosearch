@@ -1,13 +1,13 @@
 version: '3.0'
 services:
-  atlas_db:
+  bag_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:
       - "5405:5432"
     environment:
       POSTGRES_PASSWORD: insecure
-      POSTGRES_DB: atlas
-      POSTGRES_USER: atlas
+      POSTGRES_DB: bag
+      POSTGRES_USER: bag
   nap_db:
     image: build.datapunt.amsterdam.nl:5000/atlas/postgres
     ports:

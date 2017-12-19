@@ -2,14 +2,14 @@
 
 
 Update different project databases with current data:
-atlas_backend and atlas_meetbouten for now
+bag_backend and meetbouten for now
 
-	docker-compose up -d
-    docker-compose exec atlas_db update-db.sh  atlas atlas
-    docker-compose exec nap_db update-db.sh nap nap
-    docker-compose exec milieuthemas_db update-db.sh milieuthemas milieuthemas
-    docker-compose exec monumenten_db update-db.sh monumenten monumenten
-    docker-compose exec tellus_db update-db.sh tellus tellus
+    docker-compose up -d
+    docker-compose exec bag_db update-db.sh  bag <your_username>
+    docker-compose exec nap_db update-db.sh nap <your_username>
+    docker-compose exec milieuthemas_db update-db.sh milieuthemas <your_username>
+    docker-compose exec monumenten_db update-db.sh monumenten <your_username>
+    docker-compose exec tellus_db update-db.sh tellus  <your_username>
 
     pip install -r requirements.txt
 
@@ -62,7 +62,7 @@ De volgende endpoints zijn beschikbaar voor geosearch:
 - `/monumenten/` zoek voor monumenten- Locatie en radius verplicht
 - `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
 - `/bominslag/` zoek voor bominslag data - Locatie en radius verplict
-- `/atlas/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
+- `/bag/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
 - `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
 
 Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
