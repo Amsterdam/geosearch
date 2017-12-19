@@ -22,13 +22,6 @@ node {
         checkout scm
     }
 
-    stage('Test') {
-        tryStep "test", {
-            sh ".jenkins/runtests.sh"
-        }, {
-            sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
-        }
-    }
 
     stage("Build image") {
         tryStep "build", {
