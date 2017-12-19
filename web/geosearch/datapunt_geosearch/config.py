@@ -68,9 +68,14 @@ def get_db_settings(db: str, docker_host: str, localport: str) -> Dict[str, str]
 _db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
 
 DSN_BAG = _db_connection_string.format(
-    **get_db_settings(db='bag',
-                      docker_host='bag_db',
+    **get_db_settings(db='atlas',
+                      docker_host='atlas_db',
                       localport='5405'))
+# Temporary use atlas db till BAG has been deployed
+# DSN_BAG = _db_connection_string.format(
+#     **get_db_settings(db='bag',
+#                       docker_host='bag_db',
+#                       localport='5405'))
 
 DSN_NAP = _db_connection_string.format(
     **get_db_settings(db='nap',
