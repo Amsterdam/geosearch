@@ -73,3 +73,6 @@ target/
 # virtualenv
 .venv/
 venv/
+
+# Apple
+.DS_Store

@@ -518,3 +518,58 @@ class MonumentenDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
+class GrondExploitatieDataSource(DataSourceBase):
+    def __init__(self, *args, **kwargs):
+        super(GrondExploitatieDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'wkb_geometry',
+            'operator': 'contains',
+            'datasets': {
+                'grondexploitatie': {
+                    'grondexploitatie':
+                        'public.grex_grenzen_ogagis_2016'
+                }
+            },
+            'fields' : [
+                "plannaam as display",
+                "cast('grondexploitatie/grondexploitatie' as varchar(30)) as type",
+                f"'{DATAPUNT_API_URL}grondexploitatie/project/' || plannr || '/'  as uri",
+                "wkb_geometry as geometrie",
+            ],
+        }
+
+    default_properties = ('display', 'type', 'uri', 'distance')
+
+    def query(self, x, y, rd=True, radius=None, limit=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        if limit:
+            self.limit = limit
+
+        self.extra_where = " and planstatus in ('A', 'T')"
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except psycopg2.ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }

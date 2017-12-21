@@ -229,5 +229,29 @@ class TestMonumentenDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 3)
 
 
+class TestGrondExploitatieDataset(unittest.TestCase):
+    def test_query(self):
+        x = 130222
+        y = 485753
+
+        ds = datasource.GrondExploitatieDataSource(dsn=config.DSN_GRONDEXPLOITATIE)
+        results = ds.query(x, y)
+
+        self.assertEqual(len(results['features']), 1)
+        uri = results['features'][0]['properties']['uri']
+        self.assertRegex(uri, 'grondexploitatie/project/26033/$')
+
+    def test_query_wgs84(self):
+        lat = 52.3748
+        lon = 4.9596
+
+        ds = datasource.GrondExploitatieDataSource(dsn=config.DSN_GRONDEXPLOITATIE)
+        results = ds.query(lat, lon, rd=False)
+
+        self.assertEqual(len(results['features']), 1)
+        uri = results['features'][0]['properties']['uri']
+        self.assertRegex(uri, 'grondexploitatie/project/28508/$')
+
+
 if __name__ == '__main__':
     unittest.main()

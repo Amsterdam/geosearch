@@ -1,6 +1,4 @@
 # Python
-import json
-
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 
@@ -10,6 +8,8 @@ from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
+from datapunt_geosearch.datasource import GrondExploitatieDataSource
+
 
 search = Blueprint('search', __name__)
 
@@ -84,6 +84,8 @@ def search_in_datasets():
         ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
+    elif item == 'grondexploitatie':
+        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
     else:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
 
@@ -128,9 +130,9 @@ def search_geo_monumenten():
     if not resp:
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
         kwargs = {
-            'rd':rd,
-            'limit':limit,
-            'radius':request.args.get('radius')
+            'rd': rd,
+            'limit': limit,
+            'radius': request.args.get('radius')
         }
         if monumenttype is not None:
             kwargs['monumenttype'] = monumenttype
@@ -188,6 +190,19 @@ def search_geo_bag():
 def search_geo_atlas():
     # old should be replaced
     return _search_geo_bag()
+
+
+@search.route('/grondexploitatie/', methods=['GET', 'OPTIONS'])
+def search_geo_grondexploitatie():
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, limit, resp = get_coords_and_type(request.args)
+
+    # If no error is found, query
+    if not resp:
+        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
+        resp = ds.query(float(x), float(y), rd=rd, limit=limit)
+
+    return jsonify(resp)
 
 
 # Adding cors headers
