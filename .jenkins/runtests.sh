@@ -19,6 +19,7 @@ dc up -d nap_db
 dc up -d milieuthemas_db
 dc up -d tellus_db
 dc up -d monumenten_db
+dc up -d grondexploitatie_db
 
 # wait for databases to boot up
 sleep 10
@@ -31,6 +32,7 @@ dc exec -T bag_db /bin/update-db.sh bag
 dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
+dc exec -T grondexploitatie_db /bin/update-db.sh grondexploitatie
 
 sleep 1m
 # run da test
