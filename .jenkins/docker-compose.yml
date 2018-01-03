@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   bag_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5405:5432"
     environment:
@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: bag
       POSTGRES_USER: bag
   nap_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5401:5432"
     environment:
@@ -17,28 +17,28 @@ services:
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
   milieuthemas_db:
-      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      image: amsterdam/postgres
       ports:
         - "5402:5432"
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: milieuthemas
   tellus_db:
-      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      image: amsterdam/postgres
       ports:
         - "5409:5432"
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: tellus
   monumenten_db:
-      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      image: amsterdam/postgres
       ports:
         - "5412:5432"
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: monumenten
   grondexploitatie_db:
-      image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+      image: amsterdam/postgres
       ports:
         - "5404:5432"
       environment:

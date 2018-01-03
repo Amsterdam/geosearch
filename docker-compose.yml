@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   bag_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5405:5432"
     environment:
@@ -11,7 +11,7 @@ services:
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   nap_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5401:5432"
     environment:
@@ -21,7 +21,7 @@ services:
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   milieuthemas_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5402:5432"
     environment:
@@ -30,7 +30,7 @@ services:
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   monumenten_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5412:5432"
     environment:
@@ -39,7 +39,7 @@ services:
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   tellus_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     ports:
       - "5409:5432"
     environment:

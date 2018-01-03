@@ -1,35 +1,35 @@
 version: '3.0'
 services:
   bag_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_DB: bag
       POSTGRES_USER: bag
   nap_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
   milieuthemas_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: milieuthemas
   tellus_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: tellus
   monumenten_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
   grondexploitatie_db:
-    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    image: amsterdam/postgres
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: grondexploitatie
