@@ -533,7 +533,7 @@ class GrondExploitatieDataSource(DataSourceBase):
             },
             'fields' : [
                 "plannaam as display",
-                "cast('grondexploitatie/grondexploitatie' as varchar(30)) as type",
+                "cast('grex/grondexploitatie' as varchar(30)) as type",
                 f"'{DATAPUNT_API_URL}grondexploitatie/project/' || plannr || '/'  as uri",
                 "wkb_geometry as geometrie",
             ],
