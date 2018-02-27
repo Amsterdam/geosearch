@@ -196,7 +196,7 @@ paths:
         200:
           description: A list of areas, mathing the requested type, that the given location falls within.
 
- /bag/:
+  /bag/:
     get:
       summary: Search all of the Bag dataset
       description: >
