@@ -99,14 +99,21 @@ DSN_GRONDEXPLOITATIE = _db_connection_string.format(
                       docker_host='grondexploitatie_db',
                       localport='5404'))
 
+DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
+    **get_db_settings(db='various_small_datasets',
+                      docker_host='various_small_datasets_db',
+                      localport='5408'))
+
 
 logging.debug('Database config:\n'
               'Bag: %s\n'
               'Nap: %s\n'
               'Milieu: %s\n'
               'Tellus: %s\n'
-              'Monumenten: %s',
-              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN, DSN_GRONDEXPLOITATIE)
+              'Monumenten: %s\n',
+              'Grondexploitatie\n',
+              'Various Small Datasets',
+              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN, DSN_GRONDEXPLOITATIE, DSN_VARIOUS_SMALL_DATASETS)
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')

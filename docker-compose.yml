@@ -47,6 +47,24 @@ services:
       POSTGRES_USER: tellus
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+  grondexploitatie_db:
+    image: amsterdam/postgres
+    ports:
+      - "5404:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: grondexploitatie
+    volumes:
+        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+  various_small_datasets_db:
+    image: amsterdam/postgres
+    ports:
+       - "5408:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: various_small_datasets
+    volumes:
+       - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   web:
       build: ./web
       ports:

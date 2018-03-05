@@ -573,3 +573,64 @@ class GrondExploitatieDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
+class BIZDataSource(DataSourceBase):
+    def __init__(self, *args, **kwargs):
+        super(BIZDataSource, self).__init__(*args, **kwargs)
+        self.meta = {
+            'geofield': 'wkb_geometry',
+            'operator': 'contains',
+            'datasets': {
+                '': {
+                    'various_small_datasets':
+                        'public.biz_data'
+                }
+            },
+            'fields' : [
+                "naam as display",
+                "cast('biz/biz' as varchar(30)) as type",
+                f"'{DATAPUNT_API_URL}biz/' || biz_id || '/'  as uri",
+                "wkb_geometry as geometrie",
+                "biz_id",
+                "biz_type",
+                "heffingsgrondslag",
+                "website",
+                "heffing",
+                "bijdrageplichtigen",
+                "verordening",
+            ],
+        }
+
+    default_properties = ('display', 'type', 'uri', 'biz_id', 'biz_type', 'heffingsgrondslag', 'website', 'heffing', 'bijdrageplichtigen', 'verordening', 'distance')
+
+    def query(self, x, y, rd=True, radius=None, limit=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        if limit:
+            self.limit = limit
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except psycopg2.ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }

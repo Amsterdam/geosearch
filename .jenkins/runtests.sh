@@ -33,6 +33,7 @@ dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
 dc exec -T grondexploitatie_db /bin/update-db.sh grondexploitatie
+dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 
 sleep 1m
 # run da test

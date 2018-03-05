@@ -9,6 +9,7 @@ from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import GrondExploitatieDataSource
+from datapunt_geosearch.datasource import BIZDataSource
 
 
 search = Blueprint('search', __name__)
@@ -72,6 +73,8 @@ def search_in_datasets():
     if not item:
         return jsonify({'error': 'No item type found'})
 
+
+
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
@@ -86,6 +89,8 @@ def search_in_datasets():
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item == 'grondexploitatie':
         ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
+    elif item == 'biz':
+        ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
     else:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
 
@@ -204,6 +209,17 @@ def search_geo_grondexploitatie():
 
     return jsonify(resp)
 
+@search.route('/biz/', methods=['GET', 'OPTIONS'])
+def search_geo_biz():
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, limit, resp = get_coords_and_type(request.args)
+
+    # If no error is found, query
+    if not resp:
+        ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
+        resp = ds.query(float(x), float(y), rd=rd, limit=limit)
+
+    return jsonify(resp)
 
 # Adding cors headers
 @search.after_request
