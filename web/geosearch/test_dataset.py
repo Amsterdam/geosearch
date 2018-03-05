@@ -270,7 +270,7 @@ class TestBIZDataset(unittest.TestCase):
         lat = 52.36287
         lon = 4.87529
 
-        ds = datasource.GrondExploitatieDataSource(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds = datasource.BIZDataSource(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
         results = ds.query(lat, lon, rd=False)
 
         self.assertEqual(len(results['features']), 1)
