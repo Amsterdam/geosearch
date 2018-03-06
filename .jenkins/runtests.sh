@@ -20,6 +20,7 @@ dc up -d milieuthemas_db
 dc up -d tellus_db
 dc up -d monumenten_db
 dc up -d grondexploitatie_db
+dc up -d various_small_datasets
 
 # wait for databases to boot up
 sleep 10
