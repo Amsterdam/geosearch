@@ -219,6 +219,19 @@ def search_geo_biz():
         ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
+        # Convert Decimal type to string, because Decimal fails in jsonify
+        if 'features' in resp and \
+                len(resp['features']) > 0 and \
+                'properties' in resp['features'][0] and \
+                'heffing' in resp['features'][0]['properties']:
+            resp['features'][0]['properties']['heffing'] = str(resp['features'][0]['properties']['heffing'])
+
+        # Remove duplicates from search results. (Can be removed if data is cleaned)
+        if 'features' in resp and \
+                len(resp['features']) > 1 and \
+                resp['features'][0]['properties']['biz_id'] == resp['features'][1]['properties']['biz_id']:
+            del(resp['features'][1])
+
     return jsonify(resp)
 
 # Adding cors headers
