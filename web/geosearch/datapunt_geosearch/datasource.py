@@ -575,6 +575,7 @@ class GrondExploitatieDataSource(DataSourceBase):
                 'message': 'Error in handling, {}'.format(repr(err))
             }
 
+
 class BIZDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
         super(BIZDataSource, self).__init__(*args, **kwargs)
@@ -593,16 +594,10 @@ class BIZDataSource(DataSourceBase):
                 f"'{DATAPUNT_API_URL}vsd/biz/' || biz_id || '/'  as uri",
                 "wkb_geometry as geometrie",
                 "biz_id",
-                "biz_type",
-                "heffingsgrondslag",
-                "website",
-                "heffing",
-                "bijdrageplichtigen",
-                "verordening",
             ],
         }
 
-    default_properties = ('display', 'type', 'uri', 'biz_id', 'biz_type', 'heffingsgrondslag', 'website', 'heffing', 'bijdrageplichtigen', 'verordening', 'distance')
+    default_properties = ('display', 'type', 'uri', 'biz_id', 'distance')
 
     def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
