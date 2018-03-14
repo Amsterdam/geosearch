@@ -589,8 +589,8 @@ class BIZDataSource(DataSourceBase):
             },
             'fields' : [
                 "naam as display",
-                "cast('biz/biz' as varchar(30)) as type",
-                f"'{DATAPUNT_API_URL}biz/' || biz_id || '/'  as uri",
+                "cast('vsd/biz' as varchar(30)) as type",
+                f"'{DATAPUNT_API_URL}vsd/biz/' || biz_id || '/'  as uri",
                 "wkb_geometry as geometrie",
                 "biz_id",
                 "biz_type",
