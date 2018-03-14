@@ -1,4 +1,5 @@
 # Python
+import decimal
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 
@@ -214,17 +215,28 @@ def search_geo_biz():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
+    def traverse_replace(obj, callback=None):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                v1 = callback(v)
+                if v1 != v:
+                    obj[k] = v1
+                else:
+                    traverse_replace(v, callback)
+        elif isinstance(obj, list):
+            for idx, v in enumerate(obj):
+                v1 = callback(v)
+                if v1 != v:
+                    obj[idx] = v1
+                else:
+                    traverse_replace(v, callback)
+
     # If no error is found, query
     if not resp:
         ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
-        # Convert Decimal type to string, because Decimal fails in jsonify
-        if 'features' in resp and \
-                len(resp['features']) > 0 and \
-                'properties' in resp['features'][0] and \
-                'heffing' in resp['features'][0]['properties']:
-            resp['features'][0]['properties']['heffing'] = str(resp['features'][0]['properties']['heffing'])
+        traverse_replace(resp, lambda x: str(x) if isinstance(x, decimal.Decimal) else x)
 
         # Remove duplicates from search results. (Can be removed if data is cleaned)
         if 'features' in resp and \
