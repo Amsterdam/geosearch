@@ -529,7 +529,7 @@ class GrondExploitatieDataSource(DataSourceBase):
             'datasets': {
                 'grondexploitatie': {
                     'grondexploitatie':
-                        'public.grex_grenzen_ogagis_2016'
+                        'public.grex_grenzen'
                 }
             },
             'fields' : [
