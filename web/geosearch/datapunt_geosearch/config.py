@@ -117,3 +117,5 @@ logging.debug('Database config:\n'
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')
+
+

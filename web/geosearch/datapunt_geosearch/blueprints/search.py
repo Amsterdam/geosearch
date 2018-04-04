@@ -1,7 +1,7 @@
 # Python
-import decimal
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
+from flask import abort
 
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
@@ -10,7 +10,7 @@ from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import GrondExploitatieDataSource
-from datapunt_geosearch.datasource import BIZDataSource
+from datapunt_geosearch.datasource import get_dataset_class
 
 
 search = Blueprint('search', __name__)
@@ -74,8 +74,6 @@ def search_in_datasets():
     if not item:
         return jsonify({'error': 'No item type found'})
 
-
-
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
         ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
@@ -90,10 +88,12 @@ def search_in_datasets():
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item == 'grondexploitatie':
         ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
-    elif item == 'biz':
-        ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
-    else:
+    elif item in {'openbareruimte', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt', 'buurtcombinatie', 'bouwblok',
+                  'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco', 'kadastraal_object', 'beperking'}:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
+    else:
+        ds_class = get_dataset_class(item)
+        ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
     # Checking for radius and item type
     radius = request.args.get('radius')
@@ -210,41 +210,23 @@ def search_geo_grondexploitatie():
 
     return jsonify(resp)
 
-@search.route('/biz/', methods=['GET', 'OPTIONS'])
-def search_geo_biz():
+
+# This should be the last (catchall) route/view combination
+@search.route('/<dataset>/', methods=['GET', 'OPTIONS'])
+def search_geo_genapi(dataset):
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
-    def traverse_replace(obj, callback=None):
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                v1 = callback(v)
-                if v1 != v:
-                    obj[k] = v1
-                else:
-                    traverse_replace(v, callback)
-        elif isinstance(obj, list):
-            for idx, v in enumerate(obj):
-                v1 = callback(v)
-                if v1 != v:
-                    obj[idx] = v1
-                else:
-                    traverse_replace(v, callback)
-
-    # If no error is found, query
     if not resp:
-        ds = BIZDataSource(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit)
-
-        traverse_replace(resp, lambda x: str(x) if isinstance(x, decimal.Decimal) else x)
-
-        # Remove duplicates from search results. (Can be removed if data is cleaned)
-        if 'features' in resp and \
-                len(resp['features']) > 1 and \
-                resp['features'][0]['properties']['biz_id'] == resp['features'][1]['properties']['biz_id']:
-            del(resp['features'][1])
-
+        ds_class = get_dataset_class(dataset)
+        if ds_class is None:
+            abort(404)
+        else:
+            # For now we always use the same database for all generic API datasets
+            ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
+            resp = ds.query(float(x), float(y), rd=rd, limit=limit)
     return jsonify(resp)
+
 
 # Adding cors headers
 @search.after_request

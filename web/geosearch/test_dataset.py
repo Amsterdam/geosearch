@@ -257,7 +257,8 @@ class TestBIZDataset(unittest.TestCase):
         x = 121723
         y = 486199
 
-        ds = datasource.BIZDataSource(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds_class = datasource.get_dataset_class('biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
@@ -270,7 +271,8 @@ class TestBIZDataset(unittest.TestCase):
         lat = 52.36287
         lon = 4.87529
 
-        ds = datasource.BIZDataSource(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds_class = datasource.get_dataset_class('biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
         results = ds.query(lat, lon, rd=False)
 
         self.assertEqual(len(results['features']), 1)
