@@ -627,15 +627,7 @@ def _make_init(row):
     return __init__
 
 
-def get_dataset_class(ds_name, dsn=None):
-    """
-    When this method is called the first time the catalog is read and for all
-    datasets in the catalog a subclass of DataSource is created and added to the
-    _datasets mapping
-    :param ds_name: Name of dataset (ie 'biz')
-    :param optional datasource name for reading catalog. Required for testing
-    :return: subclass of DataSource for this dataset
-    """
+def _init_get_dataset_class(dsn=None):
     global _datasets
     if _datasets is None:
         _datasets = dict()
@@ -650,10 +642,10 @@ def get_dataset_class(ds_name, dsn=None):
 
         with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             sql = '''
-select id, name, description, database, schema, table_name, name_field, geometry_field, geometry_type
-from cat_dataset
-where enable_geosearch = true
-            '''
+    select id, name, description, database, schema, table_name, name_field, geometry_field, geometry_type
+    from cat_dataset
+    where enable_geosearch = true
+                '''
             cur.execute(sql)
             rows = cur.fetchall()
 
@@ -661,10 +653,10 @@ where enable_geosearch = true
                 name = row['name']
                 # Fetch primary key field. We need to know what the id is
                 sql_pk = '''
-select name, data_type, db_column
-from cat_dataset_fields
-where dataset_id = %(ds_id)s and primary_key = true
-                '''
+    select name, data_type, db_column
+    from cat_dataset_fields
+    where dataset_id = %(ds_id)s and primary_key = true
+                    '''
                 with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur1:
                     cur1.execute(sql_pk, {'ds_id': row['id']})
                     pk_row = cur1.fetchone()
@@ -714,7 +706,28 @@ where dataset_id = %(ds_id)s and primary_key = true
                     'query': query,
                 })
                 _datasets[name] = dataset_class
+
+
+def get_dataset_class(ds_name, dsn=None):
+    """
+    When this method is called the first time the catalog is read and for all
+    datasets in the catalog a subclass of DataSource is created and added to the
+    _datasets mapping
+    :param ds_name: Name of dataset (ie 'biz')
+    :param dsn optional datasource name for reading catalog. Required for testing
+    :return: subclass of DataSource for this dataset
+    """
+    global _datasets
+    if _datasets is None:
+        _init_get_dataset_class(dsn)
     if ds_name in _datasets:
         return _datasets[ds_name]
     else:
         return None
+
+
+def get_all_dataset_names(dsn=None):
+    global _datasets
+    if _datasets is None:
+        _init_get_dataset_class(dsn)
+    return list(_datasets.keys())
