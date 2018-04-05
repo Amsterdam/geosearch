@@ -224,7 +224,7 @@ def search_geo_genapi(dataset):
         else:
             # For now we always use the same database for all generic API datasets
             ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
-            resp = ds.query(float(x), float(y), rd=rd, limit=limit)
+            resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get('radius'))
     return jsonify(resp)
 
 
