@@ -15,7 +15,7 @@ def shell():
 def run_server():
     from datapunt_geosearch import config
     app = create_app(config)
-    app.run(debug=True, host='localhost', port=8001)
+    app.run(debug=True, host='localhost', port=8000)
 
 
 def run_server_prod():
