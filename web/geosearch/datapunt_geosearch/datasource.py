@@ -642,7 +642,7 @@ def _init_get_dataset_class(dsn=None):
 
         with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             sql = '''
-    select id, name, description, database, schema, table_name, name_field, geometry_field, geometry_type
+    select *
     from cat_dataset
     where enable_geosearch = true
                 '''
@@ -652,17 +652,20 @@ def _init_get_dataset_class(dsn=None):
             for row in rows:
                 name = row['name']
                 # Fetch primary key field. We need to know what the id is
-                sql_pk = '''
+                if 'pk_field' in row:
+                    row['id_field'] = row.pop('pk_field')
+                else:
+                    sql_pk = '''
     select name, data_type, db_column
     from cat_dataset_fields
     where dataset_id = %(ds_id)s and primary_key = true
                     '''
-                with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur1:
-                    cur1.execute(sql_pk, {'ds_id': row['id']})
-                    pk_row = cur1.fetchone()
-                    id_field = pk_row['db_column']
+                    with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur1:
+                        cur1.execute(sql_pk, {'ds_id': row['id']})
+                        pk_row = cur1.fetchone()
+                        id_field = pk_row['db_column']
 
-                row['id_field'] = id_field
+                    row['id_field'] = id_field
 
                 # Use closure to generate __init__ method for class
                 __init__ = _make_init(row)
