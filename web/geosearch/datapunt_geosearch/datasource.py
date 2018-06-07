@@ -258,6 +258,8 @@ class BagDataSource(DataSourceBase):
             },
         }
 
+    default_properties = ('id', 'code', 'display', 'type', 'uri', 'opr_type', 'distance')
+
     def filter_dataset(self, dataset_table):
         # Adding custom support voor verblijfsobject as it is not needed
         # in bag but is needed in type specific geosearch
