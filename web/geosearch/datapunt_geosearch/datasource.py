@@ -205,8 +205,8 @@ AND
 ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield'],
-                self.extra_where, self.meta['geofield']
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'],
+                self.extra_where
             )
             cur.execute(sql, (self.y, self.x) * 3)
         else:
