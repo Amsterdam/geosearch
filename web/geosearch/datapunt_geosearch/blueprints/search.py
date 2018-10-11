@@ -22,29 +22,27 @@ search = Blueprint('search', __name__)
 _logger = logging.getLogger(__name__)
 
 
-def retry_on_psycopg2_error(name):
+def retry_on_psycopg2_error(func):
     """
     Decorator that retries 3 times after Postgres error, in particular if
     the connection was not valid anymore because the database was restarted
     """
-    def decorator_retry(func):
-        @functools.wraps(func)
-        def wrapper_retry(*args, **kwargs):
-            retry = 3
-            while retry > 0:
-                try:
-                    result = func(*args, **kwargs)
-                except Psycopg2Error:
-                    if retry == 0:
-                        raise
-                    else:
-                        retry -= 1
-                        _logger.warning(f'Retry query for {name} ({retry})')
-                        continue
-                break
-            return result
-        return wrapper_retry
-    return decorator_retry
+    @functools.wraps(func)
+    def wrapper_retry(*args, **kwargs):
+        retry = 3
+        while retry > 0:
+            try:
+                result = func(*args, **kwargs)
+            except Psycopg2Error:
+                if retry == 0:
+                    raise
+                else:
+                    retry -= 1
+                    _logger.warning(f'Retry query for {func.__name__} ({retry})')
+                    continue
+            break
+        return result
+    return wrapper_retry
 
 
 def get_coords_and_type(args):
@@ -85,7 +83,7 @@ def send_doc():
 
 
 @search.route('/search/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('datasets')
+@retry_on_psycopg2_error
 def search_in_datasets():
     """
     General geosearch endpoint.
@@ -145,7 +143,7 @@ def search_in_datasets():
 
 
 @search.route('/nap/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('nap')
+@retry_on_psycopg2_error
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -160,7 +158,7 @@ def search_geo_nap():
 
 
 @search.route('/monumenten/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('monumenten')
+@retry_on_psycopg2_error
 def search_geo_monumenten():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -183,7 +181,7 @@ def search_geo_monumenten():
 
 
 @search.route('/munitie/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('munitie')
+@retry_on_psycopg2_error
 def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -197,7 +195,7 @@ def search_geo_munitie():
 
 
 @search.route('/bominslag/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('bominslag')
+@retry_on_psycopg2_error
 def search_geo_bominslag():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -211,7 +209,7 @@ def search_geo_bominslag():
     return jsonify(resp)
 
 
-@retry_on_psycopg2_error('bag')
+@retry_on_psycopg2_error
 def _search_geo_bag():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -237,7 +235,7 @@ def search_geo_atlas():
 
 
 @search.route('/grondexploitatie/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('grondexploitatie')
+@retry_on_psycopg2_error
 def search_geo_grondexploitatie():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -252,7 +250,7 @@ def search_geo_grondexploitatie():
 
 # This should be the last (catchall) route/view combination
 @search.route('/<dataset>/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error('geo_genapi')
+@retry_on_psycopg2_error
 def search_geo_genapi(dataset):
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
