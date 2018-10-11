@@ -20,7 +20,6 @@ services:
   tellus_db:
     image: amsterdam/postgres
     environment:
-    environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: tellus
   monumenten_db:
