@@ -60,10 +60,10 @@ ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
 
 De volgende endpoints zijn beschikbaar voor geosearch:
 
-- `/nap/` zoek voor NAP data - Locatie en radius verplict
+- `/nap/` zoek voor NAP data - Locatie en radius verplicht
 - `/monumenten/` zoek voor monumenten- Locatie en radius verplicht
 - `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
-- `/bominslag/` zoek voor bominslag data - Locatie en radius verplict
+- `/bominslag/` zoek voor bominslag data - Locatie en radius verplicht
 - `/bag/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
 - `/grondexploitatie/` Zoek grondexploitatie project. Alleen locatie  
 - `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
@@ -82,3 +82,4 @@ Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om
 <http://localhost:8000/grondexploitatie/?x=130222&y=485753>
 
 <http://localhost:8000/biz/?x=121723&y=486199>
+
