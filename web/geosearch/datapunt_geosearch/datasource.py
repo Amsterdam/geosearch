@@ -1,6 +1,9 @@
 import contextlib
 import functools
 import logging
+
+from flask import current_app
+
 from .config import DATAPUNT_API_URL
 
 import psycopg2.extras
@@ -183,7 +186,7 @@ FROM {}
 WHERE ST_DWithin({}, ST_GeomFromText('POINT(%s %s)', 28992), %s) {}
 ORDER BY distance
             """.format(
-                self.fields,self.meta['geofield'], table, self.meta['geofield'], self.extra_where
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.extra_where
             )
             if self.limit:
                 sql += "LIMIT %s"
@@ -202,7 +205,8 @@ AND
 ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'],
+                self.extra_where
             )
             cur.execute(sql, (self.y, self.x) * 3)
         else:
@@ -214,7 +218,8 @@ AND
 ST_Contains({}, ST_GeomFromText('POINT(%s %s)', 28992)) {}
 ORDER BY distance
             """.format(
-                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'], self.extra_where
+                self.fields, self.meta['geofield'], table, self.meta['geofield'], self.meta['geofield'],
+                self.extra_where
             )
             cur.execute(sql, (self.x, self.y) * 3)
 
@@ -251,6 +256,8 @@ class BagDataSource(DataSourceBase):
                 },
             },
         }
+
+    default_properties = ('id', 'code', 'vollcode', 'display', 'type', 'uri', 'opr_type', 'distance')
 
     def filter_dataset(self, dataset_table):
         # Adding custom support voor verblijfsobject as it is not needed
@@ -465,7 +472,7 @@ class MonumentenDataSource(DataSourceBase):
                         'public.dataset_monument'
                 }
             },
-            'fields' : [
+            'fields': [
                 "display_naam as display",
                 "cast('monumenten/monument' as varchar(30)) as type",
                 # "'/monument/' || lower(monumenttype) as type",
@@ -492,7 +499,7 @@ class MonumentenDataSource(DataSourceBase):
             monumenttype_list = self.monumenttype.split('_')
             monumenttypes = {'pand', 'bouwwerk', 'parkterrein', 'beeldhouwkunst', 'bouwblok'}
             if len(monumenttype_list) >= 2 and (monumenttype_list[0] == 'is' or monumenttype_list[0] == 'isnot') and \
-                            all(i in monumenttypes for i in monumenttype_list[1:]):
+                    all(i in monumenttypes for i in monumenttype_list[1:]):
                 operator = 'in' if monumenttype_list[0] == 'is' else 'not in'
                 condition = "('" + "','".join(monumenttype_list[1:]) + "')"
                 self.extra_where = f' and lower(monumenttype) {operator} {condition}'
@@ -519,6 +526,7 @@ class MonumentenDataSource(DataSourceBase):
                 'message': 'Error in handling, {}'.format(repr(err))
             }
 
+
 class GrondExploitatieDataSource(DataSourceBase):
     def __init__(self, *args, **kwargs):
         super(GrondExploitatieDataSource, self).__init__(*args, **kwargs)
@@ -528,10 +536,10 @@ class GrondExploitatieDataSource(DataSourceBase):
             'datasets': {
                 'grondexploitatie': {
                     'grondexploitatie':
-                        'public.grex_grenzen_ogagis_2016'
+                        'public.grex_grenzen'
                 }
             },
-            'fields' : [
+            'fields': [
                 "plannaam as display",
                 "cast('grex/grondexploitatie' as varchar(30)) as type",
                 f"'{DATAPUNT_API_URL}grondexploitatie/project/' || plannr || '/'  as uri",
@@ -573,3 +581,157 @@ class GrondExploitatieDataSource(DataSourceBase):
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
+
+# Store mapping of dataset names to DataSource subclass for this dataset
+_datasets = None
+
+
+def _make_init(row):
+    """
+    Use closure tocreate init method
+
+    :param row with data to create __init__ method:
+    :return __init_ method for class to create:
+    """
+    if row['schema'] is None:
+        row['schema'] = 'public'
+    schema_table = row['schema'] + '.' + row['table_name']
+
+    if row['geometry_type'].upper() == 'POLYGON':
+        operator = 'contains'
+    else:
+        operator = 'within'
+    name = row['name']
+    name_field = row['name_field']
+    geometry_field = row['geometry_field']
+    id_field = row['id_field']
+
+    def __init__(self, *args, **kwargs):
+        DataSourceBase.__init__(self, *args, **kwargs)
+        self.meta = {
+            'geofield': row['geometry_field'],
+            'operator': operator,
+            'datasets': {
+                'vsd': {
+                    name: schema_table,
+                }
+            },
+            'fields': [
+                f"{name_field} as display",
+                f"cast('vsd/{name}' as varchar(30)) as type",
+                f"'{DATAPUNT_API_URL}vsd/{name}/' || {id_field} || '/'  as uri",
+                f"{geometry_field} as geometrie",
+                f"{id_field} as id",
+            ],
+        }
+    return __init__
+
+
+def _init_get_dataset_class(dsn=None):
+    global _datasets
+    if _datasets is None:
+        _datasets = dict()
+
+        if dsn is None:
+            dsn = current_app.config['DSN_VARIOUS_SMALL_DATASETS']
+        try:
+            dbconn = dbconnection(dsn)
+        except psycopg2.Error as e:
+            _logger.error('Error creating connection: %s' % e)
+            raise DataSourceException('error connecting to datasource') from e
+
+        with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            sql = '''
+    select *
+    from cat_dataset
+    where enable_geosearch = true
+                '''
+            cur.execute(sql)
+            rows = cur.fetchall()
+
+            for row in rows:
+                name = row['name']
+                # Fetch primary key field. We need to know what the id is
+                if 'pk_field' in row:
+                    row['id_field'] = row.pop('pk_field')
+                else:
+                    sql_pk = '''
+    select name, data_type, db_column
+    from cat_dataset_fields
+    where dataset_id = %(ds_id)s and primary_key = true
+                    '''
+                    with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur1:
+                        cur1.execute(sql_pk, {'ds_id': row['id']})
+                        pk_row = cur1.fetchone()
+                        id_field = pk_row['db_column']
+
+                    row['id_field'] = id_field
+
+                # Use closure to generate __init__ method for class
+                __init__ = _make_init(row)
+
+                # For now query is the same for all subclasses so we do not need a closure to generate it
+                def query(self, x, y, rd=True, radius=None, limit=None):
+                    self.use_rd = rd
+                    self.x = x
+                    self.y = y
+
+                    if radius:
+                        self.radius = radius
+
+                    if limit:
+                        self.limit = limit
+
+                    try:
+                        return {
+                            'type': 'FeatureCollection',
+                            'features': self.execute_queries()
+                        }
+                    except DataSourceException as err:
+                        return {
+                            'type': 'Error',
+                            'message': 'Error executing query: %s' % err.message
+                        }
+                    except psycopg2.ProgrammingError as err:
+                        return {
+                            'type': 'Error',
+                            'message': 'Error in database integrity: %s' % repr(err)
+                        }
+                    except TypeError as err:
+                        return {
+                            'type': 'Error',
+                            'message': 'Error in handling, {}'.format(repr(err))
+                        }
+
+                classname = name.upper() + 'GenAPIDataSource'
+                dataset_class = type(classname, (DataSourceBase,), {
+                    '__init__': __init__,
+                    'query': query,
+                })
+                _datasets[name] = dataset_class
+
+
+def get_dataset_class(ds_name, dsn=None):
+    """
+    When this method is called the first time the catalog is read and for all
+    datasets in the catalog a subclass of DataSource is created and added to the
+    _datasets mapping
+    :param ds_name: Name of dataset (ie 'biz')
+    :param dsn optional datasource name for reading catalog. Required for testing
+    :return: subclass of DataSource for this dataset
+    """
+    global _datasets
+    if _datasets is None:
+        _init_get_dataset_class(dsn)
+    if ds_name in _datasets:
+        return _datasets[ds_name]
+    else:
+        return None
+
+
+def get_all_dataset_names(dsn=None):
+    global _datasets
+    if _datasets is None:
+        _init_get_dataset_class(dsn)
+    return list(_datasets.keys())

@@ -11,6 +11,7 @@ bag_backend and meetbouten for now
     docker-compose exec monumenten_db update-db.sh monumenten <your_username>
     docker-compose exec tellus_db update-db.sh tellus  <your_username>
     docker-compose exec grondexploitatie_db update-db.sh grondexploitatie  <your_username>
+    docker-compose exec various_small_datasets_db update-db.sh various_small_datasets  <your_username>
 
     pip install -r requirements.txt
 
@@ -79,3 +80,6 @@ Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om
 <http://localhost:8000/search/?x=121879&y=487262&radius=25000&item=monument>
 
 <http://localhost:8000/grondexploitatie/?x=130222&y=485753>
+
+<http://localhost:8000/biz/?x=121723&y=486199>
+

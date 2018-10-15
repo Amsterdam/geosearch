@@ -33,8 +33,8 @@ class TestBAGDataset(unittest.TestCase):
 
 class TestNapDataset(unittest.TestCase):
     def test_query(self):
-        x = 120535.2
-        y = 486376.3
+        x = 120364.0
+        y = 488156.3
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y)
@@ -43,22 +43,22 @@ class TestNapDataset(unittest.TestCase):
         self.assertIn('distance', results['features'][0]['properties'])
 
     def test_query_radius_and_limit(self):
-        x = 120535.2
-        y = 486376.3
-        radius = 130
+        x = 120364.0
+        y = 488156.3
+        radius = 70
         limit = 1
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
 
         results = ds.query(x, y, radius=radius)
-        self.assertEqual(len(results['features']), 4)
+        self.assertEqual(len(results['features']), 5)
 
         results = ds.query(x, y, radius=radius, limit=limit)
         self.assertEqual(len(results['features']), 2)
 
     def test_query_wgs84(self):
-        x = 52.3641918658574
-        y = 4.88121013879857
+        x = 52.38018
+        y = 4.87851
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False)
@@ -66,14 +66,14 @@ class TestNapDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 1)
 
     def test_query_wgs84_radius(self):
-        x = 52.3641918658574
-        y = 4.88121013879857
-        radius = 130
+        x = 52.38018
+        y = 4.87851
+        radius = 70
 
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 4)
+        self.assertEqual(len(results['features']), 5)
 
 
 class TestMunitieDataset(unittest.TestCase):
@@ -140,7 +140,7 @@ class TestTellusDataset(unittest.TestCase):
         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 28)
+        self.assertEqual(len(results['features']), 30)
 
     def test_query_wgs84(self):
         x = 52.3542193
@@ -159,7 +159,7 @@ class TestTellusDataset(unittest.TestCase):
         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 10)
+        self.assertEqual(len(results['features']), 11)
 
 
 class TestMonumentenDataset(unittest.TestCase):
@@ -183,7 +183,7 @@ class TestMonumentenDataset(unittest.TestCase):
 
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 48)
+        self.assertEqual(len(results['features']), 49)
 
         results = ds.query(x, y, radius=radius, limit=limit)
         self.assertEqual(len(results['features']), 4)
@@ -252,6 +252,34 @@ class TestGrondExploitatieDataset(unittest.TestCase):
         uri = results['features'][0]['properties']['uri']
         self.assertRegex(uri, 'grondexploitatie/project/28508/$')
 
+class TestBIZDataset(unittest.TestCase):
+    def test_query(self):
+        x = 121723
+        y = 486199
+
+        ds_class = datasource.get_dataset_class('biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        results = ds.query(x, y)
+
+        self.assertEqual(len(results['features']), 1)
+        uri = results['features'][0]['properties']['uri']
+        display = results['features'][0]['properties']['display']
+        self.assertRegex(uri, 'biz/41/$')
+        self.assertEqual(display, 'Utrechtsestraat')
+
+    def test_query_wgs84(self):
+        lat = 52.36287
+        lon = 4.87529
+
+        ds_class = datasource.get_dataset_class('biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        results = ds.query(lat, lon, rd=False)
+
+        self.assertEqual(len(results['features']), 1)
+        uri = results['features'][0]['properties']['uri']
+        display = results['features'][0]['properties']['display']
+        self.assertRegex(uri, 'biz/29/$')
+        self.assertEqual(display, 'Oud West')
 
 if __name__ == '__main__':
     unittest.main()

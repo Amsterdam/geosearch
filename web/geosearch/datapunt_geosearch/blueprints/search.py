@@ -1,6 +1,7 @@
 # Python
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
+from flask import abort
 
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
@@ -9,6 +10,7 @@ from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import GrondExploitatieDataSource
+from datapunt_geosearch.datasource import get_dataset_class
 
 
 search = Blueprint('search', __name__)
@@ -86,8 +88,12 @@ def search_in_datasets():
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item == 'grondexploitatie':
         ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
-    else:
+    elif item in {'openbareruimte', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt', 'buurtcombinatie', 'bouwblok',
+                  'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco', 'kadastraal_object', 'beperking'}:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
+    else:
+        ds_class = get_dataset_class(item)
+        ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
     # Checking for radius and item type
     radius = request.args.get('radius')
@@ -202,6 +208,23 @@ def search_geo_grondexploitatie():
         ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
+    return jsonify(resp)
+
+
+# This should be the last (catchall) route/view combination
+@search.route('/<dataset>/', methods=['GET', 'OPTIONS'])
+def search_geo_genapi(dataset):
+    """Performing a geo search for radius around a point using postgres"""
+    x, y, rd, limit, resp = get_coords_and_type(request.args)
+
+    if not resp:
+        ds_class = get_dataset_class(dataset)
+        if ds_class is None:
+            abort(404)
+        else:
+            # For now we always use the same database for all generic API datasets
+            ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
+            resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get('radius'))
     return jsonify(resp)
 
 

@@ -33,6 +33,11 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: grondexploitatie
+  various_small_datasets_db:
+    image: amsterdam/postgres
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: various_small_datasets
   web_test:
     build: ../web
     command: python test_dataset.py

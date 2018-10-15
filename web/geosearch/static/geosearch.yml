@@ -93,6 +93,7 @@ paths:
             - verblijfsobject
             - beperking
             - kadastraal_object
+            - biz
           description: >
             Type of item(s) to look for.
         - $ref: "#/parameters/xParam"
@@ -196,7 +197,7 @@ paths:
         200:
           description: A list of areas, mathing the requested type, that the given location falls within.
 
- /bag/:
+  /bag/:
     get:
       summary: Search all of the Bag dataset
       description: >
@@ -213,3 +214,20 @@ paths:
       responses:
         200:
           description: A list of areas, mathing the requested type, that the given location falls within.
+
+  /biz/:
+    get:
+      summary: Search for BIZ (BedrijfsInvesteringsZones)
+      description: >
+        This returns the BedrijfsInvesteringsZones (Winkeliersverenigingen) in which the given point is located.
+        Like all other geo searches either an x/y or a lat/lon tuple needs to be supplied. When both x/y and lat/long are provided no guarantees about the coordinates used is given.
+      parameters:
+        - $ref: "#/parameters/xParam"
+        - $ref: "#/parameters/yParam"
+        - $ref: "#/parameters/latParam"
+        - $ref: "#/parameters/lonParam"
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: A list of areas, matching the requested type, that the given location falls within.
