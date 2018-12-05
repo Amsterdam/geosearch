@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import logging
+import time
 
 from flask import current_app
 
@@ -585,6 +586,8 @@ class GrondExploitatieDataSource(DataSourceBase):
 
 # Store mapping of dataset names to DataSource subclass for this dataset
 _datasets = None
+INITIALIZE_DELAY = 600  # 10 minutes
+_datasets_initialized = 0
 
 
 def _make_init(row):
@@ -652,6 +655,9 @@ def _init_get_dataset_class(dsn=None):
 
             for row in rows:
                 name = row['name']
+                if name in _datasets:
+                    continue
+
                 # Fetch primary key field. We need to know what the id is
                 if 'pk_field' in row:
                     row['id_field'] = row.pop('pk_field')
@@ -722,8 +728,12 @@ def get_dataset_class(ds_name, dsn=None):
     :return: subclass of DataSource for this dataset
     """
     global _datasets
-    if _datasets is None:
+    global _datasets_initialized
+
+    if _datasets is None or (ds_name not in _datasets and time.time() - _datasets_initialized > INITIALIZE_DELAY):
         _init_get_dataset_class(dsn)
+        _datasets_initialized = time.time()
+
     if ds_name in _datasets:
         return _datasets[ds_name]
     else:
