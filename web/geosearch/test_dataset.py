@@ -237,7 +237,7 @@ class TestGrondExploitatieDataset(unittest.TestCase):
         ds = datasource.GrondExploitatieDataSource(dsn=config.DSN_GRONDEXPLOITATIE)
         results = ds.query(x, y)
 
-        self.assertEqual(len(results['features']), 1)
+        self.assertEqual(len(results['features']), 2)
         uri = results['features'][0]['properties']['uri']
         self.assertRegex(uri, 'grondexploitatie/project/26033/$')
 
