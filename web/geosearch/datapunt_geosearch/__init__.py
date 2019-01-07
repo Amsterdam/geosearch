@@ -1,7 +1,12 @@
 # Packages
+import os
+
+import sentry_sdk
 from flask import Flask
 from flask_cors import CORS
 # Project
+from sentry_sdk.integrations.flask import FlaskIntegration
+
 from datapunt_geosearch.blueprints import search
 from datapunt_geosearch.blueprints import health
 
@@ -11,6 +16,14 @@ def create_app(config=None):
     An app factory
     Possible parameter config is a python path to the config object
     """
+
+    sentry_dsn = os.getenv('SENTRY_DSN')
+    if sentry_dsn:
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            integrations=[FlaskIntegration()]
+        )
+
     app = Flask('geosearch')
     CORS(app)
 
