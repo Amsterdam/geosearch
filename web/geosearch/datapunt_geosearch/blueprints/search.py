@@ -11,7 +11,7 @@ from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
-from datapunt_geosearch.datasource import TellusDataSource
+# from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import GrondExploitatieDataSource
 from datapunt_geosearch.datasource import get_dataset_class
@@ -112,8 +112,8 @@ def search_in_datasets():
         ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     elif item == 'bominslag':
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
-    elif item == 'tellus':
-        ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
+    # elif item == 'tellus':
+    #    ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item == 'grondexploitatie':

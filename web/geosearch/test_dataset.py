@@ -121,45 +121,45 @@ class TestMunitieDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 3)
 
 
-class TestTellusDataset(unittest.TestCase):
-    def test_query(self):
-        x = 112995
-        y = 485325
-
-        ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
-        results = ds.query(x, y)
-
-        self.assertEqual(len(results['features']), 1)
-        self.assertIn('distance', results['features'][0]['properties'])
-
-    def test_query_radius(self):
-        x = 112995
-        y = 485325
-        radius = 25000
-
-        ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
-        results = ds.query(x, y, radius=radius)
-
-        self.assertEqual(len(results['features']), 30)
-
-    def test_query_wgs84(self):
-        x = 52.3542193
-        y = 4.7706450
-
-        ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
-        results = ds.query(x, y, rd=False)
-
-        self.assertEqual(len(results['features']), 1)
-
-    def test_query_wgs84_radius(self):
-        x = 52.372239620672204
-        y = 4.900848228657843
-        radius = 2500
-
-        ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
-        results = ds.query(x, y, rd=False, radius=radius)
-
-        self.assertEqual(len(results['features']), 11)
+# class TestTellusDataset(unittest.TestCase):
+#     def test_query(self):
+#         x = 112995
+#         y = 485325
+#
+#         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
+#         results = ds.query(x, y)
+#
+#         self.assertEqual(len(results['features']), 1)
+#         self.assertIn('distance', results['features'][0]['properties'])
+#
+#     def test_query_radius(self):
+#         x = 112995
+#         y = 485325
+#         radius = 25000
+#
+#         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
+#         results = ds.query(x, y, radius=radius)
+#
+#         self.assertEqual(len(results['features']), 30)
+#
+#     def test_query_wgs84(self):
+#         x = 52.3542193
+#         y = 4.7706450
+#
+#         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
+#         results = ds.query(x, y, rd=False)
+#
+#         self.assertEqual(len(results['features']), 1)
+#
+#     def test_query_wgs84_radius(self):
+#         x = 52.372239620672204
+#         y = 4.900848228657843
+#         radius = 2500
+#
+#         ds = datasource.TellusDataSource(dsn=config.DSN_TELLUS)
+#         results = ds.query(x, y, rd=False, radius=radius)
+#
+#         self.assertEqual(len(results['features']), 11)
 
 
 class TestMonumentenDataset(unittest.TestCase):

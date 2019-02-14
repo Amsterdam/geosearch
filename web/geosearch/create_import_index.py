@@ -38,13 +38,13 @@ import re
 from collections import Counter
 
 from datapunt_geosearch.config import DSN_BAG, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS, DSN_MILIEU, DSN_NAP, \
-    DSN_GRONDEXPLOITATIE, DSN_TELLUS
+    DSN_GRONDEXPLOITATIE
 
 from datapunt_geosearch.datasource import BagDataSource, dbconnection
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
-from datapunt_geosearch.datasource import TellusDataSource
+# from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import GrondExploitatieDataSource
 from datapunt_geosearch.datasource import get_dataset_class, get_all_dataset_names
@@ -77,10 +77,10 @@ sources = {
         'ds': GrondExploitatieDataSource,
         'config': DSN_GRONDEXPLOITATIE
     },
-    "tellus": {
-        'ds': TellusDataSource,
-        'config': DSN_TELLUS
-    },
+    # "tellus": {
+    #     'ds': TellusDataSource,
+    #     'config': DSN_TELLUS
+    # },
 }
 
 

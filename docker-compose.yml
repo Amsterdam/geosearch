@@ -38,15 +38,15 @@ services:
       POSTGRES_USER: monumenten
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  tellus_db:
-    image: amsterdam/postgres
-    ports:
-      - "5409:5432"
-    environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: tellus
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+#  tellus_db:
+#    image: amsterdam/postgres
+#    ports:
+#      - "5409:5432"
+#    environment:
+#      POSTGRES_PASSWORD: insecure
+#      POSTGRES_USER: tellus
+#    volumes:
+#        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   grondexploitatie_db:
     image: amsterdam/postgres
     ports:

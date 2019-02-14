@@ -86,10 +86,10 @@ DSN_MILIEU = _db_connection_string.format(
                       docker_host='milieuthemas_db',
                       localport='5402'))
 
-DSN_TELLUS = _db_connection_string.format(
-    **get_db_settings(db='tellus',
-                      docker_host='tellus_db',
-                      localport='5409'))
+# DSN_TELLUS = _db_connection_string.format(
+#     **get_db_settings(db='tellus',
+#                       docker_host='tellus_db',
+#                       localport='5409'))
 
 DSN_MONUMENTEN = _db_connection_string.format(
     **get_db_settings(db='monumenten',
@@ -111,11 +111,11 @@ logging.debug('Database config:\n'
               'Bag: %s\n'
               'Nap: %s\n'
               'Milieu: %s\n'
-              'Tellus: %s\n'
+ #             'Tellus: %s\n'
               'Monumenten: %s\n',
               'Grondexploitatie\n',
               'Various Small Datasets',
-              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_TELLUS, DSN_MONUMENTEN, DSN_GRONDEXPLOITATIE, DSN_VARIOUS_SMALL_DATASETS)
+              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_MONUMENTEN, DSN_GRONDEXPLOITATIE, DSN_VARIOUS_SMALL_DATASETS)
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')

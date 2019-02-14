@@ -415,50 +415,50 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
         self.meta['operator'] = 'within'
 
 
-class TellusDataSource(DataSourceBase):
-    def __init__(self, *args, **kwargs):
-        super(TellusDataSource, self).__init__(*args, **kwargs)
-        self.meta = {
-            'geofield': 'geometrie',
-            'operator': 'within',
-            'datasets': {
-                'tellus': {
-                    'tellus':
-                        'public.geo_tellus_point'
-                }
-            },
-        }
-
-    default_properties = ('display', 'standplaats', 'type', 'uri', 'distance')
-
-    def query(self, x, y, rd=True, radius=None, limit=None):
-        self.use_rd = rd
-        self.x = x
-        self.y = y
-
-        if radius:
-            self.radius = radius
-
-        try:
-            return {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
-            }
-        except DataSourceException as err:
-            return {
-                'type': 'Error',
-                'message': 'Error executing query: %s' % err.message
-            }
-        except psycopg2.ProgrammingError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in database integrity: %s' % repr(err)
-            }
-        except TypeError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in handling, {}'.format(repr(err))
-            }
+# class TellusDataSource(DataSourceBase):
+#     def __init__(self, *args, **kwargs):
+#         super(TellusDataSource, self).__init__(*args, **kwargs)
+#         self.meta = {
+#             'geofield': 'geometrie',
+#             'operator': 'within',
+#             'datasets': {
+#                 'tellus': {
+#                     'tellus':
+#                         'public.geo_tellus_point'
+#                 }
+#             },
+#         }
+#
+#     default_properties = ('display', 'standplaats', 'type', 'uri', 'distance')
+#
+#     def query(self, x, y, rd=True, radius=None, limit=None):
+#         self.use_rd = rd
+#         self.x = x
+#         self.y = y
+#
+#         if radius:
+#             self.radius = radius
+#
+#         try:
+#             return {
+#                 'type': 'FeatureCollection',
+#                 'features': self.execute_queries()
+#             }
+#         except DataSourceException as err:
+#             return {
+#                 'type': 'Error',
+#                 'message': 'Error executing query: %s' % err.message
+#             }
+#         except psycopg2.ProgrammingError as err:
+#             return {
+#                 'type': 'Error',
+#                 'message': 'Error in database integrity: %s' % repr(err)
+#             }
+#         except TypeError as err:
+#             return {
+#                 'type': 'Error',
+#                 'message': 'Error in handling, {}'.format(repr(err))
+#             }
 
 
 class MonumentenDataSource(DataSourceBase):
