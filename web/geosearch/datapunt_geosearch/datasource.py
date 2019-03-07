@@ -633,7 +633,10 @@ def _make_init(row):
 
 def _init_get_dataset_class(dsn=None):
     global _datasets
-    if _datasets is None:
+    global _datasets_initialized
+
+    # To avoid DDOS attacks do this only every INITIALIZE_DELAY at most
+    if _datasets is None or time.time() - _datasets_initialized > INITIALIZE_DELAY:
         _datasets = dict()
 
         if dsn is None:
@@ -728,9 +731,8 @@ def get_dataset_class(ds_name, dsn=None):
     :return: subclass of DataSource for this dataset
     """
     global _datasets
-    global _datasets_initialized
 
-    if _datasets is None or (ds_name not in _datasets and time.time() - _datasets_initialized > INITIALIZE_DELAY):
+    if _datasets is None or ds_name not in _datasets:
         _init_get_dataset_class(dsn)
         _datasets_initialized = time.time()
 
