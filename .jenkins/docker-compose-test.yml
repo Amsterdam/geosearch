@@ -1,39 +1,39 @@
 version: '3.0'
 services:
   bag_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_DB: bag
       POSTGRES_USER: bag
   nap_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
   milieuthemas_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: milieuthemas
 #  tellus_db:
-#    image: amsterdam/postgres
+#    image: amsterdam/postgres11
 #    environment:
 #      POSTGRES_PASSWORD: insecure
 #      POSTGRES_USER: tellus
   monumenten_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
   grondexploitatie_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: grondexploitatie
   various_small_datasets_db:
-    image: amsterdam/postgres
+    image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: various_small_datasets
