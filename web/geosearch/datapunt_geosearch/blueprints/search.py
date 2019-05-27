@@ -118,9 +118,9 @@ def search_in_datasets():
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item == 'grondexploitatie':
         ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
-    elif item in {'openbareruimte', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt', 'buurtcombinatie',
-                  'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco', 'kadastraal_object',
-                  'beperking'}:
+    elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',
+                  'buurtcombinatie', 'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco',
+                  'kadastraal_object', 'beperking'}:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
     else:
         ds_class = get_dataset_class(item)

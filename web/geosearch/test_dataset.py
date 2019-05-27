@@ -252,6 +252,7 @@ class TestGrondExploitatieDataset(unittest.TestCase):
         uri = results['features'][0]['properties']['uri']
         self.assertRegex(uri, 'grondexploitatie/project/28508/$')
 
+
 class TestBIZDataset(unittest.TestCase):
     def test_query(self):
         x = 121723
@@ -280,6 +281,7 @@ class TestBIZDataset(unittest.TestCase):
         display = results['features'][0]['properties']['display']
         self.assertRegex(uri, 'biz/29/$')
         self.assertEqual(display, 'Oud West')
+
 
 if __name__ == '__main__':
     unittest.main()
