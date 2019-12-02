@@ -5,7 +5,7 @@ Update different project databases with current data:
 bag_backend and meetbouten for now
 
     docker-compose up -d
-    docker-compose exec bag_db update-db.sh  bag <your_username>
+    docker-compose exec bag_v11_db update-db.sh  bag_v11 <your_username>
     docker-compose exec nap_db update-db.sh nap <your_username>
     docker-compose exec milieuthemas_db update-db.sh milieuthemas <your_username>
     docker-compose exec monumenten_db update-db.sh monumenten <your_username>

@@ -72,8 +72,8 @@ _db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
 
 
 DSN_BAG = _db_connection_string.format(
-    **get_db_settings(db='bag',
-                      docker_host='bag_db',
+    **get_db_settings(db='bag_v11',
+                      docker_host='bag_v11_db',
                       localport='5405'))
 
 DSN_NAP = _db_connection_string.format(
