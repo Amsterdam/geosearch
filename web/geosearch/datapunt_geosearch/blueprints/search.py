@@ -13,7 +13,6 @@ from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 # from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
-from datapunt_geosearch.datasource import GrondExploitatieDataSource
 from datapunt_geosearch.datasource import get_dataset_class
 
 
@@ -116,8 +115,6 @@ def search_in_datasets():
     #    ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
-    elif item == 'grondexploitatie':
-        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
     elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',
                   'buurtcombinatie', 'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco',
                   'kadastraal_object', 'beperking'}:
@@ -232,20 +229,6 @@ def search_geo_bag():
 def search_geo_atlas():
     # old should be replaced
     return _search_geo_bag()
-
-
-@search.route('/grondexploitatie/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error
-def search_geo_grondexploitatie():
-    """Performing a geo search for radius around a point using postgres"""
-    x, y, rd, limit, resp = get_coords_and_type(request.args)
-
-    # If no error is found, query
-    if not resp:
-        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit)
-
-    return jsonify(resp)
 
 
 # This should be the last (catchall) route/view combination
