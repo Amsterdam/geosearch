@@ -46,7 +46,7 @@ class TestNapDataset(unittest.TestCase):
         ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 5)
+        self.assertEqual(len(results['features']), 6)
 
 
 if __name__ == '__main__':
