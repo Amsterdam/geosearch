@@ -1,11 +1,15 @@
 version: '3.0'
 services:
-  bag_db:
+  bag_v11_db:
     image: amsterdam/postgres11
+    ports:
+      - "5405:5432"
     environment:
       POSTGRES_PASSWORD: insecure
-      POSTGRES_DB: bag
-      POSTGRES_USER: bag
+      POSTGRES_DB: bag_v11
+      POSTGRES_USER: bag_v11
+    volumes:
+        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   nap_db:
     image: amsterdam/postgres11
     environment:
