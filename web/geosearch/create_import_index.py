@@ -21,7 +21,6 @@ bominslag 865
 verdachtgebied 489
 buurt 481
 standplaats 321
-grondexploitatie 183
 uitgevoerdonderzoek 136
 buurtcombinatie 99
 biz 49
@@ -37,8 +36,7 @@ import json
 import re
 from collections import Counter
 
-from datapunt_geosearch.config import DSN_BAG, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS, DSN_MILIEU, DSN_NAP, \
-    DSN_GRONDEXPLOITATIE
+from datapunt_geosearch.config import DSN_BAG, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS, DSN_MILIEU, DSN_NAP
 
 from datapunt_geosearch.datasource import BagDataSource, dbconnection
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
@@ -46,7 +44,6 @@ from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 # from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
-from datapunt_geosearch.datasource import GrondExploitatieDataSource
 from datapunt_geosearch.datasource import get_dataset_class, get_all_dataset_names
 
 import psycopg2.extras
@@ -73,10 +70,6 @@ sources = {
         'ds': NapMeetboutenDataSource,
         'config': DSN_NAP
     },
-    "grondexploitatie": {
-        'ds': GrondExploitatieDataSource,
-        'config': DSN_GRONDEXPLOITATIE
-    },
     # "tellus": {
     #     'ds': TellusDataSource,
     #     'config': DSN_TELLUS
@@ -86,7 +79,6 @@ sources = {
 
 # Mapping van item naar authorisatie scope
 required_scopes = {
-    'grondexploitatie': 'GREX/R'
 }
 
 # URI can be generated
