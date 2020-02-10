@@ -1,93 +1,15 @@
-import contextlib
-import functools
 import logging
 import time
-
+import psycopg2.extras
 from flask import current_app
 
 from .config import DATAPUNT_API_URL
+from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch.exceptions import DataSourceException
+from datapunt_geosearch.registry import registry
 
-import psycopg2.extras
 
 _logger = logging.getLogger(__name__)
-
-
-@functools.lru_cache()
-def dbconnection(dsn):
-    """Creates an instance of _DBConnection and remembers the last one made."""
-    return _DBConnection(dsn)
-
-
-class _DBConnection:
-    """ Wraps a PostgreSQL database connection that reports crashes and tries
-    its best to repair broken connections.
-
-    NOTE: doesn't always work, but the failure scenario is very hard to
-      reproduce. Also see https://github.com/psycopg/psycopg2/issues/263
-    """
-
-    def __init__(self, *args, **kwargs):
-        self.conn_args = args
-        self.conn_kwargs = kwargs
-        self._conn = None
-        self._connect()
-
-    def _connect(self):
-        if self._conn is None:
-            self._conn = psycopg2.connect(*self.conn_args, **self.conn_kwargs)
-            self._conn.autocommit = True
-
-    def _is_usable(self):
-        """ Checks whether the connection is usable.
-
-        :returns boolean: True if we can query the database, False otherwise
-        """
-        try:
-            self._conn.cursor().execute("SELECT 1")
-        except psycopg2.Error:
-            return False
-        else:
-            return True
-
-    @contextlib.contextmanager
-    def _connection(self):
-        """ Contextmanager that catches tries to ensure we have a database
-        connection. Yields a Connection object.
-
-        If a :class:`psycopg2.DatabaseError` occurs then it will check whether
-        the connection is still usable, and if it's not, close and remove it.
-        """
-        try:
-            self._connect()
-            yield self._conn
-        except psycopg2.Error as e:
-            _logger.critical('AUTHZ DatabaseError: {}'.format(e))
-            if not self._is_usable():
-                with contextlib.suppress(psycopg2.Error):
-                    self._conn.close()
-                self._conn = None
-            raise e
-
-    @contextlib.contextmanager
-    def transaction_cursor(self, cursor_factory=None):
-        """ Yields a cursor with transaction.
-        """
-        with self._connection() as transaction:
-            with transaction:
-                with transaction.cursor(cursor_factory=cursor_factory) as cur:
-                    yield cur
-
-    @contextlib.contextmanager
-    def cursor(self, cursor_factory=None):
-        """ Yields a cursor without transaction.
-        """
-        with self._connection() as conn:
-            with conn.cursor(cursor_factory=cursor_factory) as cur:
-                yield cur
-
-
-class DataSourceException(Exception):
-    pass
 
 
 class DataSourceBase(object):
@@ -231,6 +153,38 @@ ORDER BY distance
 
         return cur.fetchall()
 
+    def query(self, x, y, rd=True, radius=None, limit=None):
+        self.use_rd = rd
+        self.x = x
+        self.y = y
+
+        if radius:
+            self.radius = radius
+
+        if limit:
+            self.limit = limit
+
+        try:
+            return {
+                'type': 'FeatureCollection',
+                'features': self.execute_queries()
+            }
+        except DataSourceException as err:
+            return {
+                'type': 'Error',
+                'message': 'Error executing query: %s' % err.message
+            }
+        except psycopg2.ProgrammingError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in database integrity: %s' % repr(err)
+            }
+        except TypeError as err:
+            return {
+                'type': 'Error',
+                'message': 'Error in handling, {}'.format(repr(err))
+            }
+
 
 class BagDataSource(DataSourceBase):
     metadata = {
@@ -272,38 +226,6 @@ class BagDataSource(DataSourceBase):
         else:
             return super(BagDataSource, self).filter_dataset(dataset_table)
 
-    def query(self, x, y, rd=True, radius=None, limit=None):
-        self.use_rd = rd
-        self.x = x
-        self.y = y
-
-        if radius:
-            self.radius = radius
-
-        if limit:
-            self.limit = limit
-
-        try:
-            return {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
-            }
-        except DataSourceException as err:
-            return {
-                'type': 'Error',
-                'message': 'Error executing query: %s' % err.message
-            }
-        except psycopg2.ProgrammingError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in database integrity: %s' % repr(err)
-            }
-        except TypeError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in handling, {}'.format(repr(err))
-            }
-
 
 class NapMeetboutenDataSource(DataSourceBase):
     metadata = {
@@ -318,38 +240,6 @@ class NapMeetboutenDataSource(DataSourceBase):
             },
         },
     }
-
-    def query(self, x, y, rd=True, radius=None, limit=None):
-        self.use_rd = rd
-        self.x = x
-        self.y = y
-
-        if radius:
-            self.radius = radius
-
-        if limit:
-            self.limit = limit
-
-        try:
-            return {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
-            }
-        except DataSourceException as err:
-            return {
-                'type': 'Error',
-                'message': 'Error executing query: %s' % err.message
-            }
-        except psycopg2.ProgrammingError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in database integrity: %s' % repr(err)
-            }
-        except TypeError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in handling, {}'.format(repr(err))
-            }
 
 
 class MunitieMilieuDataSource(DataSourceBase):
@@ -368,38 +258,6 @@ class MunitieMilieuDataSource(DataSourceBase):
         },
     }
     default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
-
-    def query(self, x, y, rd=True, radius=None, limit=None):
-        self.use_rd = rd
-        self.x = x
-        self.y = y
-
-        if radius:
-            self.radius = radius
-
-        if limit:
-            self.limit = limit
-
-        try:
-            return {
-                'type': 'FeatureCollection',
-                'features': self.execute_queries()
-            }
-        except DataSourceException as err:
-            return {
-                'type': 'Error',
-                'message': 'Error executing query: %s' % err.message
-            }
-        except psycopg2.ProgrammingError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in database integrity: %s' % repr(err)
-            }
-        except TypeError as err:
-            return {
-                'type': 'Error',
-                'message': 'Error in handling, {}'.format(repr(err))
-            }
 
 
 class BominslagMilieuDataSource(MunitieMilieuDataSource):
@@ -527,43 +385,11 @@ _datasets = None
 INITIALIZE_DELAY = 600  # 10 minutes
 _datasets_initialized = 0
 
-
-def _get_metadata(row):
-    """
-    Use closure tocreate init method
-
-    :param row with data to create __init__ method:
-    :return __init_ method for class to create:
-    """
-    if row['schema'] is None:
-        row['schema'] = 'public'
-    schema_table = row['schema'] + '.' + row['table_name']
-
-    if row['geometry_type'].upper() == 'POLYGON':
-        operator = 'contains'
-    else:
-        operator = 'within'
-    name = row['name']
-    name_field = row['name_field']
-    geometry_field = row['geometry_field']
-    id_field = row['id_field']
-
-    return {
-        'geofield': row['geometry_field'],
-        'operator': operator,
-        'datasets': {
-            'vsd': {
-                name: schema_table,
-            }
-        },
-        'fields': [
-            f"{name_field} as display",
-            f"cast('vsd/{name}' as varchar(30)) as type",
-            f"'{DATAPUNT_API_URL}vsd/{name}/' || {id_field} || '/'  as uri",
-            f"{geometry_field} as geometrie",
-            f"{id_field} as id",
-        ],
-    }
+registry.register_dataset('DSN_BAG', BagDataSource)
+registry.register_dataset('DSN_NAP', NapMeetboutenDataSource)
+registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
+registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
+registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
 
 
 def _init_get_dataset_class(dsn=None):
@@ -572,85 +398,8 @@ def _init_get_dataset_class(dsn=None):
 
     # To avoid DDOS attacks do this only every INITIALIZE_DELAY at most
     if _datasets is None or time.time() - _datasets_initialized > INITIALIZE_DELAY:
-        _datasets = dict()
-
-        if dsn is None:
-            dsn = current_app.config['DSN_VARIOUS_SMALL_DATASETS']
-        try:
-            dbconn = dbconnection(dsn)
-        except psycopg2.Error as e:
-            _logger.error('Error creating connection: %s' % e)
-            raise DataSourceException('error connecting to datasource') from e
-
-        with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            sql = '''
-    select *
-    from cat_dataset
-    where enable_geosearch = true
-                '''
-            cur.execute(sql)
-            rows = cur.fetchall()
-
-            for row in rows:
-                name = row['name']
-                if name in _datasets:
-                    continue
-
-                # Fetch primary key field. We need to know what the id is
-                if 'pk_field' in row:
-                    row['id_field'] = row.pop('pk_field')
-                else:
-                    sql_pk = '''
-    select name, data_type, db_column
-    from cat_dataset_fields
-    where dataset_id = %(ds_id)s and primary_key = true
-                    '''
-                    with dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur1:
-                        cur1.execute(sql_pk, {'ds_id': row['id']})
-                        pk_row = cur1.fetchone()
-                        id_field = pk_row['db_column']
-
-                    row['id_field'] = id_field
-
-                # For now query is the same for all subclasses so we do not need a closure to generate it
-                def query(self, x, y, rd=True, radius=None, limit=None):
-                    self.use_rd = rd
-                    self.x = x
-                    self.y = y
-
-                    if radius:
-                        self.radius = radius
-
-                    if limit:
-                        self.limit = limit
-
-                    try:
-                        return {
-                            'type': 'FeatureCollection',
-                            'features': self.execute_queries()
-                        }
-                    except DataSourceException as err:
-                        return {
-                            'type': 'Error',
-                            'message': 'Error executing query: %s' % err.message
-                        }
-                    except psycopg2.ProgrammingError as err:
-                        return {
-                            'type': 'Error',
-                            'message': 'Error in database integrity: %s' % repr(err)
-                        }
-                    except TypeError as err:
-                        return {
-                            'type': 'Error',
-                            'message': 'Error in handling, {}'.format(repr(err))
-                        }
-
-                classname = name.upper() + 'GenAPIDataSource'
-                dataset_class = type(classname, (DataSourceBase,), {
-                    'metadata': _get_metadata(row),
-                    'query': query,
-                })
-                _datasets[name] = dataset_class
+        _datasets = registry.init_vsd_datasets(dsn=dsn)
+        _datasets_initialized = time.time()
 
 
 def get_dataset_class(ds_name, dsn=None):
@@ -666,16 +415,12 @@ def get_dataset_class(ds_name, dsn=None):
 
     if _datasets is None or ds_name not in _datasets:
         _init_get_dataset_class(dsn)
-        _datasets_initialized = time.time()
 
-    if ds_name in _datasets:
-        return _datasets[ds_name]
-    else:
-        return None
+    return registry.get_by_name(ds_name)
 
 
 def get_all_dataset_names(dsn=None):
     global _datasets
     if _datasets is None:
         _init_get_dataset_class(dsn)
-    return list(_datasets.keys())
+    return registry.get_all_dataset_names()
