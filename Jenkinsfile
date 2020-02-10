@@ -21,7 +21,6 @@ node {
     stage("Checkout") {
         checkout scm
     }
-/*
     stage('Test') {
         tryStep "test", {
             sh ".jenkins/runtests.sh"
@@ -29,7 +28,6 @@ node {
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
         }
     }
-*/
     stage("Build image") {
         tryStep "build", {
             docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
