@@ -37,4 +37,4 @@ dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 sleep 1m
 # run da test
 
-dc run --rm web_test python test_dataset.py
+dc run --rm web_test python -m unittest discover . -p 'test_*.py'
