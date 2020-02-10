@@ -21,7 +21,7 @@ node {
     stage("Checkout") {
         checkout scm
     }
-    stage('Test') {
+    stage("Test") {
         tryStep "test", {
             sh ".jenkins/runtests.sh"
         }, {
