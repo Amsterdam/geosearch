@@ -32,17 +32,20 @@ class DataSourceBase(object):
     fields = '*'
     extra_where = ''
 
-    def __init__(self, dsn=None):
+    def __init__(self, dsn=None, connection=None):
         _logger.debug('Creating DataSource: %s' % self.dataset)
 
-        if not dsn:
+        if not dsn and connection is None:
             raise ValueError('dsn needs to be defined')
 
-        try:
-            self.dbconn = dbconnection(dsn)
-        except psycopg2.Error as e:
-            _logger.error('Error creating connection: %s' % e)
-            raise DataSourceException('error connecting to datasource') from e
+        if connection is None:
+            try:
+                self.dbconn = dbconnection(dsn)
+            except psycopg2.Error as e:
+                _logger.error('Error creating connection: %s' % e)
+                raise DataSourceException('error connecting to datasource') from e
+        else:
+            self.dbconn = connection
 
         self.meta = self.metadata.copy()
 
@@ -65,14 +68,20 @@ class DataSourceBase(object):
         self.meta['datasets'] = None
         return False
 
-    def execute_queries(self):
+    def execute_queries(self, datasets=None):
+        datasets = datasets or []
         if 'fields' in self.meta:
             self.fields = ','.join(self.meta['fields'])
 
         features = []
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta['datasets']:
-                for _, table in self.meta['datasets'][dataset].items():
+                for dataset_indent, table in self.meta['datasets'][dataset].items():
+                    if len(datasets) and not (
+                            dataset in datasets or dataset_indent in datasets):
+                        # Actively filter datasets
+                        continue
+
                     if self.meta['operator'] == 'contains':
                         rows = self.execute_polygon_query(cur, table)
                     else:
@@ -173,7 +182,7 @@ ORDER BY distance
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except psycopg2.ProgrammingError as err:
+        except psycopg2.PogrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
@@ -186,6 +195,7 @@ ORDER BY distance
 
 
 class BagDataSource(DataSourceBase):
+    dsn_name = 'DSN_BAG'
     metadata = {
         'geofield': 'geometrie',
         'operator': 'contains',
@@ -227,6 +237,7 @@ class BagDataSource(DataSourceBase):
 
 
 class NapMeetboutenDataSource(DataSourceBase):
+    dsn_name = 'DSN_NAP'
     metadata = {
         'geofield': 'geometrie',
         'operator': 'within',
@@ -242,6 +253,7 @@ class NapMeetboutenDataSource(DataSourceBase):
 
 
 class MunitieMilieuDataSource(DataSourceBase):
+    dsn_name = 'DSN_MILIEU'
     metadata = {
         'geofield': 'geometrie',
         'operator': 'contains',
@@ -316,6 +328,7 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
 
 
 class MonumentenDataSource(DataSourceBase):
+    dsn_name = 'DSN_MONUMENTEN'
     metadata = {
         'geofield': 'monumentcoordinaten',
         'operator': 'within',

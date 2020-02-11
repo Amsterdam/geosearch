@@ -114,3 +114,14 @@ logging.debug('Database config:\n'
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')
+
+DEFAULT_SEARCH_DATASETS = [
+    'monumenten',
+    'openbareruimte',
+    'pand',
+    'stadsdeel',
+    'peilmerk',
+    'meetbout',
+    'uitgevoerdonderzoek',
+    'bominslag'
+]
