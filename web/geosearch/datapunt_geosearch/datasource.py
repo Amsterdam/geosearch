@@ -1,5 +1,4 @@
 import logging
-import time
 import psycopg2.extras
 
 from .config import DATAPUNT_API_URL
@@ -182,7 +181,7 @@ ORDER BY distance
                 'type': 'Error',
                 'message': 'Error executing query: %s' % err.message
             }
-        except psycopg2.PogrammingError as err:
+        except psycopg2.ProgrammingError as err:
             return {
                 'type': 'Error',
                 'message': 'Error in database integrity: %s' % repr(err)
