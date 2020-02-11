@@ -1,8 +1,11 @@
 from collections import defaultdict
 import logging
 import psycopg2.extras
-from flask import current_app
-from datapunt_geosearch.config import DATAPUNT_API_URL
+import time
+from datapunt_geosearch.config import (
+    DATAPUNT_API_URL,
+    DSN_VARIOUS_SMALL_DATASETS
+)
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
@@ -14,27 +17,38 @@ class DatasetRegistry:
     Dataset Registry.
     """
 
-    def __init__(self):
+    INITIALIZE_DELAY = 600  # 10 minutes
+
+    def __init__(self, delay=None):
         # Datasets is a dictionary of DSN => Datasets.
         self.datasets = defaultdict(list)
         self.providers = dict()
         self.static_dataset_names = []
-        self._dso_datasets_initialized = None
+        self._datasets_initialized = None
+        if delay is not None:
+            self.INITIALIZE_DELAY = delay
 
     def register_dataset(self, dsn_name, dataset_class):
         self.datasets[dsn_name].append(dataset_class)
 
-        for item in dataset_class.metadata['datasets']['vsd'].keys():
-            self.providers[item] = dataset_class
+        for key in dataset_class.metadata['datasets'].keys():
+            for item in dataset_class.metadata['datasets'][key].keys():
+                if item in self.providers.keys():
+                    _logger.warning("Provider for {} already defined {}".format(
+                        item,
+                        self.providers[item]
+                    ))
+                self.providers[item] = dataset_class
 
     def get_all_datasets(self):
+        self.init_datasets()
         return self.providers
 
     def get_all_dataset_names(self):
-        return self.providers.keys()
+        return self.get_all_datasets().keys()
 
     def get_by_name(self, name):
-        return self.providers.get(name)
+        return self.get_all_datasets().get(name)
 
     def init_dataset(self, row, class_name, dsn_name):
         from datapunt_geosearch.datasource import DataSourceBase
@@ -77,9 +91,14 @@ class DatasetRegistry:
         )
         return dataset_class
 
+    def init_datasets(self):
+        if self._datasets_initialized is None or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY:
+            self.init_vsd_datasets()
+            self._datasets_initialized = time.time()
+
     def init_vsd_datasets(self, dsn=None):
         if dsn is None:
-            dsn = current_app.config['DSN_VARIOUS_SMALL_DATASETS']
+            dsn = DSN_VARIOUS_SMALL_DATASETS
         try:
             dbconn = dbconnection(dsn)
         except psycopg2.Error as e:

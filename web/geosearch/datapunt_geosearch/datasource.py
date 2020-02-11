@@ -1,7 +1,6 @@
 import logging
 import time
 import psycopg2.extras
-from flask import current_app
 
 from .config import DATAPUNT_API_URL
 from datapunt_geosearch.db import dbconnection
@@ -380,26 +379,11 @@ class MonumentenDataSource(DataSourceBase):
             }
 
 
-# Store mapping of dataset names to DataSource subclass for this dataset
-_datasets = None
-INITIALIZE_DELAY = 600  # 10 minutes
-_datasets_initialized = 0
-
 registry.register_dataset('DSN_BAG', BagDataSource)
 registry.register_dataset('DSN_NAP', NapMeetboutenDataSource)
 registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
-
-
-def _init_get_dataset_class(dsn=None):
-    global _datasets
-    global _datasets_initialized
-
-    # To avoid DDOS attacks do this only every INITIALIZE_DELAY at most
-    if _datasets is None or time.time() - _datasets_initialized > INITIALIZE_DELAY:
-        _datasets = registry.init_vsd_datasets(dsn=dsn)
-        _datasets_initialized = time.time()
 
 
 def get_dataset_class(ds_name, dsn=None):
@@ -411,16 +395,8 @@ def get_dataset_class(ds_name, dsn=None):
     :param dsn optional datasource name for reading catalog. Required for testing
     :return: subclass of DataSource for this dataset
     """
-    global _datasets
-
-    if _datasets is None or ds_name not in _datasets:
-        _init_get_dataset_class(dsn)
-
     return registry.get_by_name(ds_name)
 
 
 def get_all_dataset_names(dsn=None):
-    global _datasets
-    if _datasets is None:
-        _init_get_dataset_class(dsn)
     return registry.get_all_dataset_names()

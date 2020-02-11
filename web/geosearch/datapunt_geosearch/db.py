@@ -111,3 +111,10 @@ class _DBConnection:
                     cursor_factory=psycopg2.extras.RealDictCursor) as cur:
                 cur.execute(sql)
                 return cur.fetchall()
+
+    def fetch_one(self, sql):
+        with self._connection() as conn:
+            with conn.cursor(
+                    cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql)
+                return cur.fetchone()
