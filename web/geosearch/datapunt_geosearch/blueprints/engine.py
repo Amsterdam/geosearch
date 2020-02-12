@@ -44,7 +44,7 @@ def fetch_data(sourceClass, request_args, datasets, retry=None):
         return []
 
     datasource = sourceClass(dsn=dsn)
-    datasource.us_rd = request_args['rd']
+    datasource.use_rd = request_args['rd']
     datasource.x = float(request_args['x'])
     datasource.y = float(request_args['y'])
 

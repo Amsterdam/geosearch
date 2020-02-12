@@ -60,6 +60,13 @@ def send_doc():
 
 @search.route('/', methods=['GET', 'OPTIONS'])
 def search_everywhere():
+    """
+    Search in all datasets combined.
+    Required argumesnts:
+     - x/y or lat/lon for position
+     - radius for searching within radius
+     - datasets - subset of datasets to search in.
+    """
     x, y, rd, limit, resp = get_coords_and_type(request.args)
     if resp:
         return jsonify(resp)
