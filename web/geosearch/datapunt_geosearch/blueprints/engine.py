@@ -1,5 +1,4 @@
 import concurrent.futures
-import itertools
 from functools import partial
 import logging
 try:
@@ -8,7 +7,6 @@ except ImportError:
     import json
 
 from datapunt_geosearch.config import DEFAULT_SEARCH_DATASETS
-from datapunt_geosearch.db import _DBConnection
 from datapunt_geosearch.registry import registry
 
 
@@ -24,7 +22,7 @@ def generate_async(request_args):
     fetch = partial(fetch_data, request_args=request_args, datasets=datasets)
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
-    with concurrent.futures.ProcessPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
         for result in executor.map(fetch, registry.filter_datasets(names=datasets), timeout=1):
             for row in result:
                 if first_item:
@@ -45,8 +43,7 @@ def fetch_data(sourceClass, request_args, datasets, retry=None):
         ), exc_info=True)
         return []
 
-    connection = _DBConnection(dsn)
-    datasource = sourceClass(connection=connection)
+    datasource = sourceClass(dsn=dsn)
     datasource.us_rd = request_args['rd']
     datasource.x = float(request_args['x'])
     datasource.y = float(request_args['y'])
