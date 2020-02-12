@@ -101,7 +101,10 @@ class DataSourceBase(object):
     default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
     radius = 30
     limit = None
-    meta = {}
+    # Generic Meta for all instances of this DataSource
+    metadata = {}
+    # Instance specific data
+    meta = None
     use_rd = True
     x = None
     y = None
@@ -119,6 +122,8 @@ class DataSourceBase(object):
         except psycopg2.Error as e:
             _logger.error('Error creating connection: %s' % e)
             raise DataSourceException('error connecting to datasource') from e
+
+        self.meta = self.metadata.copy()
 
     def filter_dataset(self, dataset_table):
         """
@@ -228,36 +233,33 @@ ORDER BY distance
 
 
 class BagDataSource(DataSourceBase):
-    def __init__(self, *args, **kwargs):
-        super(BagDataSource, self).__init__(*args, **kwargs)
-        self.meta = {
-            'geofield': 'geometrie',
-            'operator': 'contains',
-            'datasets': {
-                'bag': {
-                    'openbareruimte': 'public.geo_bag_openbareruimte_mat',
-                    'pand': 'public.geo_bag_pand_mat',
-                    'ligplaats': 'public.geo_bag_ligplaats_mat',
-                    'standplaats': 'public.geo_bag_standplaats_mat',
-                },
-                'gebieden': {
-                    'stadsdeel': 'public.geo_bag_stadsdeel_mat',
-                    'buurt': 'public.geo_bag_buurt_mat',
-                    'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
-                    'bouwblok': 'public.geo_bag_bouwblok_mat',
-                    'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
-                    'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
-                    'unesco': 'public.geo_bag_unesco_mat',
-                },
-                'lki': {
-                    'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
-                },
-                'wkpb': {
-                    'beperking': 'public.geo_wkpb_mat',
-                },
+    metadata = {
+        'geofield': 'geometrie',
+        'operator': 'contains',
+        'datasets': {
+            'bag': {
+                'openbareruimte': 'public.geo_bag_openbareruimte_mat',
+                'pand': 'public.geo_bag_pand_mat',
+                'ligplaats': 'public.geo_bag_ligplaats_mat',
+                'standplaats': 'public.geo_bag_standplaats_mat',
             },
-        }
-
+            'gebieden': {
+                'stadsdeel': 'public.geo_bag_stadsdeel_mat',
+                'buurt': 'public.geo_bag_buurt_mat',
+                'buurtcombinatie': 'public.geo_bag_buurtcombinatie_mat',
+                'bouwblok': 'public.geo_bag_bouwblok_mat',
+                'grootstedelijkgebied': 'public.geo_bag_grootstedelijkgebied_mat',
+                'gebiedsgerichtwerken': 'public.geo_bag_gebiedsgerichtwerken_mat',
+                'unesco': 'public.geo_bag_unesco_mat',
+            },
+            'lki': {
+                'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
+            },
+            'wkpb': {
+                'beperking': 'public.geo_wkpb_mat',
+            },
+        },
+    }
     default_properties = ('id', 'code', 'vollcode', 'display', 'type', 'uri', 'opr_type', 'distance')
 
     def filter_dataset(self, dataset_table):
@@ -304,20 +306,18 @@ class BagDataSource(DataSourceBase):
 
 
 class NapMeetboutenDataSource(DataSourceBase):
-    def __init__(self, *args, **kwargs):
-        super(NapMeetboutenDataSource, self).__init__(*args, **kwargs)
-        self.meta = {
-            'geofield': 'geometrie',
-            'operator': 'within',
-            'datasets': {
-                'nap': {
-                    'peilmerk': 'public.geo_nap_peilmerk_mat',
-                },
-                'meetbouten': {
-                    'meetbout': 'public.geo_meetbouten_meetbout_mat',
-                },
+    metadata = {
+        'geofield': 'geometrie',
+        'operator': 'within',
+        'datasets': {
+            'nap': {
+                'peilmerk': 'public.geo_nap_peilmerk_mat',
             },
-        }
+            'meetbouten': {
+                'meetbout': 'public.geo_meetbouten_meetbout_mat',
+            },
+        },
+    }
 
     def query(self, x, y, rd=True, radius=None, limit=None):
         self.use_rd = rd
@@ -353,23 +353,20 @@ class NapMeetboutenDataSource(DataSourceBase):
 
 
 class MunitieMilieuDataSource(DataSourceBase):
-    def __init__(self, *args, **kwargs):
-        super(MunitieMilieuDataSource, self).__init__(*args, **kwargs)
-        self.meta = {
-            'geofield': 'geometrie',
-            'operator': 'contains',
-            'datasets': {
-                'munitie': {
-                    'gevrijwaardgebied':
-                        'public.geo_bommenkaart_gevrijwaardgebied_polygon',
-                    'uitgevoerdonderzoek':
-                        'public.geo_bommenkaart_uitgevoerdonderzoek_polygon',
-                    'verdachtgebied':
-                        'public.geo_bommenkaart_verdachtgebied_polygon'
-                }
-            },
-        }
-
+    metadata = {
+        'geofield': 'geometrie',
+        'operator': 'contains',
+        'datasets': {
+            'munitie': {
+                'gevrijwaardgebied':
+                    'public.geo_bommenkaart_gevrijwaardgebied_polygon',
+                'uitgevoerdonderzoek':
+                    'public.geo_bommenkaart_uitgevoerdonderzoek_polygon',
+                'verdachtgebied':
+                    'public.geo_bommenkaart_verdachtgebied_polygon'
+            }
+        },
+    }
     default_properties = ('id', 'display', 'type', 'uri', 'opr_type', 'distance')
 
     def query(self, x, y, rd=True, radius=None, limit=None):
@@ -406,13 +403,13 @@ class MunitieMilieuDataSource(DataSourceBase):
 
 
 class BominslagMilieuDataSource(MunitieMilieuDataSource):
-
-    def __init__(self, *args, **kwargs):
-        super(BominslagMilieuDataSource, self).__init__(*args, **kwargs)
-        self.meta['datasets'] = {
+    metadata = {
+        'geofield': 'geometrie',
+        'operator': 'within',
+        'datasets': {
             'munitie': {'bominslag': 'public.geo_bommenkaart_bominslag_point'}
-        }
-        self.meta['operator'] = 'within'
+        },
+    }
 
 
 # class TellusDataSource(DataSourceBase):
@@ -462,26 +459,23 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
 
 
 class MonumentenDataSource(DataSourceBase):
-    def __init__(self, *args, **kwargs):
-        super(MonumentenDataSource, self).__init__(*args, **kwargs)
-        self.meta = {
-            'geofield': 'monumentcoordinaten',
-            'operator': 'within',
-            'datasets': {
-                'monumenten': {
-                    'monument':
-                        'public.dataset_monument'
-                }
-            },
-            'fields': [
-                "display_naam as display",
-                "cast('monumenten/monument' as varchar(30)) as type",
-                # "'/monument/' || lower(monumenttype) as type",
-                f"'{DATAPUNT_API_URL}monumenten/monumenten/' || id || '/'  as uri",
-                "monumentcoordinaten as geometrie",
-            ],
-        }
-
+    metadata = {
+        'geofield': 'monumentcoordinaten',
+        'operator': 'within',
+        'datasets': {
+            'monumenten': {
+                'monument':
+                    'public.dataset_monument'
+            }
+        },
+        'fields': [
+            "display_naam as display",
+            "cast('monumenten/monument' as varchar(30)) as type",
+            # "'/monument/' || lower(monumenttype) as type",
+            f"'{DATAPUNT_API_URL}monumenten/monumenten/' || id || '/'  as uri",
+            "monumentcoordinaten as geometrie",
+        ],
+    }
     default_properties = ('display', 'type', 'uri', 'distance')
 
     def query(self, x, y, rd=True, radius=None, limit=None, monumenttype=None):
@@ -534,7 +528,7 @@ INITIALIZE_DELAY = 600  # 10 minutes
 _datasets_initialized = 0
 
 
-def _make_init(row):
+def _get_metadata(row):
     """
     Use closure tocreate init method
 
@@ -554,25 +548,22 @@ def _make_init(row):
     geometry_field = row['geometry_field']
     id_field = row['id_field']
 
-    def __init__(self, *args, **kwargs):
-        DataSourceBase.__init__(self, *args, **kwargs)
-        self.meta = {
-            'geofield': row['geometry_field'],
-            'operator': operator,
-            'datasets': {
-                'vsd': {
-                    name: schema_table,
-                }
-            },
-            'fields': [
-                f"{name_field} as display",
-                f"cast('vsd/{name}' as varchar(30)) as type",
-                f"'{DATAPUNT_API_URL}vsd/{name}/' || {id_field} || '/'  as uri",
-                f"{geometry_field} as geometrie",
-                f"{id_field} as id",
-            ],
-        }
-    return __init__
+    return {
+        'geofield': row['geometry_field'],
+        'operator': operator,
+        'datasets': {
+            'vsd': {
+                name: schema_table,
+            }
+        },
+        'fields': [
+            f"{name_field} as display",
+            f"cast('vsd/{name}' as varchar(30)) as type",
+            f"'{DATAPUNT_API_URL}vsd/{name}/' || {id_field} || '/'  as uri",
+            f"{geometry_field} as geometrie",
+            f"{id_field} as id",
+        ],
+    }
 
 
 def _init_get_dataset_class(dsn=None):
@@ -621,9 +612,6 @@ def _init_get_dataset_class(dsn=None):
 
                     row['id_field'] = id_field
 
-                # Use closure to generate __init__ method for class
-                __init__ = _make_init(row)
-
                 # For now query is the same for all subclasses so we do not need a closure to generate it
                 def query(self, x, y, rd=True, radius=None, limit=None):
                     self.use_rd = rd
@@ -659,7 +647,7 @@ def _init_get_dataset_class(dsn=None):
 
                 classname = name.upper() + 'GenAPIDataSource'
                 dataset_class = type(classname, (DataSourceBase,), {
-                    '__init__': __init__,
+                    'metadata': _get_metadata(row),
                     'query': query,
                 })
                 _datasets[name] = dataset_class
