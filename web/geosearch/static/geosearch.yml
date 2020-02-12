@@ -61,9 +61,61 @@ parameters:
     type: integer
     format: int32
 paths:
+  /:
+    get:
+      summary: Generic Geo Search in all datasets combined.
+      description: >
+        Search in all datasets combined.
+        Required argumesnts:
+          - x/y or lat/lon for position
+          - radius for searching within radius
+          - datasets - subset of datasets to search in.
+      parameters:
+        - name: datasets
+          in: query
+          required: true
+          type: array
+          items: 
+            type: string
+            enum:
+              - peilmerk
+              - meetbout
+              - bominslag
+              - gevrijwaardgebied
+              - uitgevoerdonderzoek
+              - verdachtgebied
+              - bouwblok
+              - buurt
+              - buurtcombinatie
+              - gebiedsgerichtwerken
+              - grootstedelijkgebied
+              - ligplaats
+              - openbareruimte
+              - pand
+              - stadsdeel
+              - standplaats
+              - unesco
+              - verblijfsobject
+              - beperking
+              - kadastraal_object
+              - biz
+          description: >
+            Dataset and/or subset name(s) to search in presented as comma separated list.
+        - $ref: "#/parameters/xParam"
+        - $ref: "#/parameters/yParam"
+        - $ref: "#/parameters/latParam"
+        - $ref: "#/parameters/lonParam"
+        - $ref: "#/parameters/radiusParam"
+        - $ref: "#/parameters/limitParam"
+
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: An array of items that are located within the given radius of the given location that match the requested type(s)
   /search/:
     get:
-      summary: Generic Geo Search
+      summary: Generic Geo Search per Dataset
       description: >
         General geosearch endpoint. Required arguments are radius, item and
         (x and y) or (lat and lon) for position. When both x/y and lat/lon are passed the behavior is not specied and could vary. Note they are all marked optional due to schema limitations
