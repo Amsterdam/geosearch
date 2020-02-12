@@ -32,6 +32,7 @@ class DatasetRegistry:
         self.datasets[dsn_name].append(dataset_class)
 
         for key in dataset_class.metadata['datasets'].keys():
+            self.providers[key] = dataset_class
             for item in dataset_class.metadata['datasets'][key].keys():
                 if item in self.providers.keys():
                     _logger.warning("Provider for {} already defined {}".format(
@@ -49,6 +50,9 @@ class DatasetRegistry:
 
     def get_by_name(self, name):
         return self.get_all_datasets().get(name)
+
+    def filter_datasets(self, names):
+        return set([dataset for name, dataset in self.get_all_datasets().items() if name in names])
 
     def init_dataset(self, row, class_name, dsn_name):
         from datapunt_geosearch.datasource import DataSourceBase

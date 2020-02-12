@@ -29,6 +29,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry.register_dataset('DSN_TEST_DATASET', TestDataset)
 
         self.assertEqual(test_registry.get_all_datasets(), {
+            'magic': TestDataset,
             'test1': TestDataset,
             'test2': TestDataset
         })
@@ -58,7 +59,13 @@ class TestDatasetRegistry(unittest.TestCase):
         )
         self.assertEqual(result.metadata['fields'][3], "geometry as geometrie")
         self.assertEqual(result.metadata['fields'][4], "id as id")
-        self.assertEqual(test_registry.providers, dict(test_name=result))
+        self.assertEqual(
+            test_registry.providers,
+            dict(
+                vsd=result,
+                test_name=result,
+            )
+        )
 
     def test_init_dataset_defaults_schema_to_public(self):
         row = dict(
@@ -124,6 +131,22 @@ class TestDatasetRegistry(unittest.TestCase):
                 ),
                 registry.init_dataset.mock_calls,
             )
+
+    def test_filter_datasets(self):
+        class TestDataset:
+            metadata = {
+                'datasets': {
+                    'magic': {
+                        'test1': [],
+                        'test2': []
+                    }
+                }
+            }
+        test_registry = DatasetRegistry()
+        test_registry._datasets_initialized = time.time()
+        test_registry.register_dataset('DSN_TEST_DATASET', TestDataset)
+
+        self.assertEqual(test_registry.filter_datasets(names=['test1']), {TestDataset})
 
 
 if __name__ == '__main__':
