@@ -1,12 +1,11 @@
 # Python
-import functools
 import logging
-from psycopg2 import Error as Psycopg2Error
 
 from flask import Blueprint, request, jsonify, current_app
 from flask import send_from_directory
 from flask import abort
 
+from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
@@ -19,29 +18,6 @@ from datapunt_geosearch.datasource import get_dataset_class
 search = Blueprint('search', __name__)
 
 _logger = logging.getLogger(__name__)
-
-
-def retry_on_psycopg2_error(func):
-    """
-    Decorator that retries 3 times after Postgres error, in particular if
-    the connection was not valid anymore because the database was restarted
-    """
-    @functools.wraps(func)
-    def wrapper_retry(*args, **kwargs):
-        retry = 3
-        while retry > 0:
-            try:
-                result = func(*args, **kwargs)
-            except Psycopg2Error:
-                if retry == 0:
-                    raise
-                else:
-                    retry -= 1
-                    _logger.warning(f'Retry query for {func.__name__} ({retry})')
-                    continue
-            break
-        return result
-    return wrapper_retry
 
 
 def get_coords_and_type(args):
