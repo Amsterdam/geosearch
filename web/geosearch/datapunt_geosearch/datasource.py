@@ -505,8 +505,11 @@ registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
 
+parkeervakken_base_url = "https://api.data.amsterdam.nl"
+if "acc.api" in DATAPUNT_API_URL:
+    parkeervakken_base_url = "https://acc.api.data.amsterdam.nl"
 registry.register_external_dataset(name="parkeervakken",
-                                   base_url="https://acc.api.data.amsterdam.nl",
+                                   base_url=parkeervakken_base_url,
                                    path="parkeervakken/geosearch/",
                                    field_mapping=dict(
                                        display="Parkeervak {id}",
