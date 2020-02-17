@@ -35,13 +35,16 @@ def generate_async(request_args):
 
 def fetch_data(sourceClass, request_args, datasets, retry=None):
     from datapunt_geosearch import config
-    try:
-        dsn = getattr(config, sourceClass.dsn_name)
-    except AttributeError:
-        _logger.error("Can not find configuration for {}.".format(
-            sourceClass.dsn_name
-        ), exc_info=True)
-        return []
+
+    dsn = None
+    if sourceClass.dsn_name is not None:
+        try:
+            dsn = getattr(config, sourceClass.dsn_name)
+        except AttributeError:
+            _logger.error("Can not find configuration for {}.".format(
+                sourceClass.dsn_name
+            ), exc_info=True)
+            return []
 
     datasource = sourceClass(dsn=dsn)
     datasource.use_rd = request_args['rd']

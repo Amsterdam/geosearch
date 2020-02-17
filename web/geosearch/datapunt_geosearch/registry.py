@@ -45,6 +45,30 @@ class DatasetRegistry:
                     )
                 self.providers[item] = dataset_class
 
+    def register_external_dataset(self, name, base_url, path, field_mapping=None):
+        from datapunt_geosearch.datasource import ExternalDataSource
+        class_name = "{}ExternalDataSource".format(name.upper())
+
+        meta = {
+            "base_url": base_url,
+            "datasets": {
+                name: {
+                    name: path
+                }
+            }
+        }
+        if field_mapping is not None:
+            meta["field_mapping"] = field_mapping
+
+        dataset_class = type(
+            class_name,
+            (ExternalDataSource,),
+            dict(metadata=meta)
+        )
+
+        self.register_dataset("EXT_{}".format(name.upper()), dataset_class)
+        return dataset_class
+
     def get_all_datasets(self):
         self.init_datasets()
         return self.providers

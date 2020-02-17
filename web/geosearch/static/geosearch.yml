@@ -99,6 +99,7 @@ paths:
               - beperking
               - kadastraal_object
               - biz
+              - parkeervakken
           description: >
             Dataset and/or subset name(s) to search in presented as comma separated list.
         - $ref: "#/parameters/xParam"
