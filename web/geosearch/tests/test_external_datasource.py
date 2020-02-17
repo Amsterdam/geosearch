@@ -1,7 +1,9 @@
 import time
 import unittest
 import unittest.mock
+from urllib.parse import urljoin
 from requests.exceptions import HTTPError
+
 
 from datapunt_geosearch import datasource
 from datapunt_geosearch.registry import DatasetRegistry
@@ -133,11 +135,11 @@ class TestExternalDataSource(unittest.TestCase):
 
     def test_format_result_applies_field_mapping(self):
         test_datasource = datasource.ExternalDataSource(meta=dict(
-            base_url="http://localhost:8000",
+            base_url="http://localhost:8000/",
             datasets=dict(test=dict(test="test/geosearch/")),
             field_mapping=dict(
-                display="Test {id}",
-                uri="{base_url}{_links[self][href]}"
+                display=lambda _, item: f"Test {item['id']}",
+                uri=lambda base_url, item: urljoin(base_url, item['_links']['self']['href'])
             )
         ))
 
@@ -164,8 +166,8 @@ class TestExternalDataSource(unittest.TestCase):
             base_url="http://localhost:8000",
             datasets=dict(test=dict(test="test/geosearch/")),
             field_mapping=dict(
-                display="Test {id}",
-                uri="{wrong_key}"
+                display=lambda _, item: f"Test {item['id']}",
+                uri=lambda _, item: f"{item['wrong_key']}"
             )
         ))
 
@@ -179,7 +181,9 @@ class TestExternalDataSource(unittest.TestCase):
         self.assertEqual(result[0]["properties"]["display"], "Test 129569479969")
         self.assertFalse("uri" in result[0]["properties"].keys())
         self.assertEqual(logger_mock.mock_calls, [
-            unittest.mock.call.error("Incorrect format template: uri in test/test.")
+            unittest.mock.call.error(
+                "Incorrect format template: uri in test/test. Error: 'wrong_key'."
+            )
         ])
 
     def test_external_datasource_can_be_registered_in_registry(self):

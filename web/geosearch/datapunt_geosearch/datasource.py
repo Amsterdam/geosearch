@@ -294,9 +294,9 @@ class ExternalDataSource(DataSourceBase):
             if self.meta.get("field_mapping") is not None:
                 for key, value_template in self.meta["field_mapping"].items():
                     try:
-                        item[key] = value_template.format(base_url=self.meta['base_url'], **item)
-                    except KeyError:
-                        _logger.error(f"Incorrect format template: {key} in {dataset_name}.")
+                        item[key] = value_template(self.meta['base_url'], item)
+                    except Exception as e:
+                        _logger.error(f"Incorrect format template: {key} in {dataset_name}. Error: {e}.")
             end_result.append(dict(properties=item))
         return end_result
 
@@ -505,13 +505,15 @@ registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
 
-registry.register_external_dataset(name="parkeervakken",
-                                   base_url=DATAPUNT_API_URL,
-                                   path="parkeervakken/geosearch/",
-                                   field_mapping=dict(
-                                       display="Parkeervak {id}",
-                                       uri="{base_url}{_links[self][href]}"
-                                   ))
+registry.register_external_dataset(
+    name="parkeervakken",
+    base_url=DATAPUNT_API_URL,
+    path="parkeervakken/geosearch/",
+    field_mapping=dict(
+        display=lambda _, item: f"Parkeervak {item['id']}",
+        uri=lambda base_url, item: urllib.parse.urljoin(base_url, item['_links']['self']['href'])
+    )
+)
 
 
 def get_dataset_class(ds_name, dsn=None):
