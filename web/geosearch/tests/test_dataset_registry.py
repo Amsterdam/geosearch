@@ -196,6 +196,41 @@ class TestDatasetRegistry(unittest.TestCase):
             ],
         )
 
+    def test_register_external_dataset_registers_dataset(self):
+        test_registry = DatasetRegistry()
+        test_registry._datasets_initialized = time.time()
+
+        result = test_registry.register_external_dataset(name="test",
+                                                         base_url="http://localhost:8000",
+                                                         path="test/search/")
+
+        self.assertEqual(test_registry.datasets["EXT_TEST"], [result])
+        self.assertEqual(test_registry.providers["test"], result)
+
+    def test_register_external_dataset_creates_generator_for_external_datasource(self):
+        test_registry = DatasetRegistry()
+        test_registry._datasets_initialized = time.time()
+
+        result = test_registry.register_external_dataset(name="test",
+                                                         base_url="http://localhost:8000",
+                                                         path="test/search/")
+
+        instance = result()
+        self.assertTrue(isinstance(instance, datasource.ExternalDataSource))
+
+    def test_register_external_dataset_respects_field_mappring(self):
+        test_registry = DatasetRegistry()
+        test_registry._datasets_initialized = time.time()
+
+        result = test_registry.register_external_dataset(
+            name="test",
+            base_url="http://localhost:8000",
+            path="test/search/",
+            field_mapping=dict(id="test")
+        )
+
+        self.assertEqual(result.metadata["field_mapping"], dict(id="test"))
+
 
 if __name__ == "__main__":
     unittest.main()

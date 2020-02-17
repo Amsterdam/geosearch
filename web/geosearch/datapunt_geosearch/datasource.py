@@ -1,5 +1,7 @@
 import logging
 import psycopg2.extras
+import requests
+import urllib.parse
 
 from .config import DATAPUNT_API_URL
 from datapunt_geosearch.db import dbconnection
@@ -191,6 +193,112 @@ ORDER BY distance
                 'type': 'Error',
                 'message': 'Error in handling, {}'.format(repr(err))
             }
+
+
+class ExternalDataSource(DataSourceBase):
+    """
+    ExternalDataSource specification.
+    This data source is meant to be used to fetch data from external APIs.
+
+    Class can be initiated with Meta parameter, containing following:
+    - base_url is the url of external APIs
+    - datasets is a dictionaty with path specification for given source in format:
+    ```
+    datasets => dict(
+        test => dict(
+            data => /test/data/
+        )
+    )
+    ```
+    - field_mapping is optional key transformation dictionary,
+      needed to transform remote response item into geosearch response.
+
+    Request will be performed to: {base_url}/{datasets.keys()}/{datasets[key].keys()}
+    Example:
+    meta: dict(
+        base_url='https://acc.api.data.amsterdam.nl/',
+        datasets=dict(
+            parkeervakken=dict(
+                parkeervakken='parkeervakken/geosearch/'
+            )
+        )
+    )
+    Request will be performed on: https://acc.api.data.amsterdam.nl/parkeervakken/geosearch/
+    """
+    dsn_name = None
+    radius = None
+
+    def __init__(self, *args, **kwargs):
+        if "meta" in kwargs:
+            self.meta = kwargs.pop("meta")
+        else:
+            self.meta = self.metadata.copy()
+
+    def execute_queries(self, datasets=None):
+        """
+        Execute queries on given datasets.
+
+        :param datasets: list of datasets to filter, optional.
+        """
+        datasets = datasets or []
+        features = []
+        request_params = dict(x=self.x, y=self.y)
+        if self.limit:
+            request_params["limit"] = self.limit
+        if self.radius:
+            request_params["radius"] = self.radius
+        for dataset in self.meta["datasets"]:
+            for dataset_indent, subset_url in self.meta["datasets"][dataset].items():
+                if len(datasets) and not (dataset in datasets or dataset_indent in datasets):
+                    continue
+
+                features += self.fetch_data(
+                    dataset_name=f"{dataset}/{dataset_indent}",
+                    subset_url=subset_url,
+                    request_params=request_params
+                )
+        return features
+
+    def fetch_data(self, dataset_name: str, subset_url: str, request_params: dict = None):
+        """
+        Fetch data from self.meta["base_url"] + subset url and format it before returning.
+        Wraps requests.RequestException and retuns empty list if it's raisen.
+
+        :param subset_url: relative to self.meta["base_url"] path
+        :type subset_url: str
+        :param request_params: dictionary with filter arguments or None
+
+        :returns: list of items formatted with self.format_result.
+        """
+        search_url = urllib.parse.urljoin(self.meta["base_url"], subset_url)
+        try:
+            result = requests.get(search_url, params=request_params, timeout=1)
+        except requests.exceptions.RequestException as e:
+            _logger.warning(f"Failed to fetch data from {search_url}. Error '{e}'.")
+            return []
+
+        return self.format_result(dataset_name=dataset_name, result=result.json())
+
+    def format_result(self, dataset_name: str, result: list):
+        """
+        Format result in order to make it look like geosearch native result.
+
+        :param dataset_name: Dataset name to be set as `type` for each item in result
+        :param result: response from remote API.
+
+        :returns: list of resulting items formatted according to `field_mapping` spec.
+        """
+        end_result = []
+        for item in result:
+            item['type'] = dataset_name
+            if self.meta.get("field_mapping") is not None:
+                for key, value_template in self.meta["field_mapping"].items():
+                    try:
+                        item[key] = value_template.format(base_url=self.meta['base_url'], **item)
+                    except KeyError:
+                        _logger.error(f"Incorrect format template: {key} in {dataset_name}.")
+            end_result.append(dict(properties=item))
+        return end_result
 
 
 class BagDataSource(DataSourceBase):
@@ -396,6 +504,14 @@ registry.register_dataset('DSN_NAP', NapMeetboutenDataSource)
 registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
+
+registry.register_external_dataset(name="parkeervakken",
+                                   base_url="https://acc.api.data.amsterdam.nl",
+                                   path="parkeervakken/geosearch/",
+                                   field_mapping=dict(
+                                       display="Parkeervak {id}",
+                                       uri="{base_url}{_links[self][href]}"
+                                   ))
 
 
 def get_dataset_class(ds_name, dsn=None):
