@@ -36,6 +36,11 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: various_small_datasets
+  dataservices_db:
+    image: amsterdam/postgres11
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: dataservices
   web_test:
     build: ../web
     command: python test_dataset.py

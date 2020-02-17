@@ -10,6 +10,7 @@ bag_backend and meetbouten for now
     docker-compose exec milieuthemas_db update-db.sh milieuthemas <your_username>
     docker-compose exec monumenten_db update-db.sh monumenten <your_username>
     docker-compose exec various_small_datasets_db update-db.sh various_small_datasets  <your_username>
+    docker-compose exec dataservices_db update-db.sh dataservices <your_username>
 
     pip install -r requirements.txt
 
