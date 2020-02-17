@@ -105,7 +105,7 @@ class _DBConnection:
             with conn.cursor(cursor_factory=cursor_factory) as cur:
                 yield cur
 
-    def fetch_dict(self, sql):
+    def fetch_all(self, sql):
         with self._connection() as conn:
             with conn.cursor(
                     cursor_factory=psycopg2.extras.RealDictCursor) as cur:

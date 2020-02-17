@@ -56,6 +56,16 @@ services:
       POSTGRES_USER: various_small_datasets
     volumes:
        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+  dataservices_db:
+    image: amsterdam/postgres11
+    ports:
+       - "5409:5432"
+    environment:
+      POSTGRES_DB: dataservices
+      POSTGRES_USER: dataservices
+      POSTGRES_PASSWORD: insecure
+    volumes:
+       - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   web:
       build: ./web
       ports:

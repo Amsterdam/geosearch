@@ -103,6 +103,12 @@ DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
                       localport='5408'))
 
 
+DSN_DATASERVICES_DATASETS = _db_connection_string.format(
+    **get_db_settings(db='dataservices',
+                      docker_host='dataservices_db',
+                      localport='5409'))
+
+
 logging.debug('Database config:\n'
               'Bag: %s\n'
               'Nap: %s\n'
