@@ -37,4 +37,4 @@ dc exec -T monumenten_db /bin/update-db.sh monumenten
 
 sleep 1m
 # run da test
-dc run --rm web_test pip install pytest && python -m unittest discover . -p 'test_*.py'
+dc run --rm web_test pip install pytest && py.test -s .
