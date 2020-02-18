@@ -148,7 +148,7 @@ ORDER BY distance
             cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText('POINT(%s %s)', 28992) as distance
+SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText('POINT(%s %s)', 28992)) as distance
 FROM {}
 WHERE {} && ST_GeomFromText('POINT(%s %s)', 28992)
 AND
