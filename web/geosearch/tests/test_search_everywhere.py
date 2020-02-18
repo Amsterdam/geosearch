@@ -1,9 +1,12 @@
 import json
+import time
 import unittest
+import pytest
 import datapunt_geosearch
 from datapunt_geosearch import config
 
 
+@pytest.mark.usefixtures("dataservices_db")
 class SearchEverywhereTestCase(unittest.TestCase):
     def setUp(self):
         self.app = datapunt_geosearch.create_app(config=config)
@@ -36,3 +39,11 @@ class SearchEverywhereTestCase(unittest.TestCase):
             self.assertEqual(len(json_response['features']), 6)
             for item in json_response['features']:
                 self.assertTrue(item['properties']['type'].startswith('gebieden'))
+
+    @pytest.mark.usefixtures("dataservices_biz_data")
+    def test_search_in_dataservices_results_in_correct_result(self):
+        with self.app.test_client() as client:
+            response = client.get('/?x=123282.6&y=487674.8&radius=1&datasets=biz')
+            json_response = json.loads(response.data)
+            self.assertEqual(json_response['type'], 'FeatureCollection')
+            self.assertEqual(len(json_response['features']), 1)
