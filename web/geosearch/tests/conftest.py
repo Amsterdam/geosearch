@@ -1,12 +1,6 @@
 import pytest
-from psycopg2 import ProgrammingError
 from datapunt_geosearch import config
 from datapunt_geosearch.db import dbconnection
-
-
-def create_table_if_not_exists(connection, table_name, create_query):
-    with connection.cursor() as cursor:
-        cursor.execute(create_query)
 
 
 @pytest.fixture(scope="session")
