@@ -34,9 +34,8 @@ dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 # dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
 dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
-dc exec -T dataservices_db /bin/update-db.sh dataservices
 
 sleep 1m
 # run da test
 
-dc run --rm web_test python -m unittest discover . -p 'test_*.py'
+dc run --rm web_test pip install pytest && python -m unittest discover . -p 'test_*.py'

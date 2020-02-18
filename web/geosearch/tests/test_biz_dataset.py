@@ -1,10 +1,16 @@
+import time
 import unittest
 
 from datapunt_geosearch import config
 from datapunt_geosearch import datasource
+from datapunt_geosearch.registry import registry
 
 
 class TestBIZDataset(unittest.TestCase):
+    def setUp(self):
+        registry._datasets_initialized = time.time()
+        registry.init_vsd_datasets(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+
     def test_query(self):
         x = 121723
         y = 486199
