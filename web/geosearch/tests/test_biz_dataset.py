@@ -1,9 +1,11 @@
 import unittest
+import pytest
 
 from datapunt_geosearch import config
 from datapunt_geosearch import datasource
 
 
+@pytest.mark.usefixtures("dataservices_db")
 class TestBIZDataset(unittest.TestCase):
     def test_query(self):
         x = 121723

@@ -1,9 +1,9 @@
 import json
-import time
 import unittest
 import pytest
 import datapunt_geosearch
 from datapunt_geosearch import config
+from datapunt_geosearch.registry import registry
 
 
 @pytest.mark.usefixtures("dataservices_db")
@@ -40,10 +40,13 @@ class SearchEverywhereTestCase(unittest.TestCase):
             for item in json_response['features']:
                 self.assertTrue(item['properties']['type'].startswith('gebieden'))
 
-    @pytest.mark.usefixtures("dataservices_biz_data")
+    @pytest.mark.usefixtures("dataservices_fake_data")
     def test_search_in_dataservices_results_in_correct_result(self):
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
         with self.app.test_client() as client:
-            response = client.get('/?x=123282.6&y=487674.8&radius=1&datasets=biz')
+            response = client.get('/?x=123282.6&y=487674.8&radius=1&datasets=fake')
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
             self.assertEqual(len(json_response['features']), 1)

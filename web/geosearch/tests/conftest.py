@@ -47,11 +47,11 @@ def dataservices_db():
 
 
 @pytest.fixture
-def dataservices_biz_data():
+def dataservices_fake_data():
     dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS "biz_biz" (
+        CREATE TABLE IF NOT EXISTS "fake_fake" (
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
           "geometry" geometry(POINT, 28992));
@@ -62,7 +62,7 @@ def dataservices_biz_data():
         BEGIN;
         INSERT INTO "datasets_dataset" (id, name, ordering, enable_api, schema_data) VALUES (
           1,
-          'biz',
+          'fake',
           1,
           True,
           '9');
@@ -75,8 +75,8 @@ def dataservices_biz_data():
           geometry_field,
           geometry_field_type,
           dataset_id
-        ) VALUES (1, 'biz', True, 'biz_biz', 'name', 'geometry', 'POINT', 1);
-        INSERT INTO "biz_biz" (id, name, geometry) VALUES (
+        ) VALUES (1, 'fake', True, 'fake_fake', 'name', 'geometry', 'POINT', 1);
+        INSERT INTO "fake_fake" (id, name, geometry) VALUES (
           1,
           'test',
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
@@ -88,6 +88,6 @@ def dataservices_biz_data():
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute("""
         BEGIN;
-        DROP TABLE biz_biz CASCADE;
+        DROP TABLE fake_fake CASCADE;
         COMMIT;
         """)
