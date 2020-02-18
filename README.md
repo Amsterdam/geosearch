@@ -12,7 +12,7 @@ bag_backend and meetbouten for now
     docker-compose exec various_small_datasets_db update-db.sh various_small_datasets  <your_username>
     docker-compose exec dataservices_db update-db.sh dataservices <your_username>
 
-    pip install -r requirements.txt
+    pip install -r requirements_dev.txt
 
 test postgres spatial queries:
 
