@@ -97,11 +97,16 @@ DSN_MONUMENTEN = _db_connection_string.format(
                       localport='5412'))
 
 
-DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
-    **get_db_settings(db='various_small_datasets',
-                      docker_host='various_small_datasets_db',
-                      localport='5408'))
+# DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
+#     **get_db_settings(db='various_small_datasets',
+#                       docker_host='various_small_datasets_db',
+#                       localport='5408'))
 
+
+DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
+    **get_db_settings(db='dataservices',
+                      docker_host='dataservices_db',
+                      localport='5409'))
 
 DSN_DATASERVICES_DATASETS = _db_connection_string.format(
     **get_db_settings(db='dataservices',
