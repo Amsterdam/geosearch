@@ -33,8 +33,9 @@ dc exec -T bag_v11_db /bin/update-db.sh bag_v11
 dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 # dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
-# dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
+dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 
 sleep 1m
 # run da test
-dc run --rm web_test pip install pytest && python3.7 -m pytest -s .
+
+dc run --rm web_test python -m unittest discover . -p 'test_*.py'

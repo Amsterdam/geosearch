@@ -1,13 +1,11 @@
 import time
 import unittest
-import pytest
 
 from datapunt_geosearch import config
 from datapunt_geosearch import datasource
 from datapunt_geosearch.registry import registry
 
 
-@pytest.mark.usefixtures("vsd_db", "vsd_biz_data")
 class TestBIZDataset(unittest.TestCase):
     def setUp(self):
         registry._datasets_initialized = time.time()
@@ -24,7 +22,7 @@ class TestBIZDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 1)
         uri = results['features'][0]['properties']['uri']
         display = results['features'][0]['properties']['display']
-        self.assertRegex(uri, 'biz/1/$')
+        self.assertRegex(uri, 'biz/41/$')
         self.assertEqual(display, 'Utrechtsestraat')
 
     def test_query_wgs84(self):
@@ -38,7 +36,7 @@ class TestBIZDataset(unittest.TestCase):
         self.assertEqual(len(results['features']), 1)
         uri = results['features'][0]['properties']['uri']
         display = results['features'][0]['properties']['display']
-        self.assertRegex(uri, 'biz/2/$')
+        self.assertRegex(uri, 'biz/29/$')
         self.assertEqual(display, 'Oud West')
 
 
