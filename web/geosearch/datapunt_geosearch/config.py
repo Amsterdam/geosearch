@@ -131,3 +131,36 @@ DEFAULT_SEARCH_DATASETS = [
     'uitgevoerdonderzoek',
     'bominslag'
 ]
+
+
+JWKS = {
+    "keys": [
+        {
+            "kty": "EC",
+            "key_ops": [
+                "verify",
+                "sign"
+            ],
+            "kid": "2aedafba-8170-4064-b704-ce92b7c89cc6",
+            "crv": "P-256",
+            "x": "6r8PYwqfZbq_QzoMA4tzJJsYUIIXdeyPA27qTgEJCDw=",
+            "y": "Cf2clfAfFuuCB06NMfIat9ultkMyrMQO9Hd2H7O9ZVE=",
+            "d": "N1vu0UQUp0vLfaNeM0EDbl4quvvL6m_ltjoAXXzkI3U="
+        }
+    ]
+}
+
+
+JWKS_URL = os.getenv("DATAPUNT_JWKS_URL", None)
+
+
+JWKS_SIGNING_ALGORITHMS = [
+    'HS256',
+    'HS384',
+    'HS512',
+    'ES256',
+    'ES384',
+    'ES512',
+    'RS256',
+    'RS384'
+]

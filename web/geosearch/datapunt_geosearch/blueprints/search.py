@@ -4,8 +4,10 @@ import logging
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask import send_from_directory
 from flask import abort
+from flask import g
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
+from datapunt_geosearch.authz import authenticate
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
@@ -59,6 +61,7 @@ def send_doc():
 
 
 @search.route('/', methods=['GET', 'OPTIONS'])
+@authenticate
 def search_everywhere():
     """
     Search in all datasets combined.
@@ -76,7 +79,8 @@ def search_everywhere():
         x=x,
         y=y,
         rd=rd,
-        limit=limit
+        limit=limit,
+        auth_scopes=getattr(g, "auth_scopes", None)
     ))
 
     return Response(generate_async(
