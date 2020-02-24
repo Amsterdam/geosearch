@@ -37,13 +37,6 @@ services:
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: monumenten
-  grondexploitatie_db:
-      image: amsterdam/postgres11
-      ports:
-        - "5404:5432"
-      environment:
-        POSTGRES_PASSWORD: insecure
-        POSTGRES_USER: grondexploitatie
   various_small_datasets_db:
       image: amsterdam/postgres11
       ports:
@@ -51,6 +44,13 @@ services:
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: various_small_datasets
+  dataservices_db:
+      image: amsterdam/postgres11
+      ports:
+        - "5408:5432"
+      environment:
+        POSTGRES_PASSWORD: insecure
+        POSTGRES_USER: dataservices
   web_test:
     build: ../web
     command: python test_dataset.py

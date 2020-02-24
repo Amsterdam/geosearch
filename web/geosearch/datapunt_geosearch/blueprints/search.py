@@ -1,48 +1,24 @@
 # Python
-import functools
 import logging
-from psycopg2 import Error as Psycopg2Error
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, Response
 from flask import send_from_directory
 from flask import abort
 
+from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 # from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
-from datapunt_geosearch.datasource import GrondExploitatieDataSource
 from datapunt_geosearch.datasource import get_dataset_class
+from datapunt_geosearch.blueprints.engine import generate_async
 
 
 search = Blueprint('search', __name__)
 
 _logger = logging.getLogger(__name__)
-
-
-def retry_on_psycopg2_error(func):
-    """
-    Decorator that retries 3 times after Postgres error, in particular if
-    the connection was not valid anymore because the database was restarted
-    """
-    @functools.wraps(func)
-    def wrapper_retry(*args, **kwargs):
-        retry = 3
-        while retry > 0:
-            try:
-                result = func(*args, **kwargs)
-            except Psycopg2Error:
-                if retry == 0:
-                    raise
-                else:
-                    retry -= 1
-                    _logger.warning(f'Retry query for {func.__name__} ({retry})')
-                    continue
-            break
-        return result
-    return wrapper_retry
 
 
 def get_coords_and_type(args):
@@ -82,6 +58,32 @@ def send_doc():
                                mimetype='application/x-yaml')
 
 
+@search.route('/', methods=['GET', 'OPTIONS'])
+def search_everywhere():
+    """
+    Search in all datasets combined.
+    Required argumesnts:
+     - x/y or lat/lon for position
+     - radius for searching within radius
+     - datasets - subset of datasets to search in.
+    """
+    x, y, rd, limit, resp = get_coords_and_type(request.args)
+    if resp:
+        return jsonify(resp)
+
+    request_args = dict(request.args)
+    request_args.update(dict(
+        x=x,
+        y=y,
+        rd=rd,
+        limit=limit
+    ))
+
+    return Response(generate_async(
+        request_args=request_args
+    ), content_type='application/json')
+
+
 @search.route('/search/', methods=['GET', 'OPTIONS'])
 @retry_on_psycopg2_error
 def search_in_datasets():
@@ -116,8 +118,6 @@ def search_in_datasets():
     #    ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
-    elif item == 'grondexploitatie':
-        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
     elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',
                   'buurtcombinatie', 'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco',
                   'kadastraal_object', 'beperking'}:
@@ -232,20 +232,6 @@ def search_geo_bag():
 def search_geo_atlas():
     # old should be replaced
     return _search_geo_bag()
-
-
-@search.route('/grondexploitatie/', methods=['GET', 'OPTIONS'])
-@retry_on_psycopg2_error
-def search_geo_grondexploitatie():
-    """Performing a geo search for radius around a point using postgres"""
-    x, y, rd, limit, resp = get_coords_and_type(request.args)
-
-    # If no error is found, query
-    if not resp:
-        ds = GrondExploitatieDataSource(dsn=current_app.config['DSN_GRONDEXPLOITATIE'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit)
-
-    return jsonify(resp)
 
 
 # This should be the last (catchall) route/view combination

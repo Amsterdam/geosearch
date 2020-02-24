@@ -1,11 +1,15 @@
 version: '3.0'
 services:
-  bag_db:
+  bag_v11_db:
     image: amsterdam/postgres11
+    ports:
+      - "5405:5432"
     environment:
       POSTGRES_PASSWORD: insecure
-      POSTGRES_DB: bag
-      POSTGRES_USER: bag
+      POSTGRES_DB: bag_v11
+      POSTGRES_USER: bag_v11
+    volumes:
+        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
   nap_db:
     image: amsterdam/postgres11
     environment:
@@ -27,16 +31,16 @@ services:
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
-  grondexploitatie_db:
-    image: amsterdam/postgres11
-    environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: grondexploitatie
   various_small_datasets_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: various_small_datasets
+  dataservices_db:
+    image: amsterdam/postgres11
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: dataservices
   web_test:
     build: ../web
     command: python test_dataset.py

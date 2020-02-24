@@ -72,8 +72,8 @@ _db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
 
 
 DSN_BAG = _db_connection_string.format(
-    **get_db_settings(db='bag',
-                      docker_host='bag_db',
+    **get_db_settings(db='bag_v11',
+                      docker_host='bag_v11_db',
                       localport='5405'))
 
 DSN_NAP = _db_connection_string.format(
@@ -96,15 +96,17 @@ DSN_MONUMENTEN = _db_connection_string.format(
                       docker_host='monumenten_db',
                       localport='5412'))
 
-DSN_GRONDEXPLOITATIE = _db_connection_string.format(
-    **get_db_settings(db='grondexploitatie',
-                      docker_host='grondexploitatie_db',
-                      localport='5404'))
 
 DSN_VARIOUS_SMALL_DATASETS = _db_connection_string.format(
     **get_db_settings(db='various_small_datasets',
                       docker_host='various_small_datasets_db',
                       localport='5408'))
+
+
+DSN_DATASERVICES_DATASETS = _db_connection_string.format(
+    **get_db_settings(db='dataservices',
+                      docker_host='dataservices_db',
+                      localport='5409'))
 
 
 logging.debug('Database config:\n'
@@ -113,11 +115,19 @@ logging.debug('Database config:\n'
               'Milieu: %s\n'
  #             'Tellus: %s\n'
               'Monumenten: %s\n',
-              'Grondexploitatie\n',
               'Various Small Datasets',
-              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_MONUMENTEN, DSN_GRONDEXPLOITATIE, DSN_VARIOUS_SMALL_DATASETS)
+              DSN_BAG, DSN_NAP, DSN_MILIEU, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS)
 
 DATAPUNT_API_URL = os.getenv(
     'DATAPUNT_API_URL', 'https://api.data.amsterdam.nl/')
 
-
+DEFAULT_SEARCH_DATASETS = [
+    'monumenten',
+    'openbareruimte',
+    'pand',
+    'stadsdeel',
+    'peilmerk',
+    'meetbout',
+    'uitgevoerdonderzoek',
+    'bominslag'
+]

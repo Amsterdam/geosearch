@@ -5,14 +5,14 @@ Update different project databases with current data:
 bag_backend and meetbouten for now
 
     docker-compose up -d
-    docker-compose exec bag_db update-db.sh  bag <your_username>
+    docker-compose exec bag_v11_db update-db.sh  bag_v11 <your_username>
     docker-compose exec nap_db update-db.sh nap <your_username>
     docker-compose exec milieuthemas_db update-db.sh milieuthemas <your_username>
     docker-compose exec monumenten_db update-db.sh monumenten <your_username>
-    docker-compose exec grondexploitatie_db update-db.sh grondexploitatie  <your_username>
     docker-compose exec various_small_datasets_db update-db.sh various_small_datasets  <your_username>
+    docker-compose exec dataservices_db update-db.sh dataservices <your_username>
 
-    pip install -r requirements.txt
+    pip install -r requirements_dev.txt
 
 test postgres spatial queries:
 
@@ -64,7 +64,6 @@ De volgende endpoints zijn beschikbaar voor geosearch:
 - `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
 - `/bominslag/` zoek voor bominslag data - Locatie en radius verplicht
 - `/bag/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
-- `/grondexploitatie/` Zoek grondexploitatie project. Alleen locatie  
 - `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
 
 Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
@@ -77,8 +76,6 @@ Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om
 <http://localhost:8000/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
 
 <http://localhost:8000/search/?x=121879&y=487262&radius=25000&item=monument>
-
-<http://localhost:8000/grondexploitatie/?x=130222&y=485753>
 
 <http://localhost:8000/biz/?x=121723&y=486199>
 
