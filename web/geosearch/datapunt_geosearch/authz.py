@@ -18,23 +18,31 @@ logger = logging.getLogger(__name__)
 def authenticate(func):
     """
     Perform authentication check.
-    In case JWT token in present in request: update request with `auth` spec.
+
+    Optionally updates `g.authz_scopes` with scopes available for given token.
+    Returns 401 in case token is invalid.
     """
     @functools.wraps(func)
     def wrapper():
-        print('-' * 80)  # TODO: removeme
         check_authentication(request=flask_request)
         return func()
     return wrapper
 
 
 def check_authentication(request):
+    """
+    Optionally check authentication via on request.
+
+    Returns None if request contains no Authorization header
+     or header is correct.
+    In case Authorization header is correct - updates `g.authz_scopes` with
+     scopes from claims defined in JWT token.
+    Aborts with 401 in case Authorization header contains incorrect token.
+    """
+    g.authz_scopes = None
     token = get_token_from_request(request=request)
-    jwks_url = current_app.config.get("JWKS_URL")
-    if token is not None and jwks_url is not None:
-        keyset = JWKSet()
-        load_jwks(keyset=keyset)
-        load_jwks_from_url(keyset=keyset, jwks_url=jwks_url)
+    if token is not None:
+        keyset = get_keyset(jwks_url=current_app.config.get("JWKS_URL"))
         try:
             jwt = JWT(jwt=token,
                       key=keyset,
@@ -42,14 +50,20 @@ def check_authentication(request):
         except JWTMissingKey as e:
             logger.warning('Auth problem: unknown key. {}'.format(e))
             abort(401, "Incorrect Bearer.")
+        except ValueError as e:
+            logger.warning('Auth problem: incorrect token. {}'.format(e))
+            abort(401, "Incorrect Bearer.")
 
         claims = get_claims(jwt)
         if claims:
-            g.auth_scopes = claims['scopes']
+            g.authz_scopes = claims['scopes']
     return None
 
 
 def get_token_from_request(request):
+    """
+    Parse request and get Auth token from it, if Authorization header is set.
+    """
     authorization_header = request.headers.get('Authorization', None)
     if authorization_header is not None:
         match = re.fullmatch(r'bearer ([-\w.=]+)',
@@ -61,6 +75,9 @@ def get_token_from_request(request):
 
 
 def get_claims(jwt):
+    """
+    Parse jwt response and return scopes only.
+    """
     claims = json.loads(jwt.claims)
     if 'scopes' in claims:
         # Authz token structure
@@ -79,13 +96,24 @@ def get_claims(jwt):
     return None
 
 
-def load_jwks(keyset):
+def get_keyset(jwks_url=None):
+    """
+    Initializes JWKSet instance with all the keys.
+    """
+    keyset = JWKSet()
+
     jwks = current_app.config.get('JWKS')
     if jwks:
         keyset.import_keyset(json.dumps(jwks))
+    if jwks_url is not None:
+        load_jwks_from_url(keyset=keyset, jwks_url=jwks_url)
+    return keyset
 
 
 def load_jwks_from_url(keyset, jwks_url):
+    """
+    Load JWKeys from URL.
+    """
     try:
         response = requests.get(jwks_url)
         response.raise_for_status()
@@ -101,6 +129,7 @@ def load_jwks_from_url(keyset, jwks_url):
 
 
 def convert_scope(scope):
-    """ Convert Keycloak role to authz style scope
+    """
+    Convert Keycloak role to authz style scope
     """
     return scope.upper().replace("_", "/")
