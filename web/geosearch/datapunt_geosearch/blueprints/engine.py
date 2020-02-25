@@ -13,7 +13,7 @@ from datapunt_geosearch.registry import registry
 _logger = logging.getLogger(__name__)
 
 
-def generate_async(request_args):
+def generate_async(request_args, authz_scopes=None):
     if request_args.get('datasets'):
         datasets = request_args.get('datasets').split(',')
     else:
@@ -23,7 +23,10 @@ def generate_async(request_args):
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for result in executor.map(fetch, registry.filter_datasets(names=datasets), timeout=1):
+        for result in executor.map(fetch, registry.filter_datasets(
+                names=datasets,
+                scopes=authz_scopes
+        ), timeout=1):
             for row in result:
                 if first_item:
                     first_item = False

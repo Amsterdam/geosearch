@@ -14,18 +14,49 @@ def dataservices_db():
               "name" varchar(50) NOT NULL UNIQUE,
               "ordering" integer NOT NULL,
               "enable_api" boolean NOT NULL,
-              "schema_data" jsonb NOT NULL
+              "schema_data" jsonb NOT NULL,
+              "authorization" varchar(150) NULL
             );
             CREATE TABLE IF NOT EXISTS "datasets_datasettable" (
               "id" serial NOT NULL PRIMARY KEY,
               "name" varchar(100) NOT NULL,
               "enable_geosearch" boolean NOT NULL,
               "db_table" varchar(100) NOT NULL UNIQUE,
+              "authorization" varchar(150) NULL,
               "display_field" varchar(50) NULL,
               "geometry_field" varchar(50) NULL,
               "geometry_field_type" varchar(50) NULL,
               "dataset_id" integer NOT NULL
             );
+
+            INSERT INTO "datasets_dataset" (id, name, ordering, enable_api, schema_data) VALUES (
+              1,
+              'fake',
+              1,
+              True,
+              '9'
+            );
+            INSERT INTO "datasets_datasettable" (
+              id,
+              name,
+              enable_geosearch,
+              db_table,
+              display_field,
+              geometry_field,
+              geometry_field_type,
+              dataset_id
+            ) VALUES (1, 'fake_public', True, 'fake_fake', 'name', 'geometry', 'POINT', 1);
+            INSERT INTO "datasets_datasettable" (
+              id,
+              name,
+              enable_geosearch,
+              db_table,
+              display_field,
+              geometry_field,
+              geometry_field_type,
+              dataset_id,
+              "authorization"
+            ) VALUES (2, 'fake_secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET');
             COMMIT;
             """)
 
@@ -49,30 +80,22 @@ def dataservices_fake_data():
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
           "geometry" geometry(POINT, 28992));
+        CREATE TABLE IF NOT EXISTS "fake_secret" (
+          "id" serial NOT NULL PRIMARY KEY,
+          "name" varchar(100) NOT NULL,
+          "geometry" geometry(POINT, 28992));
         """)
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute("""
         BEGIN;
-        INSERT INTO "datasets_dataset" (id, name, ordering, enable_api, schema_data) VALUES (
-          1,
-          'fake',
-          1,
-          True,
-          '9');
-        INSERT INTO "datasets_datasettable" (
-          id,
-          name,
-          enable_geosearch,
-          db_table,
-          display_field,
-          geometry_field,
-          geometry_field_type,
-          dataset_id
-        ) VALUES (1, 'fake', True, 'fake_fake', 'name', 'geometry', 'POINT', 1);
         INSERT INTO "fake_fake" (id, name, geometry) VALUES (
           1,
           'test',
+          ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
+        INSERT INTO "fake_secret" (id, name, geometry) VALUES (
+          1,
+          'secret test',
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
         COMMIT;
         """)
@@ -80,4 +103,7 @@ def dataservices_fake_data():
     yield None
 
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("DROP TABLE fake_fake CASCADE;")
+        cursor.execute("""
+        DROP TABLE fake_fake CASCADE;
+        DROP TABLE fake_secret CASCADE;
+        """)

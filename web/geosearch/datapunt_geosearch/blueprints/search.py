@@ -80,11 +80,11 @@ def search_everywhere():
         y=y,
         rd=rd,
         limit=limit,
-        auth_scopes=getattr(g, "auth_scopes", None)
     ))
 
     return Response(generate_async(
-        request_args=request_args
+        request_args=request_args,
+        authz_scopes=getattr(g, "authz_scopes", None)
     ), content_type='application/json')
 
 
