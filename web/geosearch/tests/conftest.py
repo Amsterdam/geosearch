@@ -15,14 +15,14 @@ def dataservices_db():
               "ordering" integer NOT NULL,
               "enable_api" boolean NOT NULL,
               "schema_data" jsonb NOT NULL,
-              "authorization" varchar(150) NULL
+              "auth" varchar(150) NULL
             );
             CREATE TABLE IF NOT EXISTS "datasets_datasettable" (
               "id" serial NOT NULL PRIMARY KEY,
               "name" varchar(100) NOT NULL,
               "enable_geosearch" boolean NOT NULL,
               "db_table" varchar(100) NOT NULL UNIQUE,
-              "authorization" varchar(150) NULL,
+              "auth" varchar(150) NULL,
               "display_field" varchar(50) NULL,
               "geometry_field" varchar(50) NULL,
               "geometry_field_type" varchar(50) NULL,
@@ -55,7 +55,7 @@ def dataservices_db():
               geometry_field,
               geometry_field_type,
               dataset_id,
-              "authorization"
+              auth
             ) VALUES (2, 'fake_secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET');
             COMMIT;
             """)

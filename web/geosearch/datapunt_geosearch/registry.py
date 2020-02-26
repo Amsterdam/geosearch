@@ -217,8 +217,8 @@ class DatasetRegistry:
         dt.geometry_field,
         'id' as id_field,
         d.name as dataset_name,
-        d.authorization as dataset_authorization,
-        dt.authorization as datasettable_authorization
+        d.auth as dataset_authorization,
+        dt.auth as datasettable_authorization
     FROM datasets_datasettable dt
     LEFT JOIN datasets_dataset d
       ON dt.dataset_id = d.id
