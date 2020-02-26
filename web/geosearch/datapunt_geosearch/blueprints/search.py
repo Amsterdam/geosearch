@@ -16,6 +16,7 @@ from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import get_dataset_class
 from datapunt_geosearch.blueprints.engine import generate_async
+from datapunt_geosearch.registry import registry
 
 
 search = Blueprint('search', __name__)
@@ -86,6 +87,17 @@ def search_everywhere():
         request_args=request_args,
         authz_scopes=getattr(g, "authz_scopes", None)
     ), content_type='application/json')
+
+
+@search.route('/catalogus/', methods=['GET'])
+@authenticate
+def search_catalogus():
+    dataset_names = [
+        name
+        for name, dataset in registry.get_all_datasets().items()
+        if dataset.has_scopes(scopes=getattr(g, 'authz_scopes', None))
+    ]
+    return jsonify({'datasets': dataset_names})
 
 
 @search.route('/search/', methods=['GET', 'OPTIONS'])

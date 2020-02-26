@@ -5,6 +5,7 @@ import unittest.mock
 from datapunt_geosearch import config
 from datapunt_geosearch import datasource
 from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.registry import registry, DatasetRegistry
 
 
@@ -17,7 +18,7 @@ class TestDatasetRegistry(unittest.TestCase):
         self.assertEqual(registry.providers["biz"], ds_class)
 
     def test_dataset_is_registered_for_each_dataset_in_metadata(self):
-        class TestDataset:
+        class TestDataset(DataSourceBase):
             metadata = {"datasets": {"magic": {"test1": [], "test2": []}}}
 
         test_registry = DatasetRegistry()
@@ -140,7 +141,7 @@ class TestDatasetRegistry(unittest.TestCase):
             )
 
     def test_filter_datasets(self):
-        class TestDataset:
+        class TestDataset(DataSourceBase):
             metadata = {"datasets": {"magic": {"test1": [], "test2": []}}}
 
         test_registry = DatasetRegistry()
@@ -150,7 +151,7 @@ class TestDatasetRegistry(unittest.TestCase):
         self.assertEqual(test_registry.filter_datasets(names=["test1"]), {TestDataset})
 
     def test_filter_datasets_with_scopes_no_scope_provided(self):
-        class TestDataset:
+        class TestDataset(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}
@@ -163,7 +164,7 @@ class TestDatasetRegistry(unittest.TestCase):
         self.assertEqual(test_registry.filter_datasets(names=["test1"]), set())
 
     def test_filter_datasets_with_scopes_incorrect_scope_provided(self):
-        class TestDataset:
+        class TestDataset(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}
@@ -180,7 +181,7 @@ class TestDatasetRegistry(unittest.TestCase):
         )
 
     def test_filter_datasets_with_scopes_correct_scope_provided(self):
-        class TestDataset:
+        class TestDataset(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}

@@ -50,6 +50,12 @@ class DataSourceBase(object):
 
         self.meta = self.metadata.copy()
 
+    @classmethod
+    def has_scopes(cls, scopes=None):
+        return cls.metadata.get(
+            "scopes", set()
+        ).issubset(scopes or set())
+
     def filter_dataset(self, dataset_table):
         """
         Filters down the dataset to be just the given dataset

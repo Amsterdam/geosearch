@@ -50,17 +50,28 @@ def create_valid_token(subject, scopes):
 
 
 def do_request(token):
-    response = requests.get(
-        "http://localhost:8000/",
-        dict(lat=52.3715093, lon=4.892222, radius=25),
-        headers=dict(Authorization=token)
-    )
-
-    print('-' * 80)
-    print(response.status_code)
-    print(response.text)
-    print(response.json())
+    headers = None
+    if token is not None:
+        headers = dict(Authorization=token)
+    return requests.get('http://localhost:8000/catalogus', headers=headers)
 
 
 if __name__ == '__main__':
-    do_request(token=create_valid_token(subject="test@test.nl", scopes=['CAT/R']))
+    response = do_request(None)
+
+    assert "wegingen" not in response.json()['datasets']
+    assert "asbestdaken" not in response.json()['datasets']
+
+    response = do_request(
+        token=create_valid_token(subject="test@test.nl", scopes=['TEST/R']))
+    assert "wegingen" in response.json()['datasets']
+    assert "asbestdaken" not in response.json()['datasets']
+
+    response = do_request(
+        token=create_valid_token(subject="test@test.nl", scopes=[
+            'TEST/R',
+            'TEST/W']))
+    assert "wegingen" in response.json()['datasets']
+    assert "asbestdaken" in response.json()['datasets']
+
+    print("All tests passed.")

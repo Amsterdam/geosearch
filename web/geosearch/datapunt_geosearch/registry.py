@@ -79,13 +79,12 @@ class DatasetRegistry:
     def get_by_name(self, name):
         return self.get_all_datasets().get(name)
 
-    def filter_datasets(self, names, scopes=None):
+    def filter_datasets(self, names=None, scopes=None):
         return set(
             [
                 dataset
                 for name, dataset in self.get_all_datasets().items()
-                if name in names and dataset.metadata.get(
-                        "scopes", set()).issubset(scopes or set())
+                if name in names and dataset.has_scopes(scopes=scopes)
             ]
         )
 
