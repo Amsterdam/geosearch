@@ -1,9 +1,12 @@
 """
 Contains the different configs for the datapunt geosearch application
 """
+import json
 import logging
 import os
 from typing import Dict
+
+import yaml
 
 import sentry_sdk
 
@@ -133,34 +136,29 @@ DEFAULT_SEARCH_DATASETS = [
 ]
 
 
-JWKS = {
-    "keys": [
-        {
-            "kty": "EC",
-            "key_ops": [
-                "verify",
-                "sign"
-            ],
-            "kid": "2aedafba-8170-4064-b704-ce92b7c89cc6",
-            "crv": "P-256",
-            "x": "6r8PYwqfZbq_QzoMA4tzJJsYUIIXdeyPA27qTgEJCDw=",
-            "y": "Cf2clfAfFuuCB06NMfIat9ultkMyrMQO9Hd2H7O9ZVE=",
-            "d": "N1vu0UQUp0vLfaNeM0EDbl4quvvL6m_ltjoAXXzkI3U="
-        }
-    ]
-}
+def load_jwks_config(filename):
+
+    with open(filename, 'r') as config_file:
+        try:
+            config = yaml.load(config_file)
+            if 'jwks' in config:
+                config['jwks'] = json.loads(config['jwks'])
+        except (yaml.YAMLError,
+                json.decoder.JSONDecodeError) as error_details:
+            logger.error(
+                "Failed to load config: %s Error: %s",
+                filename,
+                repr(error_details)
+            )
+            return None, None, None
+
+    return config['jwks'], config.get('jwks_url'), config.get('jwks_allowed_signing_algorithms')
 
 
-JWKS_URL = os.getenv("DATAPUNT_JWKS_URL", None)
+default_config_file = os.path.join(os.path.dirname(__file__), 'config.yaml')
+JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(default_config_file)
 
-
-JWKS_SIGNING_ALGORITHMS = [
-    'HS256',
-    'HS384',
-    'HS512',
-    'ES256',
-    'ES384',
-    'ES512',
-    'RS256',
-    'RS384'
-]
+global_config_file = '/etc/geosearch.yaml'
+if os.path.exists(global_config_file):
+    JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(
+        default_config_file)

@@ -105,7 +105,7 @@ def get_keyset(jwks_url=None):
     jwks = current_app.config.get('JWKS')
     if jwks:
         keyset.import_keyset(json.dumps(jwks))
-    if jwks_url is not None:
+    if jwks_url:
         load_jwks_from_url(keyset=keyset, jwks_url=jwks_url)
     return keyset
 
