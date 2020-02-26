@@ -38,4 +38,6 @@ dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 sleep 1m
 # run da test
 
+echo "Testing."
 dc run --rm web_test py.test -s web/geosearch
+echo "Done testing"
