@@ -38,4 +38,4 @@ dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 sleep 1m
 # run da test
 
-dc run --rm web_test pip install pytest && pytest -s web/geosearch
+dc run --rm web_test pip install pytest && /home/datapunt/.local/bin/pytest -s web/geosearch
