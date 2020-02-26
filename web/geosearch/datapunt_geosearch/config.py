@@ -158,7 +158,7 @@ def load_jwks_config(filename):
 default_config_file = os.path.join(os.path.dirname(__file__), 'config.yaml')
 JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(default_config_file)
 
-global_config_file = '/etc/geosearch.yaml'
+global_config_file = os.getenv("GEOSEARCH_CONFIG_PATH", "/etc/geosearch.yaml")
 if os.path.exists(global_config_file):
     JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(
         default_config_file)
