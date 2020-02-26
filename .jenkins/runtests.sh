@@ -39,5 +39,5 @@ sleep 1m
 # run da test
 
 echo "Testing."
-dc run --rm web_test py.test -s web/geosearch
+dc run --rm web_test py.test -s .
 echo "Done testing"
