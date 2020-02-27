@@ -51,7 +51,7 @@ class DataSourceBase(object):
         self.meta = self.metadata.copy()
 
     @classmethod
-    def has_scopes(cls, scopes=None):
+    def check_scopes(cls, scopes=None):
         return cls.metadata.get(
             "scopes", set()
         ).issubset(scopes or set())

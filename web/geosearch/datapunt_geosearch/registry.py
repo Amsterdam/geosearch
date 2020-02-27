@@ -84,7 +84,7 @@ class DatasetRegistry:
             [
                 dataset
                 for name, dataset in self.get_all_datasets().items()
-                if name in names and dataset.has_scopes(scopes=scopes)
+                if name in names and dataset.check_scopes(scopes=scopes)
             ]
         )
 
