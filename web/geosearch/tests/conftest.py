@@ -1,5 +1,7 @@
+import time
+from jwcrypto.jwt import JWT
 import pytest
-from datapunt_geosearch import config
+from datapunt_geosearch import config, authz
 from datapunt_geosearch.db import dbconnection
 
 
@@ -107,3 +109,30 @@ def dataservices_fake_data():
         DROP TABLE fake_fake CASCADE;
         DROP TABLE fake_secret CASCADE;
         """)
+
+
+@pytest.fixture
+def create_authz_token(request):
+    def _create_authz_token(self, subject, scopes):
+        jwks = authz.get_keyset(jwks=config.JWKS)
+        assert len(jwks) > 0
+
+        key = next(iter(jwks['keys']))
+        now = int(time.time())
+
+        header = {
+            'alg': 'ES256',  # algorithm of the test key
+            'kid': key.key_id
+        }
+
+        token = JWT(
+            header=header,
+            claims={
+                'iat': now,
+                'exp': now + 600,
+                'scopes': scopes,
+                'subject': subject
+            })
+        token.make_signed_token(key)
+        return 'bearer ' + token.serialize()
+    request.cls.create_authz_token = _create_authz_token

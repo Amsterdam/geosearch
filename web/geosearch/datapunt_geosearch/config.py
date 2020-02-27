@@ -141,8 +141,6 @@ def load_jwks_config(filename):
     with open(filename, 'r') as config_file:
         try:
             config = yaml.load(config_file)
-            if 'jwks' in config:
-                config['jwks'] = json.loads(config['jwks'])
         except (yaml.YAMLError,
                 json.decoder.JSONDecodeError) as error_details:
             logger.error(
@@ -152,7 +150,7 @@ def load_jwks_config(filename):
             )
             return None, None, None
 
-    return config['jwks'], config.get('jwks_url'), config.get('jwks_allowed_signing_algorithms')
+    return config.get('jwks'), config.get('jwks_url'), config.get('jwks_allowed_signing_algorithms')
 
 
 default_config_file = os.path.join(os.path.dirname(__file__), 'config.yaml')

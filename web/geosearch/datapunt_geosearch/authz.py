@@ -42,7 +42,8 @@ def check_authentication(request):
     g.authz_scopes = None
     token = get_token_from_request(request=request)
     if token is not None:
-        keyset = get_keyset(jwks_url=current_app.config.get("JWKS_URL"))
+        keyset = get_keyset(jwks=current_app.config.get('JWKS'),
+                            jwks_url=current_app.config.get("JWKS_URL"))
         try:
             jwt = JWT(jwt=token,
                       key=keyset,
@@ -96,15 +97,14 @@ def get_claims(jwt):
     return None
 
 
-def get_keyset(jwks_url=None):
+def get_keyset(jwks, jwks_url=None):
     """
     Initializes JWKSet instance with all the keys.
     """
     keyset = JWKSet()
 
-    jwks = current_app.config.get('JWKS')
     if jwks:
-        keyset.import_keyset(json.dumps(jwks))
+        keyset.import_keyset(jwks)
     if jwks_url:
         load_jwks_from_url(keyset=keyset, jwks_url=jwks_url)
     return keyset
