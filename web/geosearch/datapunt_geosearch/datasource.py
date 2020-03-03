@@ -52,6 +52,9 @@ class DataSourceBase(object):
 
     @classmethod
     def check_scopes(cls, scopes=None):
+        """Check who may access this datasource. When no scopes are given,
+        access is allowed when there are no restrictions to the data.
+        """
         return cls.metadata.get(
             "scopes", set()
         ).issubset(scopes or set())
