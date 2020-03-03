@@ -15,6 +15,13 @@ from flask import g
 logger = logging.getLogger(__name__)
 
 
+def get_current_authz_scopes():
+    """
+    Return current authz scopes.
+    """
+    return getattr(g, "authz_scopes", None)
+
+
 def authenticate(func):
     """
     Perform authentication check.

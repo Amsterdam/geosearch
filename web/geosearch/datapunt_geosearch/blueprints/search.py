@@ -8,6 +8,7 @@ from flask import g
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.authz import authenticate
+from datapunt_geosearch.authz import get_current_authz_scopes
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
@@ -85,7 +86,7 @@ def search_everywhere():
 
     return Response(generate_async(
         request_args=request_args,
-        authz_scopes=getattr(g, "authz_scopes", None)
+        authz_scopes=get_current_authz_scopes()
     ), content_type='application/json')
 
 
@@ -95,7 +96,7 @@ def search_catalogus():
     dataset_names = [
         name
         for name, dataset in registry.get_all_datasets().items()
-        if dataset.check_scopes(scopes=getattr(g, 'authz_scopes', None))
+        if dataset.check_scopes(scopes=get_current_authz_scopes())
     ]
     return jsonify({'datasets': dataset_names})
 
