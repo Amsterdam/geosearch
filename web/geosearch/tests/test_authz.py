@@ -1,5 +1,6 @@
 import json
 import unittest
+import unittest.mock
 
 import flask
 import pytest
@@ -25,12 +26,16 @@ class AuthzTestCase(unittest.TestCase):
             self.assertEqual(json_response['type'], 'FeatureCollection')
             self.assertEqual(len(json_response['features']), 6)
 
-    def test_incorrect_bearer_results_in_error(self):
+    @unittest.mock.patch('datapunt_geosearch.authz.logger')
+    def test_incorrect_bearer_results_in_error(self, logger_mock):
         with self.app.test_client() as client:
             response = client.get('/?x=123282.6&y=487674.8&radius=100',
                                   headers={'Authorization': 'Bearer hash'})
             self.assertEqual(response.status_code, 401)
             self.assertIn('401 Unauthorized', response.data.decode('utf-8'))
+            self.assertEqual(logger_mock.mock_calls, [
+                unittest.mock.call.warning("Auth problem: incorrect token. Token format unrecognized")
+            ])
 
     def test_correct_bearer_accepted_and_scopes_assigned(self):
         token = self.create_authz_token(subject='test@test.nl',

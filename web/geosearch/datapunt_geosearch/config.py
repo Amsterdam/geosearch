@@ -141,7 +141,7 @@ def load_jwks_config(filename):
 
     with open(filename, 'r') as config_file:
         try:
-            config = yaml.load(config_file)
+            config = yaml.load(config_file, Loader=yaml.SafeLoader)
         except (yaml.YAMLError,
                 json.decoder.JSONDecodeError) as error_details:
             logger.error(

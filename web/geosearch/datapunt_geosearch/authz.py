@@ -54,10 +54,10 @@ def check_authentication(request):
                       key=current_app.config.get("JW_KEYSET"),
                       algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"))
         except JWTMissingKey as e:
-            logger.warning('Auth problem: unknown key. {}'.format(e))
+            logger.warning("Auth problem: unknown key. {}".format(e))
             abort(401, "Incorrect Bearer.")
         except ValueError as e:
-            logger.warning('Auth problem: incorrect token. {}'.format(e))
+            logger.warning("Auth problem: incorrect token. {}".format(e))
             abort(401, "Incorrect Bearer.")
 
         claims = get_claims(jwt)
@@ -133,7 +133,7 @@ def load_jwks_from_url(keyset, jwks_url):
             "Failed to get JWKS from url: {}, error: {}".format(jwks_url, e)
         )
     else:
-        logger.info('Loaded JWKS from JWKS_URL setting {}'.format(jwks_url))
+        logger.info("Loaded JWKS from JWKS_URL setting {}".format(jwks_url))
 
 
 def convert_scope(scope):
