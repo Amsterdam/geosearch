@@ -31,7 +31,7 @@ node {
     }
     stage("Build image") {
         tryStep "build", {
-            docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+            docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                 def image = docker.build("datapunt/geosearch:${env.BUILD_NUMBER}", "web")
                 image.push()
                 image.push("acceptance")
@@ -48,7 +48,7 @@ if (BRANCH == "master") {
     node {
         stage('Push acceptance image') {
             tryStep "image tagging", {
-                docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                     def image = docker.image("datapunt/geosearch:${env.BUILD_NUMBER}")
                     image.pull()
                     image.push("acceptance")
@@ -77,7 +77,7 @@ if (BRANCH == "master") {
     node {
         stage('Push production image') {
             tryStep "image tagging", {
-                docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                 def image = docker.image("datapunt/geosearch:${env.BUILD_NUMBER}")
                     image.pull()
                     image.push("production")
