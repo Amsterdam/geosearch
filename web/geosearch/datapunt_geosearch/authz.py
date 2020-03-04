@@ -49,11 +49,9 @@ def check_authentication(request):
     g.authz_scopes = None
     token = get_token_from_request(request=request)
     if token is not None:
-        keyset = get_keyset(jwks=current_app.config.get('JWKS'),
-                            jwks_url=current_app.config.get("JWKS_URL"))
         try:
             jwt = JWT(jwt=token,
-                      key=keyset,
+                      key=current_app.config.get("JW_KEYSET"),
                       algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"))
         except JWTMissingKey as e:
             logger.warning('Auth problem: unknown key. {}'.format(e))
@@ -125,14 +123,17 @@ def load_jwks_from_url(keyset, jwks_url):
         response = requests.get(jwks_url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        raise Exception(  # TODO: Add proper exception
+        raise ValueError(
             "Failed to get JWKS from url: {}, error: {}".format(jwks_url, e)
         )
     try:
         keyset.import_keyset(response.text)
     except JWException as e:
-        pass
-    logger.info('Loaded JWKS from JWKS_URL setting {}'.format(jwks_url))
+        raise ValueError(
+            "Failed to get JWKS from url: {}, error: {}".format(jwks_url, e)
+        )
+    else:
+        logger.info('Loaded JWKS from JWKS_URL setting {}'.format(jwks_url))
 
 
 def convert_scope(scope):

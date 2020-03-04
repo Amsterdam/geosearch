@@ -9,6 +9,7 @@ from typing import Dict
 import yaml
 
 import sentry_sdk
+from datapunt_geosearch.authz import get_keyset
 
 logger = logging.getLogger(__name__)
 
@@ -160,3 +161,5 @@ global_config_file = os.getenv("GEOSEARCH_CONFIG_PATH", "/etc/geosearch.yaml")
 if os.path.exists(global_config_file):
     JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(
         default_config_file)
+
+JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)
