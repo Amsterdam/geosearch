@@ -38,7 +38,7 @@ class DatasetRegistry:
                     item in self.providers.keys()
                     and self.providers[item] != dataset_class
                 ):
-                    _logger.warning(
+                    _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(
                             item, self.providers[item], dataset_class
                         )
@@ -79,16 +79,16 @@ class DatasetRegistry:
     def get_by_name(self, name):
         return self.get_all_datasets().get(name)
 
-    def filter_datasets(self, names):
+    def filter_datasets(self, names=None, scopes=None):
         return set(
             [
                 dataset
                 for name, dataset in self.get_all_datasets().items()
-                if name in names
+                if name in names and dataset.check_scopes(scopes=scopes)
             ]
         )
 
-    def init_dataset(self, row, class_name, dsn_name):
+    def init_dataset(self, row, class_name, dsn_name, scopes=None):
         """
         Initialize dataset class and register it in registry based on row data
 
@@ -104,6 +104,7 @@ class DatasetRegistry:
             - dataset_name
           class_name (str): Name for the new class
           dsn_name: DSN name for namespacing
+          scopes: Optional comma separated list of Authentication scopes for dataset.
 
         Returns:
           DataSourceBase subclass for given dataset.
@@ -132,6 +133,7 @@ class DatasetRegistry:
                     "geofield": geometry_field,
                     "operator": operator,
                     "datasets": {dataset_name: {name: schema_table}},
+                    "scopes": scopes or set(),
                     "fields": [
                         f"{name_field} as display",
                         f"cast('{dataset_name}/{name}' as varchar(30)) as type",
@@ -214,7 +216,9 @@ class DatasetRegistry:
         dt.geometry_field_type as geometry_type,
         dt.geometry_field,
         'id' as id_field,
-        d.name as dataset_name
+        d.name as dataset_name,
+        d.auth as dataset_authorization,
+        dt.auth as datasettable_authorization
     FROM datasets_datasettable dt
     LEFT JOIN datasets_dataset d
       ON dt.dataset_id = d.id
@@ -222,12 +226,20 @@ class DatasetRegistry:
         """
         datasets = dict()
         for row in dbconn.fetch_all(sql):
+            scopes = set()
+            if row["dataset_authorization"]:
+                scopes = set(row["dataset_authorization"].split(","))
+            if row["datasettable_authorization"]:
+                scopes.update(set(
+                    row["datasettable_authorization"].split(",")
+                ))
             datasets[row["name"]] = self.init_dataset(
                 row=row,
                 class_name=row["dataset_name"]
                 + row["name"]
                 + "DataservicesDataSource",
                 dsn_name="DSN_DATASERVICES_DATASETS",
+                scopes=scopes,
             )
         return datasets
 

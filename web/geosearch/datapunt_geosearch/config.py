@@ -1,11 +1,15 @@
 """
 Contains the different configs for the datapunt geosearch application
 """
+import json
 import logging
 import os
 from typing import Dict
 
+import yaml
+
 import sentry_sdk
+from datapunt_geosearch.authz import get_keyset
 
 logger = logging.getLogger(__name__)
 
@@ -131,3 +135,31 @@ DEFAULT_SEARCH_DATASETS = [
     'uitgevoerdonderzoek',
     'bominslag'
 ]
+
+
+def load_jwks_config(filename):
+
+    with open(filename, 'r') as config_file:
+        try:
+            config = yaml.load(config_file, Loader=yaml.SafeLoader)
+        except (yaml.YAMLError,
+                json.decoder.JSONDecodeError) as error_details:
+            logger.error(
+                "Failed to load config: %s Error: %s",
+                filename,
+                repr(error_details)
+            )
+            return None, None, None
+
+    return config.get('jwks'), config.get('jwks_url'), config.get('jwks_allowed_signing_algorithms')
+
+
+default_config_file = os.path.join(os.path.dirname(__file__), 'config.yaml')
+JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(default_config_file)
+
+global_config_file = os.getenv("GEOSEARCH_CONFIG_PATH", "/etc/geosearch.yaml")
+if os.path.exists(global_config_file):
+    JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(
+        default_config_file)
+
+JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)

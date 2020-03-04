@@ -17,13 +17,20 @@ class TestBIZDataset(unittest.TestCase):
 
         ds_class = datasource.get_dataset_class('biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
         ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+
+        expected = ds.dbconn.fetch_one("""
+        SELECT *
+        FROM biz_view
+        WHERE ST_DWithin(geometrie, ST_GeomFromText('POINT(121723 486199)', 28992), 30)
+        """)
+
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
         uri = results['features'][0]['properties']['uri']
         display = results['features'][0]['properties']['display']
-        self.assertRegex(uri, 'biz/41/$')
-        self.assertEqual(display, 'Utrechtsestraat')
+        self.assertRegex(uri, 'biz/{}/$'.format(expected['id']))
+        self.assertEqual(display, expected['naam'])
 
     def test_query_wgs84(self):
         lat = 52.36287
@@ -33,11 +40,17 @@ class TestBIZDataset(unittest.TestCase):
         ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
         results = ds.query(lat, lon, rd=False)
 
+        expected = ds.dbconn.fetch_one("""
+        SELECT *
+        FROM biz_view
+        WHERE ST_DWithin(geometrie, ST_Transform(ST_GeomFromText('POINT(4.87529 52.36287)', 4326), 28992), 30)
+        """)
+
         self.assertEqual(len(results['features']), 1)
         uri = results['features'][0]['properties']['uri']
         display = results['features'][0]['properties']['display']
-        self.assertRegex(uri, 'biz/29/$')
-        self.assertEqual(display, 'Oud West')
+        self.assertRegex(uri, 'biz/{}/$'.format(expected['id']))
+        self.assertEqual(display, expected['naam'])
 
 
 if __name__ == '__main__':
