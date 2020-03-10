@@ -19,9 +19,6 @@ jwks: >
   }
   
 jwks_allowed_signing_algorithms:
-  - HS256
-  - HS384
-  - HS512
   - ES256
   - ES384
   - ES512
