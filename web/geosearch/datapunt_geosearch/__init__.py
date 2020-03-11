@@ -21,6 +21,7 @@ def create_app(config=None):
     if sentry_dsn:
         sentry_sdk.init(
             dsn=sentry_dsn,
+            environment="geosearch",
             integrations=[FlaskIntegration()]
         )
 
