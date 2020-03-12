@@ -50,6 +50,15 @@ class DataSourceBase(object):
 
         self.meta = self.metadata.copy()
 
+    @classmethod
+    def check_scopes(cls, scopes=None):
+        """Check who may access this datasource. When no scopes are given,
+        access is allowed when there are no restrictions to the data.
+        """
+        return cls.metadata.get(
+            "scopes", set()
+        ).issubset(scopes or set())
+
     def filter_dataset(self, dataset_table):
         """
         Filters down the dataset to be just the given dataset

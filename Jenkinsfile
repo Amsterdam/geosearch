@@ -31,7 +31,7 @@ node {
     }
     stage("Build image") {
         tryStep "build", {
-                docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
+            docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                 def image = docker.build("datapunt/geosearch:${env.BUILD_NUMBER}", "web")
                 image.push()
                 image.push("acceptance")

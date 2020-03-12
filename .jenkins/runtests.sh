@@ -29,7 +29,8 @@ echo "let's see if databases are working"
 # load latest data into databases
 # TODO only tables!
 dc exec -T nap_db /bin/update-db.sh nap
-dc exec -T bag_v11_db /bin/update-db.sh bag_v11
+# Allow Bag DB update to fail, as restore generates errors due to not existing roles
+dc exec -T bag_v11_db /bin/update-db.sh bag_v11 || true
 dc exec -T milieuthemas_db /bin/update-db.sh milieuthemas
 # dc exec -T tellus_db /bin/update-db.sh tellus
 dc exec -T monumenten_db /bin/update-db.sh monumenten
@@ -38,4 +39,6 @@ dc exec -T various_small_datasets_db /bin/update-db.sh various_small_datasets
 sleep 1m
 # run da test
 
-dc run --rm web_test pip install pytest && python -m unittest discover . -p 'test_*.py'
+echo "Testing."
+dc run --rm web_test py.test -s .
+echo "Done testing"

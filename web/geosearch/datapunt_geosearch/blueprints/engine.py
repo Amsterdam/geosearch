@@ -13,7 +13,7 @@ from datapunt_geosearch.registry import registry
 _logger = logging.getLogger(__name__)
 
 
-def generate_async(request_args):
+def generate_async(request_args, authz_scopes=None):
     if request_args.get('datasets'):
         datasets = request_args.get('datasets').split(',')
     else:
@@ -23,7 +23,10 @@ def generate_async(request_args):
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for result in executor.map(fetch, registry.filter_datasets(names=datasets), timeout=1):
+        for result in executor.map(fetch, registry.filter_datasets(
+                names=datasets,
+                scopes=authz_scopes
+        ), timeout=1):
             for row in result:
                 if first_item:
                     first_item = False
@@ -41,9 +44,9 @@ def fetch_data(sourceClass, request_args, datasets, retry=None):
         try:
             dsn = getattr(config, sourceClass.dsn_name)
         except AttributeError:
-            _logger.error("Can not find configuration for {}.".format(
-                sourceClass.dsn_name
-            ), exc_info=True)
+            _logger.error(
+                "Can not find configuration for %s." % sourceClass.dsn_name,
+                exc_info=True)
             return []
 
     datasource = sourceClass(dsn=dsn)
@@ -60,7 +63,8 @@ def fetch_data(sourceClass, request_args, datasets, retry=None):
     try:
         response = datasource.execute_queries(datasets=datasets)
     except Exception:
-        _logger.error("Failed to fetch data from {}".format(datasource), exc_info=True)
+        _logger.error("Failed to fetch data from %s" % datasource,
+                      exc_info=True)
         return []
     else:
         return response

@@ -4,8 +4,11 @@ import logging
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask import send_from_directory
 from flask import abort
+from flask import g
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
+from datapunt_geosearch.authz import authenticate
+from datapunt_geosearch.authz import get_current_authz_scopes
 from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
@@ -14,6 +17,7 @@ from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import get_dataset_class
 from datapunt_geosearch.blueprints.engine import generate_async
+from datapunt_geosearch.registry import registry
 
 
 search = Blueprint('search', __name__)
@@ -59,6 +63,7 @@ def send_doc():
 
 
 @search.route('/', methods=['GET', 'OPTIONS'])
+@authenticate
 def search_everywhere():
     """
     Search in all datasets combined.
@@ -76,12 +81,24 @@ def search_everywhere():
         x=x,
         y=y,
         rd=rd,
-        limit=limit
+        limit=limit,
     ))
 
     return Response(generate_async(
-        request_args=request_args
+        request_args=request_args,
+        authz_scopes=get_current_authz_scopes()
     ), content_type='application/json')
+
+
+@search.route('/catalogus/', methods=['GET'])
+@authenticate
+def search_catalogus():
+    dataset_names = [
+        name
+        for name, dataset in registry.get_all_datasets().items()
+        if dataset.check_scopes(scopes=get_current_authz_scopes())
+    ]
+    return jsonify({'datasets': dataset_names})
 
 
 @search.route('/search/', methods=['GET', 'OPTIONS'])
