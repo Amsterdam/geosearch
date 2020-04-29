@@ -115,7 +115,7 @@ class DatasetRegistry:
             row["schema"] = "public"
         schema_table = row["schema"] + "." + row["table_name"]
 
-        if row["geometry_type"] and row["geometry_type"].upper() in ["POLYGON"]:
+        if row["geometry_type"] and row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
             operator = "contains"
         else:
             operator = "within"
