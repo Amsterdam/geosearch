@@ -88,7 +88,7 @@ class DatasetRegistry:
             ]
         )
 
-    def init_dataset(self, row, class_name, dsn_name, scopes=None):
+    def init_dataset(self, row, class_name, dsn_name, base_url=None, scopes=None):
         """
         Initialize dataset class and register it in registry based on row data
 
@@ -125,6 +125,8 @@ class DatasetRegistry:
         geometry_field = row["geometry_field"]
         id_field = row["id_field"]
 
+        base_url = base_url or DATAPUNT_API_URL
+
         dataset_class = type(
             class_name,
             (DataSourceBase,),
@@ -137,7 +139,7 @@ class DatasetRegistry:
                     "fields": [
                         f"{name_field} as display",
                         f"cast('{dataset_name}/{name}' as varchar(30)) as type",
-                        f"'{DATAPUNT_API_URL}{dataset_name}/{name}/' || {id_field} || '/'  as uri",
+                        f"'{base_url}{dataset_name}/{name}/' || {id_field} || '/'  as uri",
                         f"{geometry_field} as geometrie",
                         f"{id_field} as id",
                     ],
@@ -190,6 +192,7 @@ class DatasetRegistry:
                 row=row,
                 class_name=row["name"].upper() + "GenAPIDataSource",
                 dsn_name="DSN_VARIOUS_SMALL_DATASETS",
+                base_url=f"{DATAPUNT_API_URL}vsd/",
             )
 
         return datasets
@@ -239,6 +242,7 @@ class DatasetRegistry:
                 + row["name"]
                 + "DataservicesDataSource",
                 dsn_name="DSN_DATASERVICES_DATASETS",
+                base_url=f"{DATAPUNT_API_URL}v1/",
                 scopes=scopes,
             )
         return datasets

@@ -134,6 +134,7 @@ class TestDatasetRegistry(unittest.TestCase):
             self.assertIn(
                 unittest.mock.call(
                     row=unittest.mock.ANY,
+                    base_url="https://api.data.amsterdam.nl/vsd/",
                     class_name=row["name"].upper() + "GenAPIDataSource",
                     dsn_name="DSN_VARIOUS_SMALL_DATASETS",
                 ),
