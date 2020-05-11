@@ -4,7 +4,6 @@ import logging
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask import send_from_directory
 from flask import abort
-from flask import g
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.authz import authenticate

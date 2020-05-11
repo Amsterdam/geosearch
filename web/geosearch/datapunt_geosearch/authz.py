@@ -54,7 +54,7 @@ def check_authentication(request):
                       algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"))
         except JWTMissingKey as e:
             logger.warning("Auth problem: unknown key. {}".format(e))
-            abort(401, "Incorrect Bearer.")
+            abort(401, "Incorrect Bearer. Unknown key.")
         except ValueError as e:
             logger.warning("Auth problem: incorrect token. {}".format(e))
             abort(401, "Incorrect Bearer.")
