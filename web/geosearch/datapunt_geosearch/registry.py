@@ -1,6 +1,7 @@
 from collections import defaultdict
 import logging
 import psycopg2.extras
+from string_utils import slugify
 import time
 from datapunt_geosearch.config import (
     DATAPUNT_API_URL,
@@ -88,7 +89,10 @@ class DatasetRegistry:
             ]
         )
 
-    def init_dataset(self, row, class_name, dsn_name, base_url=None, scopes=None):
+    def init_dataset(self, row, class_name, dsn_name,
+                     base_url=None,
+                     scopes=None,
+                     field_name_transformation=None):
         """
         Initialize dataset class and register it in registry based on row data
 
@@ -105,25 +109,29 @@ class DatasetRegistry:
           class_name (str): Name for the new class
           dsn_name: DSN name for namespacing
           scopes: Optional comma separated list of Authentication scopes for dataset.
+          field_name_transformation: Optional function that will transform field names.
 
         Returns:
           DataSourceBase subclass for given dataset.
         """
         from datapunt_geosearch.datasource import DataSourceBase
+        if field_name_transformation is None:
+            field_name_transformation = lambda x: x
 
         if row.get("schema") is None:
             row["schema"] = "public"
         schema_table = row["schema"] + "." + row["table_name"]
 
-        if row["geometry_type"] and row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
+        if row["geometry_type"] and \
+           row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
             operator = "contains"
         else:
             operator = "within"
-        name = row["name"]
-        name_field = row["name_field"]
-        dataset_name = row["dataset_name"]
-        geometry_field = row["geometry_field"]
-        id_field = row["id_field"]
+        name = field_name_transformation(row["name"])
+        name_field = field_name_transformation(row["name_field"])
+        dataset_name = field_name_transformation(row["dataset_name"])
+        geometry_field = field_name_transformation(row["geometry_field"])
+        id_field = field_name_transformation(row["id_field"])
 
         base_url = base_url or DATAPUNT_API_URL
 
@@ -244,6 +252,7 @@ class DatasetRegistry:
                 dsn_name="DSN_DATASERVICES_DATASETS",
                 base_url=f"{DATAPUNT_API_URL}v1/",
                 scopes=scopes,
+                field_name_transformation=lambda field_id: slugify(field_id, sign="_")
             )
         return datasets
 
