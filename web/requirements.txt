@@ -17,3 +17,4 @@ Werkzeug==0.16.1
 jwcrypto==0.7
 pytest==5.3.5
 PyYAML==5.3
+python-string-utils==0.6.0
