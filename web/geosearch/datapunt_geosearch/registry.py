@@ -127,6 +127,13 @@ class DatasetRegistry:
             operator = "contains"
         else:
             operator = "within"
+
+        if not all([row["name"],
+                    row["name_field"],
+                    row["dataset_name"],
+                    row["geometry_field"], row["id_field"]]):
+            _logger.warn(f"Incorrect dataset: {class_name}")
+            return None
         name = field_name_transformation(row["name"])
         name_field = field_name_transformation(row["name_field"])
         dataset_name = field_name_transformation(row["dataset_name"])
@@ -196,12 +203,14 @@ class DatasetRegistry:
         """
         datasets = dict()
         for row in dbconn.fetch_all(sql):
-            datasets[row["name"]] = self.init_dataset(
+            dataset = self.init_dataset(
                 row=row,
                 class_name=row["name"].upper() + "GenAPIDataSource",
                 dsn_name="DSN_VARIOUS_SMALL_DATASETS",
                 base_url=f"{DATAPUNT_API_URL}vsd/",
             )
+            if dataset is not None:
+                datasets[row["name"]] = dataset
 
         return datasets
 
@@ -244,7 +253,7 @@ class DatasetRegistry:
                 scopes.update(set(
                     row["datasettable_authorization"].split(",")
                 ))
-            datasets[row["name"]] = self.init_dataset(
+            dataset = self.init_dataset(
                 row=row,
                 class_name=row["dataset_name"]
                 + row["name"]
@@ -254,6 +263,8 @@ class DatasetRegistry:
                 scopes=scopes,
                 field_name_transformation=lambda field_id: slugify(field_id, sign="_")
             )
+            if dataset is not None:
+                datasets[row["name"]] = dataset
         return datasets
 
 
