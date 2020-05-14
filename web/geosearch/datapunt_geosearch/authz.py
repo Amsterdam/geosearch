@@ -50,7 +50,7 @@ def check_authentication(request):
     if token is not None:
         try:
             jwt = JWT(jwt=token,
-                      key="",  # current_app.config.get("JW_KEYSET"),
+                      key=current_app.config.get("JW_KEYSET"),
                       algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"))
         except JWTMissingKey as e:
             logger.warning("Auth problem: unknown key. {}".format(e))
