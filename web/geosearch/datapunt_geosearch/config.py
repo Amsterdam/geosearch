@@ -137,29 +137,34 @@ DEFAULT_SEARCH_DATASETS = [
 ]
 
 
-def load_jwks_config(filename):
+JWKS_TEST_KEY = """
+    {
+        "keys": [
+            {
+                "kty": "EC",
+                "key_ops": [
+                    "verify",
+                    "sign"
+                ],
+                "kid": "2aedafba-8170-4064-b704-ce92b7c89cc6",
+                "crv": "P-256",
+                "x": "6r8PYwqfZbq_QzoMA4tzJJsYUIIXdeyPA27qTgEJCDw=",
+                "y": "Cf2clfAfFuuCB06NMfIat9ultkMyrMQO9Hd2H7O9ZVE=",
+                "d": "N1vu0UQUp0vLfaNeM0EDbl4quvvL6m_ltjoAXXzkI3U="
+            }
+        ]
+    }
+"""
 
-    with open(filename, 'r') as config_file:
-        try:
-            config = yaml.load(config_file, Loader=yaml.SafeLoader)
-        except (yaml.YAMLError,
-                json.decoder.JSONDecodeError) as error_details:
-            logger.error(
-                "Failed to load config: %s Error: %s",
-                filename,
-                repr(error_details)
-            )
-            return None, None, None
-
-    return config.get('jwks'), config.get('jwks_url'), config.get('jwks_allowed_signing_algorithms')
-
-
-default_config_file = os.path.join(os.path.dirname(__file__), 'config.yaml')
-JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(default_config_file)
-
-global_config_file = os.getenv("GEOSEARCH_CONFIG_PATH", "/etc/geosearch.yaml")
-if os.path.exists(global_config_file):
-    JWKS, JWKS_URL, JWKS_SIGNING_ALGORITHMS = load_jwks_config(
-        default_config_file)
+JWKS = os.getenv('PUB_JWKS', JWKS_TEST_KEY)
+JWKS_URL = os.getenv('KEYCLOAK_JWKS_URL')
+JWKS_SIGNING_ALGORITHMS = [
+    'ES256',
+    'ES384',
+    'ES512',
+    'RS256',
+    'RS384',
+    'RS512',
+]
 
 JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)
