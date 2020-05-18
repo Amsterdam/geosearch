@@ -27,7 +27,13 @@ class TestDatasetRegistry(unittest.TestCase):
 
         self.assertEqual(
             test_registry.get_all_datasets(),
-            {"magic": TestDataset, "test1": TestDataset, "test2": TestDataset},
+            {
+                "magic": TestDataset,
+                "magic/test1": TestDataset,
+                "magic/test2": TestDataset,
+                "test1": TestDataset,
+                "test2": TestDataset,
+            },
         )
 
     def test_init_dataset_creates_dataset_class(self):
@@ -60,7 +66,10 @@ class TestDatasetRegistry(unittest.TestCase):
         )
         self.assertEqual(result.metadata["fields"][3], "geometry as geometrie")
         self.assertEqual(result.metadata["fields"][4], "id as id")
-        self.assertEqual(test_registry.providers, dict(vsd=result, test_name=result,))
+        self.assertEqual(
+            test_registry.providers,
+            {"vsd": result, "test_name": result, "vsd/test_name": result}
+        )
 
     def test_init_dataset_defaults_schema_to_public(self):
         row = dict(
@@ -224,9 +233,11 @@ class TestDatasetRegistry(unittest.TestCase):
             self.assertEqual(len(datasets.keys()), 1)
             self.assertEqual(
                 test_registry.providers,
-                dict(
-                    test_dataset=datasets["test_name"], test_name=datasets["test_name"]
-                ),
+                {
+                    "test_dataset": datasets["test_dataset/test_name"],
+                    "test_name": datasets["test_dataset/test_name"],
+                    "test_dataset/test_name": datasets["test_dataset/test_name"],
+                },
             )
 
     def test_init_dataservices_dataset_with_authorizations(self):

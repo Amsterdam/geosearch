@@ -196,6 +196,7 @@ class TestExternalDataSource(unittest.TestCase):
             path="test/geosearch/"
         )
 
-        self.assertEqual(test_registry.providers, dict(
-            test=test_datasource,
-        ))
+        self.assertEqual(test_registry.providers, {
+            "test": test_datasource,
+            "test/test": test_datasource,
+        })
