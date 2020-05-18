@@ -35,6 +35,7 @@ class DatasetRegistry:
         for key in dataset_class.metadata["datasets"].keys():
             self.providers[key] = dataset_class
             for item in dataset_class.metadata["datasets"][key].keys():
+                item_key = f"{key}/{item}"
                 if (
                     item in self.providers.keys()
                     and self.providers[item] != dataset_class
@@ -44,7 +45,9 @@ class DatasetRegistry:
                             item, self.providers[item], dataset_class
                         )
                     )
+                # Backwards compatible providers.
                 self.providers[item] = dataset_class
+                self.providers[item_key] = dataset_class
 
     def register_external_dataset(self, name, base_url, path, field_mapping=None):
         from datapunt_geosearch.datasource import ExternalDataSource
@@ -264,7 +267,8 @@ class DatasetRegistry:
                 field_name_transformation=lambda field_id: slugify(field_id, sign="_")
             )
             if dataset is not None:
-                datasets[row["name"]] = dataset
+                key = f"{row['dataset_name']}/{row['name']}"
+                datasets[key] = dataset
         return datasets
 
 

@@ -87,8 +87,12 @@ class DataSourceBase(object):
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta['datasets']:
                 for dataset_indent, table in self.meta['datasets'][dataset].items():
-                    if len(datasets) and not (
-                            dataset in datasets or dataset_indent in datasets):
+                    dataset_key = f"{dataset}/{dataset_indent}"
+                    if len(datasets) and not any([
+                            dataset in datasets,
+                            dataset_indent in datasets,  # To Be Deprecated.
+                            dataset_key in datasets,
+                    ]):
                         # Actively filter datasets
                         continue
 

@@ -11,7 +11,8 @@ def dataservices_db():
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute("""
             BEGIN;
-            CREATE TABLE IF NOT EXISTS "datasets_dataset" (
+            DROP TABLE IF EXISTS "datasets_dataset" CASCADE;
+            CREATE TABLE "datasets_dataset" (
               "id" serial NOT NULL PRIMARY KEY,
               "name" varchar(50) NOT NULL UNIQUE,
               "ordering" integer NOT NULL,
@@ -19,7 +20,8 @@ def dataservices_db():
               "schema_data" jsonb NOT NULL,
               "auth" varchar(150) NULL
             );
-            CREATE TABLE IF NOT EXISTS "datasets_datasettable" (
+            DROP TABLE IF EXISTS "datasets_datasettable" CASCADE;
+            CREATE TABLE "datasets_datasettable" (
               "id" serial NOT NULL PRIMARY KEY,
               "name" varchar(100) NOT NULL,
               "enable_geosearch" boolean NOT NULL,
