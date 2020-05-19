@@ -90,7 +90,6 @@ class DataSourceBase(object):
                     dataset_key = f"{dataset}/{dataset_indent}"
                     if len(datasets) and not any([
                             dataset in datasets,
-                            dataset_indent in datasets,  # To Be Deprecated.
                             dataset_key in datasets,
                     ]):
                         # Actively filter datasets

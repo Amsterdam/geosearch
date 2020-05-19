@@ -24,7 +24,7 @@ class AuthzTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
-            self.assertEqual(len(json_response['features']), 6)
+            self.assertEqual(len(json_response['features']), 3)
 
     @unittest.mock.patch('datapunt_geosearch.authz.logger')
     def test_incorrect_bearer_results_in_error(self, logger_mock):
@@ -47,7 +47,7 @@ class AuthzTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
-            self.assertEqual(len(json_response['features']), 6)
+            self.assertEqual(len(json_response['features']), 3)
 
     def test_dataset_table_with_authorization_not_visible(self):
         with self.app.test_client() as client:
@@ -79,7 +79,7 @@ class AuthzTestCase(unittest.TestCase):
                                         scopes=['CA/W', 'TEST', 'FAKE/SECRET'])
         with self.app.test_client() as client:
             response = client.get(
-                '/?x=123282.6&y=487674.8&radius=1&datasets=fake_secret',
+                '/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_secret',
                 headers={'Authorization': token}
             )
             self.assertEqual(
