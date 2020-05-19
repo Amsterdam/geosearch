@@ -12,10 +12,9 @@ from datapunt_geosearch.registry import registry, DatasetRegistry
 class TestDatasetRegistry(unittest.TestCase):
     def test_biz_class_registered_in_registry(self):
         ds_class = datasource.get_dataset_class(
-            "biz", dsn=config.DSN_VARIOUS_SMALL_DATASETS
+            "vsd/biz", dsn=config.DSN_VARIOUS_SMALL_DATASETS
         )
-
-        self.assertEqual(registry.providers["biz"], ds_class)
+        self.assertEqual(registry.providers["vsd/biz"], ds_class)
 
     def test_dataset_is_registered_for_each_dataset_in_metadata(self):
         class TestDataset(DataSourceBase):
@@ -31,8 +30,6 @@ class TestDatasetRegistry(unittest.TestCase):
                 "magic": TestDataset,
                 "magic/test1": TestDataset,
                 "magic/test2": TestDataset,
-                "test1": TestDataset,
-                "test2": TestDataset,
             },
         )
 
@@ -68,7 +65,7 @@ class TestDatasetRegistry(unittest.TestCase):
         self.assertEqual(result.metadata["fields"][4], "id as id")
         self.assertEqual(
             test_registry.providers,
-            {"vsd": result, "test_name": result, "vsd/test_name": result}
+            {"vsd": result, "vsd/test_name": result}
         )
 
     def test_init_dataset_defaults_schema_to_public(self):
@@ -158,7 +155,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry._datasets_initialized = time.time()
         test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
 
-        self.assertEqual(test_registry.filter_datasets(names=["test1"]), {TestDataset})
+        self.assertEqual(test_registry.filter_datasets(names=["magic/test1"]), {TestDataset})
 
     def test_filter_datasets_with_scopes_no_scope_provided(self):
         class TestDataset(DataSourceBase):
@@ -202,7 +199,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
 
         self.assertEqual(
-            test_registry.filter_datasets(names=["test1"],
+            test_registry.filter_datasets(names=["magic/test1"],
                                           scopes=["TEST/WRITE"]),
             {TestDataset}
         )
@@ -235,7 +232,6 @@ class TestDatasetRegistry(unittest.TestCase):
                 test_registry.providers,
                 {
                     "test_dataset": datasets["test_dataset/test_name"],
-                    "test_name": datasets["test_dataset/test_name"],
                     "test_dataset/test_name": datasets["test_dataset/test_name"],
                 },
             )

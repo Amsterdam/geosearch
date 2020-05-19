@@ -139,7 +139,7 @@ def search_in_datasets():
                   'kadastraal_object', 'beperking'}:
         ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
     else:
-        ds_class = get_dataset_class(item)
+        ds_class = get_dataset_class(f"vsd/{item}")
         ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
     # Checking for radius and item type
@@ -258,7 +258,7 @@ def search_geo_genapi(dataset):
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
     if not resp:
-        ds_class = get_dataset_class(dataset)
+        ds_class = get_dataset_class(f"vsd/{dataset}")
         if ds_class is None:
             abort(404)
         else:

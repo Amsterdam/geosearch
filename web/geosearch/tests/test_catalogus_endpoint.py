@@ -80,7 +80,7 @@ class CatalogusEndpointTestCase(unittest.TestCase):
             )
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
-            self.assertIn('fake_secret', json_response['datasets'])
+            self.assertIn('fake/fake_secret', json_response['datasets'])
 
 
 if __name__ == '__main__':

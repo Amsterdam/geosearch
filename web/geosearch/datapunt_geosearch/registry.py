@@ -45,8 +45,6 @@ class DatasetRegistry:
                             item, self.providers[item], dataset_class
                         )
                     )
-                # Backwards compatible providers.
-                self.providers[item] = dataset_class
                 self.providers[item_key] = dataset_class
 
     def register_external_dataset(self, name, base_url, path, field_mapping=None):
