@@ -208,7 +208,7 @@ class DatasetRegistry:
                 row=row,
                 class_name=row["name"].upper() + "GenAPIDataSource",
                 dsn_name="DSN_VARIOUS_SMALL_DATASETS",
-                base_url=f"{DATAPUNT_API_URL}vsd/",
+                base_url=f"{DATAPUNT_API_URL}",
             )
             if dataset is not None:
                 datasets[row["name"]] = dataset
