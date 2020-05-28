@@ -47,7 +47,7 @@ class TestMonumentenDataset(unittest.TestCase):
         ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
         results = ds.query(x, y, rd=False, radius=radius)
 
-        self.assertEqual(len(results['features']), 529)
+        self.assertEqual(len(results['features']), 528)
 
     def test_query_nopand(self):
         x = 52.3620372560367
