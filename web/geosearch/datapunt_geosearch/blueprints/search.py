@@ -97,6 +97,7 @@ def search_catalogus():
         for name, dataset in registry.get_all_datasets().items()
         if dataset.check_scopes(scopes=get_current_authz_scopes())
     ]
+
     return jsonify({'datasets': dataset_names})
 
 

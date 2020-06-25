@@ -1,10 +1,31 @@
 # Packages
+import time
+import json
 from flask import Blueprint, Response, current_app
 
 from datapunt_geosearch.datasource import BagDataSource, \
     NapMeetboutenDataSource
+from datapunt_geosearch.registry import registry
 
 health = Blueprint('health', __name__)
+
+
+@health.route('/status', methods=['GET', 'HEAD', 'OPTIONS'])
+def system_status():
+    message = json.dumps({
+        "Delay": registry.INITIALIZE_DELAY,
+        "Datasets initialized": registry._datasets_initialized,
+        "Time since last refresh": time.time() - (registry._datasets_initialized or time.time())
+    })
+    return Response(message,
+                    content_type='application/json')
+
+
+@health.route('/status/force-refresh', methods=['GET', 'HEAD', 'OPTIONS'])
+def force_refresh():
+    registry._datasets_initialized = time.time()
+    registry.init_datasets()
+    return system_status()
 
 
 @health.route('/status/health', methods=['GET', 'HEAD', 'OPTIONS'])
@@ -41,5 +62,5 @@ def search_list():
                         content_type='text/plain; charset=utf-8',
                         status=500)
 
-    return Response('Connectivity OK',
+    return Response("Connectivity OK",
                     content_type='text/plain; charset=utf-8')

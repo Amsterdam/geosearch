@@ -38,6 +38,8 @@ services:
       POSTGRES_USER: monumenten
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+    extra_hosts:
+      admin.data.amsterdam.nl: 10.243.16.4
 #  tellus_db:
 #    image: amsterdam/postgres11
 #    ports:
@@ -66,6 +68,8 @@ services:
       POSTGRES_PASSWORD: insecure
     volumes:
        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+    extra_hosts:
+      admin.data.amsterdam.nl: 10.243.16.4
   web:
       build: ./web
       ports:

@@ -18,7 +18,7 @@ class DatasetRegistry:
     Dataset Registry.
     """
 
-    INITIALIZE_DELAY = 600  # 10 minutes
+    INITIALIZE_DELAY = 300  # 5 minutes
 
     def __init__(self, delay=None):
         # Datasets is a dictionary of DSN => Datasets.
