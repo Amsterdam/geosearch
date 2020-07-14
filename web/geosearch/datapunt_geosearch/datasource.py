@@ -517,16 +517,6 @@ registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
 
-registry.register_external_dataset(
-    name="parkeervakken",
-    base_url=DATAPUNT_API_URL,
-    path="parkeervakken/geosearch/",
-    field_mapping=dict(
-        display=lambda _, item: f"Parkeervak {item['id']}",
-        uri=lambda base_url, item: urllib.parse.urljoin(base_url, item['_links']['self']['href'])
-    )
-)
-
 
 def get_dataset_class(ds_name, dsn=None):
     """
