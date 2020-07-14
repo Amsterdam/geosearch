@@ -27,6 +27,20 @@ def force_refresh():
     registry.init_datasets()
     return system_status()
 
+@health.route('/status/dataset/<dataset>/', methods=['GET', 'HEAD', 'OPTIONS'])
+def dataset_details(dataset):
+    dataset = registry.get_by_name(dataset)
+    if dataset is None:
+        result = dict(error='Meh')
+        status = 400
+    else:
+        result = dict(
+            name=dataset.__class__,
+            data=repr(dataset.__dict__)
+        )
+        status = 200
+    return Response(json.dumps(result), content_type='application/json', status=status)
+
 
 @health.route('/status/health', methods=['GET', 'HEAD', 'OPTIONS'])
 def search_list():
