@@ -119,7 +119,7 @@ class DatasetRegistry:
         """
         from datapunt_geosearch.datasource import DataSourceBase
         if field_name_transformation is None:
-            field_name_transformation = lambda x: to_snake_case(x)
+            field_name_transformation = lambda x: x
 
         if row.get("schema") is None:
             row["schema"] = "public"

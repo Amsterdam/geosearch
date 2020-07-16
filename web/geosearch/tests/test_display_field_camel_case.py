@@ -25,5 +25,6 @@ class TestDisplayFieldCamelCase(unittest.TestCase):
         )
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        result = test_registry.init_dataset(row, "TestDataset", "DSN_TEST_DATASET")
+        # mimicing the logic with dataservices datasets (see registry.py)
+        result = test_registry.init_dataset(row, "TestDataset", "DSN_TEST_DATASET", field_name_transformation=lambda field_id: to_snake_case(field_id))
         self.assertEqual(result.metadata["fields"][0], "test_display_field_in_camel_case as display")
