@@ -10,6 +10,8 @@ from datapunt_geosearch.config import (
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
+from schematools.utils import to_snake_case
+
 _logger = logging.getLogger(__name__)
 
 
@@ -117,7 +119,7 @@ class DatasetRegistry:
         """
         from datapunt_geosearch.datasource import DataSourceBase
         if field_name_transformation is None:
-            field_name_transformation = lambda x: x
+            field_name_transformation = lambda x: to_snake_case(x)
 
         if row.get("schema") is None:
             row["schema"] = "public"
@@ -262,7 +264,7 @@ class DatasetRegistry:
                 dsn_name="DSN_DATASERVICES_DATASETS",
                 base_url=f"{DATAPUNT_API_URL}v1/",
                 scopes=scopes,
-                field_name_transformation=lambda field_id: slugify(field_id, sign="_")
+                field_name_transformation=lambda field_id: to_snake_case(field_id)
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"
