@@ -459,7 +459,7 @@ class MonumentenDataSource(DataSourceBase):
         },
         'fields': [
             "display_naam as display",
-            "cast('monumenten/monument' as varchar(30)) as type",
+            "cast('monumenten/monument' as varchar(50)) as type",
             # "'/monument/' || lower(monumenttype) as type",
             f"'{DATAPUNT_API_URL}monumenten/monumenten/' || id || '/'  as uri",
             "monumentcoordinaten as geometrie",
