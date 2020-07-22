@@ -55,7 +55,7 @@ class TestDatasetRegistry(unittest.TestCase):
         )
         self.assertEqual(result.metadata["fields"][0], "description as display")
         self.assertEqual(
-            result.metadata["fields"][1], "cast('vsd/test_name' as varchar(30)) as type"
+            result.metadata["fields"][1], "cast('vsd/test_name' as varchar(50)) as type"
         )
         self.assertEqual(
             result.metadata["fields"][2],
