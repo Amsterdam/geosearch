@@ -156,7 +156,7 @@ class DatasetRegistry:
                     "scopes": scopes or set(),
                     "fields": [
                         f"{name_field} as display",
-                        f"cast('{dataset_name}/{name}' as varchar(30)) as type",
+                        f"cast('{dataset_name}/{name}' as varchar(50)) as type",
                         f"'{base_url}{dataset_name}/{name}/' || {id_field} || '/'  as uri",
                         f"{geometry_field} as geometrie",
                         f"{id_field} as id",
