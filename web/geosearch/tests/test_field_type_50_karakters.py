@@ -26,6 +26,7 @@ class TestFieldType50Karakters(unittest.TestCase):
         # setup context data
         registry = DatasetRegistry()
         context_data = registry.init_dataset(row=test_row, class_name="TestDataset", dsn_name=config.DSN_VARIOUS_SMALL_DATASETS)
+
         
         # make connection and set vars
         dataset = DataSourceBase(connection=None, dsn=context_data.dsn_name)
@@ -33,6 +34,7 @@ class TestFieldType50Karakters(unittest.TestCase):
         dataset.x = 123207
         dataset.y = 486624
         dataset.radius = 500
+
         
         query_result = dataset.execute_queries()            
         
