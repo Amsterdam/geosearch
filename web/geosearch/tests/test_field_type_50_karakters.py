@@ -7,9 +7,9 @@ from datapunt_geosearch.registry import DatasetRegistry
 class TestFieldType50Karakters(unittest.TestCase):
     
     def test_field_type_50_karakters(self):
-        """ Test if output field 'type' => product of '[dataset_name]/[name]' can handle 50 karakters """
+        """ Test if output field 'type' => product of '[dataset_name]/[name]' can handle 50 characters """
 
-        # setup test row with name and dataset_name combined (plus the forward slash) is 50 karakters
+        # setup test row with name and dataset_name combined (plus the forward slash) is 50 characters
         # table_name could be anything, fietsplaatjes was choosen as mediator
         test_row = dict(
             schema="public",
@@ -34,6 +34,6 @@ class TestFieldType50Karakters(unittest.TestCase):
         dataset.y = 486624
         dataset.radius = 50
         
-        query_result = dataset.execute_queries()     
-
-        self.assertEqual(str(query_result[0]['properties']['type']), str(test_row['dataset_name'] + "/" +  str(test_row['name'])))
+        query_result = dataset.execute_queries()            
+        
+        self.assertEqual(str(query_result[0]['properties']['type']), "0123456789-0123456789-12/0123456789-0123456789-123")
