@@ -62,9 +62,9 @@ def fetch_data(sourceClass, request_args, datasets, retry=None):
 
     try:
         response = datasource.execute_queries(datasets=datasets)
-    except Exception:
+    except Exception as e:
         _logger.error("Failed to fetch data from %s" % datasource,
                       exc_info=True)
-        return []
+        return [str(e)]
     else:
         return response
