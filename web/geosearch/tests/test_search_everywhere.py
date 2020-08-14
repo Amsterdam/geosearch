@@ -21,11 +21,11 @@ class SearchEverywhereTestCase(unittest.TestCase):
             response = client.get('/?x=123282.6&y=487674.8&radius=100')
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
-            self.assertEqual(len(json_response['features']), 6)
+            self.assertEqual(len(json_response['features']), 3)
 
     def test_search_limited_by_subset_results_in_correct_filter(self):
         with self.app.test_client() as client:
-            response = client.get('/?x=123282.6&y=487674.8&radius=10&datasets=buurt')
+            response = client.get('/?x=123282.6&y=487674.8&radius=10&datasets=gebieden/buurt')
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
             self.assertEqual(len(json_response['features']), 1)
@@ -47,6 +47,17 @@ class SearchEverywhereTestCase(unittest.TestCase):
 
         with self.app.test_client() as client:
             response = client.get('/?x=123282.6&y=487674.8&radius=1&datasets=fake')
+            json_response = json.loads(response.data)
+            self.assertEqual(json_response['type'], 'FeatureCollection')
+            self.assertEqual(len(json_response['features']), 1)
+
+    @pytest.mark.usefixtures("dataservices_fake_data")
+    def test_search_in_dataservices_with_dataset_table__results_in_correct_result(self):
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        with self.app.test_client() as client:
+            response = client.get('/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public')
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
             self.assertEqual(len(json_response['features']), 1)

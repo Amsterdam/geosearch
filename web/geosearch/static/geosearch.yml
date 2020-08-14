@@ -114,6 +114,18 @@ paths:
       responses:
         200:
           description: An array of items that are located within the given radius of the given location that match the requested type(s)
+  /catalogus/:
+    get:
+      summary: List Datasets available for searching for current user.
+      description: >
+        List all Dataset names available to be used as `Dataset` parameter in Generic Search endpoint (url: `/?datasets=`).
+
+        Based on authentication level provided users may see different list of datasets.
+      tags:
+        - Geosearch
+      responses:
+        200:
+          description: An array of items that are located within the given radius of the given location that match the requested type(s)
   /search/:
     get:
       summary: Generic Geo Search per Dataset

@@ -5,3 +5,7 @@ psycopg2
 python-dateutil
 requests
 sentry-sdk
+jwcrypto
+pytest
+PyYAML
+python-string-utils

@@ -1,11 +1,15 @@
 """
 Contains the different configs for the datapunt geosearch application
 """
+import json
 import logging
 import os
 from typing import Dict
 
+import yaml
+
 import sentry_sdk
+from datapunt_geosearch.authz import get_keyset
 
 logger = logging.getLogger(__name__)
 
@@ -131,3 +135,36 @@ DEFAULT_SEARCH_DATASETS = [
     'uitgevoerdonderzoek',
     'bominslag'
 ]
+
+
+JWKS_TEST_KEY = """
+    {
+        "keys": [
+            {
+                "kty": "EC",
+                "key_ops": [
+                    "verify",
+                    "sign"
+                ],
+                "kid": "2aedafba-8170-4064-b704-ce92b7c89cc6",
+                "crv": "P-256",
+                "x": "6r8PYwqfZbq_QzoMA4tzJJsYUIIXdeyPA27qTgEJCDw=",
+                "y": "Cf2clfAfFuuCB06NMfIat9ultkMyrMQO9Hd2H7O9ZVE=",
+                "d": "N1vu0UQUp0vLfaNeM0EDbl4quvvL6m_ltjoAXXzkI3U="
+            }
+        ]
+    }
+"""
+
+JWKS = os.getenv('PUB_JWKS', JWKS_TEST_KEY)
+JWKS_URL = os.getenv('KEYCLOAK_JWKS_URL')
+JWKS_SIGNING_ALGORITHMS = [
+    'ES256',
+    'ES384',
+    'ES512',
+    'RS256',
+    'RS384',
+    'RS512',
+]
+
+JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)

@@ -50,6 +50,15 @@ class DataSourceBase(object):
 
         self.meta = self.metadata.copy()
 
+    @classmethod
+    def check_scopes(cls, scopes=None):
+        """Check who may access this datasource. When no scopes are given,
+        access is allowed when there are no restrictions to the data.
+        """
+        return cls.metadata.get(
+            "scopes", set()
+        ).issubset(scopes or set())
+
     def filter_dataset(self, dataset_table):
         """
         Filters down the dataset to be just the given dataset
@@ -78,8 +87,11 @@ class DataSourceBase(object):
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta['datasets']:
                 for dataset_indent, table in self.meta['datasets'][dataset].items():
-                    if len(datasets) and not (
-                            dataset in datasets or dataset_indent in datasets):
+                    dataset_key = f"{dataset}/{dataset_indent}"
+                    if len(datasets) and not any([
+                            dataset in datasets,
+                            dataset_key in datasets,
+                    ]):
                         # Actively filter datasets
                         continue
 
@@ -504,16 +516,6 @@ registry.register_dataset('DSN_NAP', NapMeetboutenDataSource)
 registry.register_dataset('DSN_MUNITIE', MunitieMilieuDataSource)
 registry.register_dataset('DSN_MUNITIE', BominslagMilieuDataSource)
 registry.register_dataset('DSN_MONUMENTEN', MonumentenDataSource)
-
-registry.register_external_dataset(
-    name="parkeervakken",
-    base_url=DATAPUNT_API_URL,
-    path="parkeervakken/geosearch/",
-    field_mapping=dict(
-        display=lambda _, item: f"Parkeervak {item['id']}",
-        uri=lambda base_url, item: urllib.parse.urljoin(base_url, item['_links']['self']['href'])
-    )
-)
 
 
 def get_dataset_class(ds_name, dsn=None):
