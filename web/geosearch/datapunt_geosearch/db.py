@@ -16,16 +16,17 @@ def retry_on_psycopg2_error(func):
     """
     @functools.wraps(func)
     def wrapper_retry(*args, **kwargs):
-        retry = 3
-        while retry > 0:
+        retry = 0
+        while retry < 4:
             try:
                 result = func(*args, **kwargs)
             except Psycopg2Error:
-                if retry < 1:
+                retry += 1
+                if retry > 3:
                     raise
                 else:
-                    retry -= 1
                     _logger.warning(f'Retry query for {func.__name__} ({retry})')
+                    print(f"retry: {retry}")
                     continue
             break
         return result
