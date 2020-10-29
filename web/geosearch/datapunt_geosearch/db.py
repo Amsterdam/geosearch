@@ -21,7 +21,7 @@ def retry_on_psycopg2_error(func):
             try:
                 result = func(*args, **kwargs)
             except Psycopg2Error:
-                if retry == 0:
+                if retry < 1:
                     raise
                 else:
                     retry -= 1
