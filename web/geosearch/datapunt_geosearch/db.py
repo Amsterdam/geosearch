@@ -26,7 +26,6 @@ def retry_on_psycopg2_error(func):
                     raise
                 else:
                     _logger.warning(f'Retry query for {func.__name__} ({retry})')
-                    print(f"retry: {retry}")
                     continue
             break
         return result
