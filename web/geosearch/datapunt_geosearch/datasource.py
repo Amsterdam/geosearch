@@ -337,9 +337,6 @@ class BagDataSource(DataSourceBase):
             'lki': {
                 'kadastraal_object': 'public.geo_lki_kadastraalobject_mat',
             },
-            'wkpb': {
-                'beperking': 'public.geo_wkpb_mat',
-            },
         },
     }
     default_properties = ('id', 'code', 'vollcode', 'display', 'type', 'uri', 'opr_type', 'distance')
