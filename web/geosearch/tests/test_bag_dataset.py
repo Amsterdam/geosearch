@@ -12,7 +12,7 @@ class TestBAGDataset(unittest.TestCase):
         ds = datasource.BagDataSource(dsn=config.DSN_BAG)
         results = ds.query(x, y)
 
-        self.assertEqual(len(results['features']), 7)
+        self.assertEqual(len(results['features']), 6)
         self.assertIn('distance', results['features'][0]['properties'])
 
     def test_query_wgs84(self):
