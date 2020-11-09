@@ -22,7 +22,7 @@ class TestBAGDataset(unittest.TestCase):
         ds = datasource.BagDataSource(dsn=config.DSN_BAG)
         results = ds.query(x, y, rd=False)
 
-        self.assertEqual(len(results['features']), 7)
+        self.assertEqual(len(results['features']), 6)
 
 
 if __name__ == '__main__':
