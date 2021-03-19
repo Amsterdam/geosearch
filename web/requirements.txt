@@ -3,7 +3,7 @@ click==7.0
 Flask==1.1.1
 Flask-Cors==3.0.8
 itsdangerous==1.1.0
-Jinja2==2.11.1
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 packaging==18.0
 pip-review==1.0
