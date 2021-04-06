@@ -3,7 +3,7 @@ click==7.0
 Flask==1.1.1
 Flask-Cors==3.0.8
 itsdangerous==1.1.0
-Jinja2==2.11.1
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 packaging==18.0
 pip-review==1.0
@@ -16,6 +16,6 @@ six==1.12.0
 Werkzeug==0.16.1
 jwcrypto==0.7
 pytest==5.3.5
-PyYAML==5.3
+PyYAML==5.4
 python-string-utils==1.0.0
 amsterdam-schema-tools == 0.9.7
