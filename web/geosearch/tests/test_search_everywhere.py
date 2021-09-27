@@ -21,7 +21,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
             response = client.get('/?x=123282.6&y=487674.8&radius=100')
             json_response = json.loads(response.data)
             self.assertEqual(json_response['type'], 'FeatureCollection')
-            self.assertEqual(len(json_response['features']), 3)
+            self.assertEqual(len(json_response['features']), 2)
 
     def test_search_limited_by_subset_results_in_correct_filter(self):
         with self.app.test_client() as client:
