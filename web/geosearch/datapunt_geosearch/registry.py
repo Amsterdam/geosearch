@@ -140,6 +140,8 @@ class DatasetRegistry:
         name = field_name_transformation(row["name"])
         name_field = field_name_transformation(row["name_field"])
         dataset_name = field_name_transformation(row["dataset_name"])
+        if dataset_name == "covid_19":
+            dataset_name = "covid19"
         geometry_field = field_name_transformation(row["geometry_field"])
         id_field = field_name_transformation(row["id_field"])
 
