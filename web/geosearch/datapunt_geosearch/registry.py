@@ -38,10 +38,7 @@ class DatasetRegistry:
             self.providers[key] = dataset_class
             for item in dataset_class.metadata["datasets"][key].keys():
                 item_key = f"{key}/{item}"
-                if (
-                    item in self.providers.keys()
-                    and self.providers[item] != dataset_class
-                ):
+                if item in self.providers.keys() and self.providers[item] != dataset_class:
                     _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(
                             item, self.providers[item], dataset_class
@@ -51,24 +48,14 @@ class DatasetRegistry:
 
     def register_external_dataset(self, name, base_url, path, field_mapping=None):
         from datapunt_geosearch.datasource import ExternalDataSource
+
         class_name = "{}ExternalDataSource".format(name.upper())
 
-        meta = {
-            "base_url": base_url,
-            "datasets": {
-                name: {
-                    name: path
-                }
-            }
-        }
+        meta = {"base_url": base_url, "datasets": {name: {name: path}}}
         if field_mapping is not None:
             meta["field_mapping"] = field_mapping
 
-        dataset_class = type(
-            class_name,
-            (ExternalDataSource,),
-            dict(metadata=meta)
-        )
+        dataset_class = type(class_name, (ExternalDataSource,), dict(metadata=meta))
 
         self.register_dataset("EXT_{}".format(name.upper()), dataset_class)
         return dataset_class
@@ -92,10 +79,9 @@ class DatasetRegistry:
             ]
         )
 
-    def init_dataset(self, row, class_name, dsn_name,
-                     base_url=None,
-                     scopes=None,
-                     field_name_transformation=None):
+    def init_dataset(
+        self, row, class_name, dsn_name, base_url=None, scopes=None, field_name_transformation=None
+    ):
         """
         Initialize dataset class and register it in registry based on row data
 
@@ -118,6 +104,7 @@ class DatasetRegistry:
           DataSourceBase subclass for given dataset.
         """
         from datapunt_geosearch.datasource import DataSourceBase
+
         if field_name_transformation is None:
             field_name_transformation = lambda x: x
 
@@ -125,16 +112,20 @@ class DatasetRegistry:
             row["schema"] = "public"
         schema_table = row["schema"] + "." + row["table_name"]
 
-        if row["geometry_type"] and \
-           row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
+        if row["geometry_type"] and row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
             operator = "contains"
         else:
             operator = "within"
 
-        if not all([row["name"],
-                    row["name_field"],
-                    row["dataset_name"],
-                    row["geometry_field"], row["id_field"]]):
+        if not all(
+            [
+                row["name"],
+                row["name_field"],
+                row["dataset_name"],
+                row["geometry_field"],
+                row["id_field"],
+            ]
+        ):
             _logger.warn(f"Incorrect dataset: {class_name}")
             return None
         name = field_name_transformation(row["name"])
@@ -255,18 +246,14 @@ class DatasetRegistry:
             if row["dataset_authorization"]:
                 scopes = set(row["dataset_authorization"].split(","))
             if row["datasettable_authorization"]:
-                scopes.update(set(
-                    row["datasettable_authorization"].split(",")
-                ))
+                scopes.update(set(row["datasettable_authorization"].split(",")))
             dataset = self.init_dataset(
                 row=row,
-                class_name=row["dataset_name"]
-                + row["name"]
-                + "DataservicesDataSource",
+                class_name=row["dataset_name"] + row["name"] + "DataservicesDataSource",
                 dsn_name="DSN_DATASERVICES_DATASETS",
                 base_url=f"{DATAPUNT_API_URL}v1/",
                 scopes=scopes,
-                field_name_transformation=lambda field_id: to_snake_case(field_id)
+                field_name_transformation=lambda field_id: to_snake_case(field_id),
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"

@@ -9,7 +9,8 @@ from datapunt_geosearch.db import dbconnection
 def dataservices_db():
     dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             BEGIN;
             DROP TABLE IF EXISTS "datasets_dataset" CASCADE;
             CREATE TABLE "datasets_dataset" (
@@ -62,24 +63,28 @@ def dataservices_db():
               auth
             ) VALUES (2, 'fake_secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET');
             COMMIT;
-            """)
+            """
+        )
 
     yield None
 
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
         BEGIN;
         DROP TABLE "datasets_datasettable" CASCADE;
         DROP TABLE "datasets_dataset" CASCADE;
         COMMIT;
-        """)
+        """
+        )
 
 
 @pytest.fixture
 def dataservices_fake_data():
     dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
         CREATE TABLE IF NOT EXISTS "fake_fake" (
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
@@ -88,10 +93,12 @@ def dataservices_fake_data():
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
           "geometry" geometry(POINT, 28992));
-        """)
+        """
+        )
 
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
         BEGIN;
         INSERT INTO "fake_fake" (id, name, geometry) VALUES (
           1,
@@ -102,15 +109,18 @@ def dataservices_fake_data():
           'secret test',
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
         COMMIT;
-        """)
+        """
+        )
 
     yield None
 
     with dataservices_db_connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
         DROP TABLE fake_fake CASCADE;
         DROP TABLE fake_secret CASCADE;
-        """)
+        """
+        )
 
 
 @pytest.fixture
@@ -119,22 +129,16 @@ def create_authz_token(request):
         jwks = authz.get_keyset(jwks=config.JWKS)
         assert len(jwks) > 0
 
-        key = next(iter(jwks['keys']))
+        key = next(iter(jwks["keys"]))
         now = int(time.time())
 
-        header = {
-            'alg': 'ES256',  # algorithm of the test key
-            'kid': key.key_id
-        }
+        header = {"alg": "ES256", "kid": key.key_id}  # algorithm of the test key
 
         token = JWT(
             header=header,
-            claims={
-                'iat': now,
-                'exp': now + 600,
-                'scopes': scopes,
-                'subject': subject
-            })
+            claims={"iat": now, "exp": now + 600, "scopes": scopes, "subject": subject},
+        )
         token.make_signed_token(key)
-        return 'bearer ' + token.serialize()
+        return "bearer " + token.serialize()
+
     request.cls.create_authz_token = _create_authz_token
