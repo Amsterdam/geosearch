@@ -16,6 +16,7 @@ def dataservices_db():
             CREATE TABLE "datasets_dataset" (
               "id" serial NOT NULL PRIMARY KEY,
               "name" varchar(50) NOT NULL UNIQUE,
+              "path" varchar(50) NOT NULL UNIQUE,
               "ordering" integer NOT NULL,
               "enable_api" boolean NOT NULL,
               "schema_data" jsonb NOT NULL,
@@ -34,8 +35,9 @@ def dataservices_db():
               "dataset_id" integer NOT NULL
             );
 
-            INSERT INTO "datasets_dataset" (id, name, ordering, enable_api, schema_data) VALUES (
+            INSERT INTO "datasets_dataset" (id, name, path, ordering, enable_api, schema_data) VALUES (
               1,
+              'fake',
               'fake',
               1,
               True,
