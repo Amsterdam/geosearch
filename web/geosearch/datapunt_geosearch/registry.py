@@ -95,6 +95,7 @@ class DatasetRegistry:
             - geometry_type,
             - id_field
             - dataset_name
+            - dataset_path  (optional, for amsterdam schema datasets)
           class_name (str): Name for the new class
           dsn_name: DSN name for namespacing
           scopes: Optional comma separated list of Authentication scopes for dataset.
@@ -133,6 +134,9 @@ class DatasetRegistry:
         dataset_name = field_name_transformation(row["dataset_name"])
         if dataset_name == "covid_19":
             dataset_name = "covid19"
+        dataset_path = field_name_transformation(row.get("dataset_path", dataset_name))
+        if dataset_path == "covid_19":
+            dataset_path = "covid19"
         geometry_field = field_name_transformation(row["geometry_field"])
         id_field = field_name_transformation(row["id_field"])
 
@@ -150,7 +154,7 @@ class DatasetRegistry:
                     "fields": [
                         f"{name_field} as display",
                         f"cast('{dataset_name}/{name}' as varchar(50)) as type",
-                        f"'{base_url}{dataset_name}/{name}/' || {id_field} || '/'  as uri",
+                        f"'{base_url}{dataset_path}/{name}/' || {id_field} || '/'  as uri",
                         f"{geometry_field} as geometrie",
                         f"{id_field} as id",
                     ],
@@ -233,6 +237,7 @@ class DatasetRegistry:
         dt.geometry_field,
         'id' as id_field,
         d.name as dataset_name,
+        d.path as dataset_path,
         d.auth as dataset_authorization,
         dt.auth as datasettable_authorization
     FROM datasets_datasettable dt
