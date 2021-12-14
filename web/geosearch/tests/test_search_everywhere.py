@@ -50,6 +50,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
+            self.assertIn("path/fake", json_response["features"][0]["properties"]["uri"])
 
     @pytest.mark.usefixtures("dataservices_fake_data")
     def test_search_in_dataservices_with_dataset_table__results_in_correct_result(self):

@@ -38,7 +38,7 @@ def dataservices_db():
             INSERT INTO "datasets_dataset" (id, name, path, ordering, enable_api, schema_data) VALUES (
               1,
               'fake',
-              'fake',
+              'path/fake',
               1,
               True,
               '9'

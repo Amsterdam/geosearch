@@ -134,7 +134,9 @@ class DatasetRegistry:
         dataset_name = field_name_transformation(row["dataset_name"])
         if dataset_name == "covid_19":
             dataset_name = "covid19"
-        dataset_path = field_name_transformation(row.get("dataset_path", dataset_name))
+        # Do not apply a field_name_transformation to dataset_path
+        # because that could mess with the `/`.
+        dataset_path = row.get("dataset_path", dataset_name)
         if dataset_path == "covid_19":
             dataset_path = "covid19"
         geometry_field = field_name_transformation(row["geometry_field"])
