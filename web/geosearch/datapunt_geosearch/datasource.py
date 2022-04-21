@@ -57,7 +57,7 @@ class DataSourceBase(object):
         """
         return cls.metadata.get(
             "scopes", set()
-        ).issubset(scopes or set())
+        ).issubset((scopes or set()) | {"OPENBAAR"})
 
     def filter_dataset(self, dataset_table):
         """
