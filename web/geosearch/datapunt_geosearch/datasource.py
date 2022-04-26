@@ -51,20 +51,26 @@ class DataSourceBase(object):
         self.meta = self.metadata.copy()
 
     @classmethod
-    def check_scopes(cls, user_scopes=None):
+    def check_scopes(cls, scopes=None):
         """Check who may access this datasource. Access is always allowed if:
             1 no scopes on the datasource
             2 only OPENBAAR on the datasource 
         therefore we always add OPENBAAR to the set of user scopes
+
+        Parameters
+        ----------
+
+        scopes : str
+            The set of scopes assigned to the user
         """
-        if user_scopes is None:
-            user_scopes = {"OPENBAAR"}
+        if scopes is None:
+            scopes = {"OPENBAAR"}
         else:
-            user_scopes = set(user_scopes) | {"OPENBAAR"}
+            scopes = set(scopes) | {"OPENBAAR"}
 
         return cls.metadata.get(
             "scopes", set()
-        ).issubset(user_scopes)
+        ).issubset(scopes)
 
     def filter_dataset(self, dataset_table):
         """
