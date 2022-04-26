@@ -128,6 +128,7 @@ class DataSourceBase(object):
     # Point query
     def execute_point_query(self, cur, table):
         if not self.use_rd:
+            # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
             sql = """
 SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) as distance
 FROM {}
