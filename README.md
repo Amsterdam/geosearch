@@ -19,6 +19,8 @@ test postgres spatial queries:
     cd web/geosearch
 	python test_dataset.py
 
+#### NOTE that this testsuite uses dumps from production to make assertions about the data, the assertions are therefore *not deterministic*
+#### this must be fixed in the near future
 
 
 # Geospatial queries
