@@ -36,7 +36,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
             response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=gebieden")
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
-            self.assertEqual(len(json_response["features"]), 7)
+            self.assertEqual(len(json_response["features"]), 6)
             for item in json_response["features"]:
                 self.assertTrue(item["properties"]["type"].startswith("gebieden"))
 
