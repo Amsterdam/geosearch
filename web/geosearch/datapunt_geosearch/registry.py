@@ -38,7 +38,10 @@ class DatasetRegistry:
             self.providers[key] = dataset_class
             for item in dataset_class.metadata["datasets"][key].keys():
                 item_key = f"{key}/{item}"
-                if item in self.providers.keys() and self.providers[item] != dataset_class:
+                if (
+                    item in self.providers.keys()
+                    and self.providers[item] != dataset_class
+                ):
                     _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(
                             item, self.providers[item], dataset_class
@@ -80,7 +83,13 @@ class DatasetRegistry:
         )
 
     def init_dataset(
-        self, row, class_name, dsn_name, base_url=None, scopes=None, field_name_transformation=None
+        self,
+        row,
+        class_name,
+        dsn_name,
+        base_url=None,
+        scopes=None,
+        field_name_transformation=None,
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -113,7 +122,10 @@ class DatasetRegistry:
             row["schema"] = "public"
         schema_table = row["schema"] + "." + row["table_name"]
 
-        if row["geometry_type"] and row["geometry_type"].upper() in ["POLYGON", "MULTIPOLYGON"]:
+        if row["geometry_type"] and row["geometry_type"].upper() in [
+            "POLYGON",
+            "MULTIPOLYGON",
+        ]:
             operator = "contains"
         else:
             operator = "within"
