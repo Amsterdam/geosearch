@@ -1,4 +1,5 @@
 from collections import defaultdict
+import json
 import logging
 import psycopg2.extras
 from string_utils import slugify
@@ -11,6 +12,7 @@ from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
 from schematools.utils import to_snake_case
+from schematools.types import DatasetSchema
 
 _logger = logging.getLogger(__name__)
 
@@ -38,10 +40,7 @@ class DatasetRegistry:
             self.providers[key] = dataset_class
             for item in dataset_class.metadata["datasets"][key].keys():
                 item_key = f"{key}/{item}"
-                if (
-                    item in self.providers.keys()
-                    and self.providers[item] != dataset_class
-                ):
+                if item in self.providers.keys() and self.providers[item] != dataset_class:
                     _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(
                             item, self.providers[item], dataset_class
@@ -90,6 +89,7 @@ class DatasetRegistry:
         base_url=None,
         scopes=None,
         field_name_transformation=None,
+        temporal_dimension=None,
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -156,6 +156,22 @@ class DatasetRegistry:
 
         base_url = base_url or DATAPUNT_API_URL
 
+        fields = [
+            f"{name_field} as display",
+            f"cast('{dataset_name}/{name}' as varchar(50)) as type",
+            f"'{base_url}{dataset_path}/{name}/' || {id_field} || '/'  as uri",
+            f"{geometry_field} as geometrie",
+            f"{id_field} as id",
+        ]
+
+        temporal_bounds = None
+        if temporal_dimension is not None:
+            temporal_bounds = (
+                field_name_transformation(temporal_dimension.start),
+                field_name_transformation(temporal_dimension.end),
+            )
+            fields += list(temporal_bounds)
+
         dataset_class = type(
             class_name,
             (DataSourceBase,),
@@ -165,15 +181,10 @@ class DatasetRegistry:
                     "operator": operator,
                     "datasets": {dataset_name: {name: schema_table}},
                     "scopes": scopes or set(),
-                    "fields": [
-                        f"{name_field} as display",
-                        f"cast('{dataset_name}/{name}' as varchar(50)) as type",
-                        f"'{base_url}{dataset_path}/{name}/' || {id_field} || '/'  as uri",
-                        f"{geometry_field} as geometrie",
-                        f"{id_field} as id",
-                    ],
+                    "fields": fields,
                 },
                 "dsn_name": dsn_name,
+                "temporal_bounds": temporal_bounds,
             },
         )
 
@@ -228,6 +239,16 @@ class DatasetRegistry:
 
         return datasets
 
+    def _fetch_temporal_dimensions(self, schema_data, table_name):
+        if schema_data is None:
+            return None
+        dataset_schema = DatasetSchema.from_dict(json.loads(schema_data))
+        dataset_table = dataset_schema.get_table_by_id(table_name)
+        temporal = dataset_table.temporal
+        if temporal is None:
+            return None
+        return temporal.dimensions.get("geldigOp")
+
     def init_dataservices_datasets(self, dsn=None):
         if dsn is None:
             try:
@@ -252,6 +273,7 @@ class DatasetRegistry:
         'id' as id_field,
         d.name as dataset_name,
         d.path as dataset_path,
+        d.schema_data,
         d.auth as dataset_authorization,
         dt.auth as datasettable_authorization
     FROM datasets_datasettable dt
@@ -273,10 +295,14 @@ class DatasetRegistry:
                 base_url=f"{DATAPUNT_API_URL}v1/",
                 scopes=scopes,
                 field_name_transformation=lambda field_id: to_snake_case(field_id),
+                temporal_dimension=self._fetch_temporal_dimensions(
+                    row["schema_data"], row["name"]
+                ),
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"
                 datasets[key] = dataset
+
         return datasets
 
 
