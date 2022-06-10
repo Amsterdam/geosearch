@@ -19,7 +19,7 @@ def dataservices_db():
               "path" varchar(50) NOT NULL UNIQUE,
               "ordering" integer NOT NULL,
               "enable_api" boolean NOT NULL,
-              "schema_data" jsonb NOT NULL,
+              "schema_data" varchar NULL,
               "auth" varchar(150) NULL
             );
             DROP TABLE IF EXISTS "datasets_datasettable" CASCADE;
@@ -41,7 +41,7 @@ def dataservices_db():
               'path/fake',
               1,
               True,
-              '9'
+              null
             );
             INSERT INTO "datasets_datasettable" (
               id,

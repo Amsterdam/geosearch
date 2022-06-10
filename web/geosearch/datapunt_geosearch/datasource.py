@@ -33,6 +33,7 @@ class DataSourceBase(object):
     y = None
     fields = "*"
     extra_where = ""
+    temporal_bounds = None
 
     def __init__(self, dsn=None, connection=None):
         _logger.debug("Creating DataSource: %s" % self.dataset)
@@ -106,9 +107,9 @@ class DataSourceBase(object):
                         continue
 
                     if self.meta["operator"] == "contains":
-                        rows = self.execute_polygon_query(cur, table)
+                        rows = self.execute_polygon_query(cur, table, self.temporal_bounds)
                     else:
-                        rows = self.execute_point_query(cur, table)
+                        rows = self.execute_point_query(cur, table, self.temporal_bounds)
 
                     if not len(rows):
                         _logger.debug(table, "no results")
@@ -129,47 +130,52 @@ class DataSourceBase(object):
         return features
 
     # Point query
-    def execute_point_query(self, cur, table):
+    def execute_point_query(self, cur, table, temporal_bounds=None):
         if not self.use_rd:
             # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
             sql = """
-SELECT {}, ST_Distance({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) as distance
-FROM {}
-WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992), %s) {}
-ORDER BY distance
+                SELECT {},
+                    ST_Distance({},
+                    ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) AS distance
+                FROM {}
+                WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992), %s) {}
             """.format(
                 self.fields, self.meta["geofield"], table, self.meta["geofield"], self.extra_where
             )
-            if self.limit:
-                sql += "LIMIT %s"
-                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius, self.limit))
-            else:
-                cur.execute(sql, (self.y, self.x, self.y, self.x, self.radius))
         else:
             sql = """
-SELECT {}, ST_Distance({}, ST_GeomFromText('POINT(%s %s)', 28992)) as distance
-FROM {}
-WHERE ST_DWithin({}, ST_GeomFromText('POINT(%s %s)', 28992), %s) {}
-ORDER BY distance
+                SELECT {}, ST_Distance({}, ST_GeomFromText('POINT(%s %s)', 28992)) AS distance
+                FROM {}
+                WHERE ST_DWithin({}, ST_GeomFromText('POINT(%s %s)', 28992), %s) {}
             """.format(
                 self.fields, self.meta["geofield"], table, self.meta["geofield"], self.extra_where
             )
-            if self.limit:
-                sql += "LIMIT %s"
-                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius, self.limit))
-            else:
-                cur.execute(sql, (self.x, self.y, self.x, self.y, self.radius))
+
+        coord_args = [self.x, self.y] if self.use_rd else [self.y, self.x]
+        query_args = coord_args * 2 + [self.radius]
+        if temporal_bounds is not None:
+            start, end = temporal_bounds
+            sql += (
+                f" AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+            )
+
+        sql += " ORDER BY distance"
+
+        if self.limit:
+            query_args.append(self.limit)
+            sql += " LIMIT %s"
+
+        cur.execute(sql, query_args)
         return cur.fetchall()
 
-    def execute_polygon_query(self, cur, table):
+    def execute_polygon_query(self, cur, table, temporal_bounds=None):
         if not self.use_rd:
             sql = """
-SELECT {}, ST_Distance(ST_Centroid({}), ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) as distance
-FROM {}
-WHERE {} && ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)
-AND
-ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
-ORDER BY distance
+                SELECT {}, ST_Distance(ST_Centroid({}),
+                    ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) AS distance
+                FROM {}
+                WHERE {} && ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)
+                  AND ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
             """.format(
                 self.fields,
                 self.meta["geofield"],
@@ -178,15 +184,13 @@ ORDER BY distance
                 self.meta["geofield"],
                 self.extra_where,
             )
-            cur.execute(sql, (self.y, self.x) * 3)
         else:
             sql = """
-SELECT {}, ST_Distance(ST_Centroid({}), ST_GeomFromText('POINT(%s %s)', 28992)) as distance
-FROM {}
-WHERE {} && ST_GeomFromText('POINT(%s %s)', 28992)
-AND
-ST_Contains({}, ST_GeomFromText('POINT(%s %s)', 28992)) {}
-ORDER BY distance
+                SELECT {}, ST_Distance(ST_Centroid({}),
+                    ST_GeomFromText('POINT(%s %s)', 28992)) as distance
+                FROM {}
+                WHERE {} && ST_GeomFromText('POINT(%s %s)', 28992)
+                  AND ST_Contains({}, ST_GeomFromText('POINT(%s %s)', 28992)) {}
             """.format(
                 self.fields,
                 self.meta["geofield"],
@@ -195,8 +199,17 @@ ORDER BY distance
                 self.meta["geofield"],
                 self.extra_where,
             )
-            cur.execute(sql, (self.x, self.y) * 3)
 
+        if temporal_bounds is not None:
+            start, end = temporal_bounds
+            sql += (
+                f" AND ({start} < now() OR {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+            )
+
+        sql += " ORDER BY distance"
+
+        args = (self.x, self.y) if self.use_rd else (self.y, self.x)
+        cur.execute(sql, args * 3)
         return cur.fetchall()
 
     def query(self, x, y, rd=True, radius=None, limit=None):

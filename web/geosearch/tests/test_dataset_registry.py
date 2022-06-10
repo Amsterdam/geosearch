@@ -218,6 +218,8 @@ class TestDatasetRegistry(unittest.TestCase):
                     geometry_type="Point",
                     id_field="id",
                     dataset_name="test_dataset",
+                    dataset_path="test_schema/test_dataset",
+                    schema_data=None,
                     dataset_authorization=None,
                     datasettable_authorization=None
                 )
@@ -250,6 +252,8 @@ class TestDatasetRegistry(unittest.TestCase):
                     geometry_type="Point",
                     id_field="id",
                     dataset_name="test_dataset",
+                    dataset_path="test_schema/test_dataset",
+                    schema_data=None,
                     dataset_authorization="TEST,TEST/1",
                     datasettable_authorization="TEST,TEST/2"
                 )
