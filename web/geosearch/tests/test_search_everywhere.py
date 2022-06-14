@@ -1,4 +1,6 @@
+from datetime import date
 import json
+from dateutil.relativedelta import relativedelta
 import unittest
 import pytest
 import datapunt_geosearch
@@ -62,3 +64,37 @@ class SearchEverywhereTestCase(unittest.TestCase):
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
+
+    @pytest.mark.usefixtures("dataservices_fake_temporal_data_creator")
+    @pytest.mark.usefixtures("dataservices_fake_data")
+    def test_search_in_dataservices_using_temporal_data(self):
+        """Prove that geosearch does not take inactive records into account.
+
+        Only records that have a `geldigheid` should be included in the search result.
+        """
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        def _years_from_today(years):
+            year_date = (date.today() + relativedelta(years=years)).strftime("%Y-%m-%d")
+            return f"'{year_date}'"
+
+        # Unfortunately, these tests are unittest-style tests, so we cannot use
+        # `pytest.mark.parametrize` here.
+        for extra_temporal_records, count in (
+            (("NULL", "NULL"), 2),
+            ((_years_from_today(-2), _years_from_today(-1)), 1),
+            ((_years_from_today(-2), _years_from_today(+1)), 2),
+            ((_years_from_today(+1), _years_from_today(+2)), 1),
+            ((_years_from_today(+1), "NULL"), 1),
+            ((_years_from_today(-1), "NULL"), 2),
+        ):
+
+            with self.data_creator(*extra_temporal_records):  # type: ignore
+
+                with self.app.test_client() as client:
+                    response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake")
+                    json_response = json.loads(response.data)
+                    self.assertEqual(json_response["type"], "FeatureCollection")
+                    self.assertEqual(len(json_response["features"]), count)
+                    self.assertIn("path/fake", json_response["features"][0]["properties"]["uri"])
