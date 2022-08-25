@@ -7,6 +7,7 @@ from .config import DATAPUNT_API_URL
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 from datapunt_geosearch.registry import registry
+from psycopg2 import sql
 
 
 _logger = logging.getLogger(__name__)
@@ -131,41 +132,54 @@ class DataSourceBase(object):
 
     # Point query
     def execute_point_query(self, cur, table, temporal_bounds=None):
-        if not self.use_rd:
-            # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
-            sql = """
-                SELECT {},
-                    ST_Distance({},
-                    ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) AS distance
-                FROM {}
-                WHERE ST_DWithin({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992), %s) {}
-            """.format(
-                self.fields, self.meta["geofield"], table, self.meta["geofield"], self.extra_where
-            )
-        else:
-            sql = """
-                SELECT {}, ST_Distance({}, ST_GeomFromText('POINT(%s %s)', 28992)) AS distance
-                FROM {}
-                WHERE ST_DWithin({}, ST_GeomFromText('POINT(%s %s)', 28992), %s) {}
-            """.format(
-                self.fields, self.meta["geofield"], table, self.meta["geofield"], self.extra_where
-            )
-
-        coord_args = [self.x, self.y] if self.use_rd else [self.y, self.x]
-        query_args = coord_args * 2 + [self.radius]
+        tmp_bounds = sql.SQL("")
         if temporal_bounds is not None:
             start, end = temporal_bounds
-            sql += (
-                f" AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+            tmp_bounds = sql.SQL(
+                " AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+            ).format(start=sql.Identifier(start), end=sql.Identifier(end))
+
+        if not self.use_rd:
+            # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
+            stmt = sql.SQL("""
+                SELECT {fields},
+                    ST_Distance({geo_field},
+                    ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)) AS distance
+                FROM {schema}.{table_name}
+                WHERE ST_DWithin({geo_field}, ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992), {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
+            """).format(
+                fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # Properly escape SQL in self.fields
+                table_name=sql.Identifier(table.split(".")[1]),
+                schema=sql.Identifier(table.split(".")[0]),
+                geo_field=sql.Identifier(self.meta["geofield"]),
+                x=sql.Placeholder("x"),
+                y=sql.Placeholder("y"),
+                radius=sql.Placeholder("radius"),
+                extra_where=sql.SQL(self.extra_where),
+                temp_predicate=tmp_bounds,
+                limit=sql.SQL("LIMIT {}").format(self.limit and sql.Placeholder("limit") or sql.SQL("ALL"))
             )
-
-        sql += " ORDER BY distance"
-
-        if self.limit:
-            query_args.append(self.limit)
-            sql += " LIMIT %s"
-
-        cur.execute(sql, query_args)
+        else:
+            stmt = sql.SQL("""
+                SELECT {fields},
+                    ST_Distance({geo_field},
+                    ST_GeomFromText('POINT({x} {y})', 28992)) AS distance
+                FROM {schema}.{table_name}
+                WHERE ST_DWithin({geo_field}, ST_GeomFromText('POINT({x} {y})', 28992), {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
+            """).format(
+                fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # TODO: Properly escape SQL in self.fields string
+                table_name=sql.Identifier(table.split(".")[1]),
+                schema=sql.Identifier(table.split(".")[0]),
+                geo_field=sql.Identifier(self.meta["geofield"]),
+                x=sql.Placeholder("x"),
+                y=sql.Placeholder("y"),
+                radius=sql.Placeholder("radius"),
+                extra_where=sql.SQL(self.extra_where),
+                temp_predicate=tmp_bounds,
+                limit=sql.SQL("LIMIT {}").format(sql.Placeholder("limit") if self.limit else sql.SQL("ALL"))
+            )
+        
+        cur.execute(stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit})
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table, temporal_bounds=None):
@@ -429,53 +443,6 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
         "operator": "within",
         "datasets": {"munitie": {"bominslag": "public.geo_bommenkaart_bominslag_point"}},
     }
-
-
-# class TellusDataSource(DataSourceBase):
-#     def __init__(self, *args, **kwargs):
-#         super(TellusDataSource, self).__init__(*args, **kwargs)
-#         self.meta = {
-#             'geofield': 'geometrie',
-#             'operator': 'within',
-#             'datasets': {
-#                 'tellus': {
-#                     'tellus':
-#                         'public.geo_tellus_point'
-#                 }
-#             },
-#         }
-#
-#     default_properties = ('display', 'standplaats', 'type', 'uri', 'distance')
-#
-#     def query(self, x, y, rd=True, radius=None, limit=None):
-#         self.use_rd = rd
-#         self.x = x
-#         self.y = y
-#
-#         if radius:
-#             self.radius = radius
-#
-#         try:
-#             return {
-#                 'type': 'FeatureCollection',
-#                 'features': self.execute_queries()
-#             }
-#         except DataSourceException as err:
-#             return {
-#                 'type': 'Error',
-#                 'message': 'Error executing query: %s' % err.message
-#             }
-#         except psycopg2.ProgrammingError as err:
-#             return {
-#                 'type': 'Error',
-#                 'message': 'Error in database integrity: %s' % repr(err)
-#             }
-#         except TypeError as err:
-#             return {
-#                 'type': 'Error',
-#                 'message': 'Error in handling, {}'.format(repr(err))
-#             }
-
 
 class MonumentenDataSource(DataSourceBase):
     dsn_name = "DSN_MONUMENTEN"
