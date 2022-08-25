@@ -36,8 +36,8 @@ _db_connection_string = 'postgresql://{username}:{password}@{host}:{port}/{db}'
 
 
 
-def _make_conn_str(name: str) -> str:
-    return _db_connection_string.format(**get_db_settings('name'))
+def _make_conn_str(db: str) -> str:
+    return _db_connection_string.format(**get_db_settings(db))
 
 
 DSN_BAG = _make_conn_str('bag_v11')
