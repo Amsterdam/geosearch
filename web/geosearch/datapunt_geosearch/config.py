@@ -27,7 +27,7 @@ def get_db_settings(db: str) -> Dict[str, str]:
         'password': os.environ[f"{db.upper()}_DB_PASSWORD_OVERRIDE"],
         'host': os.environ[f"{db.upper()}_DB_HOST_OVERRIDE"] ,
         'port': os.getenv(f"{db.upper()}_DB_PORT_OVERRIDE", "5432"),
-        'db': db,
+        'db': os.getenv(f"{db.upper()}_DB_DATABASE_OVERRIDE", db),
     }
 
 
