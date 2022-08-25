@@ -23,13 +23,6 @@ services:
       environment:
         POSTGRES_PASSWORD: insecure
         POSTGRES_USER: milieuthemas
-#  tellus_db:
-#      image: amsterdam/postgres11
-#      ports:
-#        - "5409:5432"
-#      environment:
-#        POSTGRES_PASSWORD: insecure
-#        POSTGRES_USER: tellus
   monumenten_db:
       image: amsterdam/postgres11
       ports:
@@ -53,4 +46,3 @@ services:
         POSTGRES_USER: dataservices
   web_test:
     build: ../web
-    command: python test_dataset.py

@@ -1,23 +1,19 @@
-# setup
+# Setup of local development
 
+Local development is done using docker.
 
-Update different project databases with current data:
-bag_backend and meetbouten for now
+Update different project databases with current data dumps from the objectstore:
 
     docker-compose up -d
-    docker-compose exec bag_v11_db update-db.sh  bag_v11 <your_username>
-    docker-compose exec nap_db update-db.sh nap <your_username>
-    docker-compose exec milieuthemas_db update-db.sh milieuthemas <your_username>
-    docker-compose exec monumenten_db update-db.sh monumenten <your_username>
-    docker-compose exec various_small_datasets_db update-db.sh various_small_datasets  <your_username>
-    docker-compose exec dataservices_db update-db.sh dataservices <your_username>
+    docker-compose exec database update-db.sh bag_v11
+    docker-compose exec database update-db.sh nap
+    docker-compose exec database update-db.sh milieuthemas
+    docker-compose exec database update-db.sh monumenten
+    docker-compose exec database update-db.sh various_small_datasets
+    docker-compose exec database update-db.sh datasets
 
-    pip install -r requirements_dev.txt
-
-test postgres spatial queries:
-
-    cd web/geosearch
-	python test_dataset.py
+Running the testsuite
+    docker-compose exec web pytest
 
 #### NOTE that this testsuite uses dumps from production to make assertions about the data, the assertions are therefore *not deterministic*
 #### this must be fixed in the near future

@@ -27,7 +27,7 @@ class TestMonumentenDataset(unittest.TestCase):
 
         results = ds.query(x, y, radius=radius)
 
-        self.assertEqual(len(results['features']), 53)
+        self.assertEqual(len(results['features']), 54)
 
         results = ds.query(x, y, radius=radius, limit=limit)
         self.assertEqual(len(results['features']), 4)

@@ -131,8 +131,6 @@ def search_in_datasets():
         ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
     elif item == 'bominslag':
         ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
-    # elif item == 'tellus':
-    #    ds = TellusDataSource(dsn=current_app.config['DSN_TELLUS'])
     elif item == 'monument':
         ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
     elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',

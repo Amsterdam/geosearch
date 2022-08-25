@@ -1,70 +1,12 @@
 version: '3.0'
 services:
-  bag_v11_db:
+  database:
     image: amsterdam/postgres11
     ports:
-      - "5405:5432"
+       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_DB: bag_v11
-      POSTGRES_USER: bag_v11
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  nap_db:
-    image: amsterdam/postgres11
-    ports:
-      - "5401:5432"
-    environment:
-      POSTGRES_DB: nap
-      POSTGRES_USER: nap
-      POSTGRES_PASSWORD: insecure
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  milieuthemas_db:
-    image: amsterdam/postgres11
-    ports:
-      - "5402:5432"
-    environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: milieuthemas
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  monumenten_db:
-    image: amsterdam/postgres11
-    ports:
-      - "5412:5432"
-    environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: monumenten
-    volumes:
-        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-    extra_hosts:
-      admin.data.amsterdam.nl: 10.243.16.4
-#  tellus_db:
-#    image: amsterdam/postgres11
-#    ports:
-#      - "5409:5432"
-#    environment:
-#      POSTGRES_PASSWORD: insecure
-#      POSTGRES_USER: tellus
-#    volumes:
-#        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  various_small_datasets_db:
-    image: amsterdam/postgres11
-    ports:
-       - "5408:5432"
-    environment:
-      POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: various_small_datasets
-    volumes:
-       - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-  dataservices_db:
-    image: amsterdam/postgres11
-    ports:
-       - "5409:5432"
-    environment:
-      POSTGRES_DB: dataservices
-      POSTGRES_USER: dataservices
+      POSTGRES_DB: postgres
+      POSTGRES_USER: insecure
       POSTGRES_PASSWORD: insecure
     volumes:
        - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
@@ -74,6 +16,8 @@ services:
       build: ./web
       ports:
         - "8022:8000"
+      volumes:
+        - "./web/geosearch:/app"
       environment:
         - UWSGI_HTTP=0.0.0.0:8000
         - UWSGI_STATS=0.0.0.0:9191
@@ -81,3 +25,21 @@ services:
         - UWSGI_CALLABLE=app
         - UWSGI_MASTER=1
         - UWSGI_MASTER=4
+        - BAG_V11_DB_USER_OVERRIDE=insecure
+        - NAP_DB_USER_OVERRIDE=insecure
+        - MILIEUTHEMAS_DB_USER_OVERRIDE=insecure
+        - MONUMENTEN_DB_USER_OVERRIDE=insecure
+        - VARIOUS_SMALL_DATASETS_DB_USER_OVERRIDE=insecure
+        - DATASERVICES_DB_USER_OVERRIDE=insecure
+        - BAG_V11_DB_PASSWORD_OVERRIDE=insecure
+        - NAP_DB_PASSWORD_OVERRIDE=insecure
+        - MILIEUTHEMAS_DB_PASSWORD_OVERRIDE=insecure
+        - MONUMENTEN_DB_PASSWORD_OVERRIDE=insecure
+        - VARIOUS_SMALL_DATASETS_DB_PASSWORD_OVERRIDE=insecure
+        - DATASERVICES_DB_PASSWORD_OVERRIDE=insecure
+        - BAG_V11_DB_HOST_OVERRIDE=database
+        - NAP_DB_HOST_OVERRIDE=database
+        - MILIEUTHEMAS_DB_HOST_OVERRIDE=database
+        - MONUMENTEN_DB_HOST_OVERRIDE=database
+        - VARIOUS_SMALL_DATASETS_DB_HOST_OVERRIDE=database
+        - DATASERVICES_DB_HOST_OVERRIDE=database

@@ -25,7 +25,6 @@ uitgevoerdonderzoek 136
 buurtcombinatie 99
 biz 49
 grootstedelijkgebied 36
-tellus 28
 gebiedsgerichtwerken 22
 gevrijwaardgebied 19
 stadsdeel 8
@@ -42,7 +41,6 @@ from datapunt_geosearch.datasource import BagDataSource, dbconnection
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
-# from datapunt_geosearch.datasource import TellusDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
 from datapunt_geosearch.datasource import get_dataset_class, get_all_dataset_names
 
@@ -70,10 +68,6 @@ sources = {
         'ds': NapMeetboutenDataSource,
         'config': DSN_NAP
     },
-    # "tellus": {
-    #     'ds': TellusDataSource,
-    #     'config': DSN_TELLUS
-    # },
 }
 
 
