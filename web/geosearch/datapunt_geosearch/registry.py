@@ -1,18 +1,16 @@
 from collections import defaultdict
+from flask import current_app as app
 import json
 import logging
 import psycopg2.extras
-from string_utils import slugify
+from typing import Dict, List, Set, Optional
 import time
-from datapunt_geosearch.config import (
-    DATAPUNT_API_URL,
-    DSN_VARIOUS_SMALL_DATASETS,
-)
-from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
+from datapunt_geosearch.db import dbconnection
 
 from schematools.utils import to_snake_case
 from schematools.types import DatasetSchema
+from datapunt_geosearch.datasource import DataSourceBase, BagDataSource, NapMeetboutenDataSource, BominslagMilieuDataSource, MonumentenDataSource, MunitieMilieuDataSource
 
 _logger = logging.getLogger(__name__)
 
@@ -22,31 +20,30 @@ class DatasetRegistry:
     Dataset Registry.
     """
 
-    INITIALIZE_DELAY = 300  # 5 minutes
+    # Determines the refresh interval for dynamic datasources
+    INITIALIZE_DELAY_SECONDS = 300
 
-    def __init__(self, delay=None):
-        # Datasets is a dictionary of DSN => Datasets.
-        self.datasets = defaultdict(list)
-        self.providers = dict()
-        self.static_dataset_names = []
+    def __init__(self):
+        # Datasets is a mapping of conn string => Datasources.
+        self.datasets: Dict[str, List[DataSourceBase]] = defaultdict(list)
+        self.providers: Dict[str, DataSourceBase] = dict()
         self._datasets_initialized = None
-        if delay is not None:
-            self.INITIALIZE_DELAY = delay
 
-    def register_dataset(self, dsn_name, dataset_class):
-        self.datasets[dsn_name].append(dataset_class)
+    def register_datasource(self, dsn, datasource_class):
+        """Register a Datasource class with a dsn (synonymous to connection string)"""
+        self.datasets[dsn].append(datasource_class)
 
-        for key in dataset_class.metadata["datasets"].keys():
-            self.providers[key] = dataset_class
-            for item in dataset_class.metadata["datasets"][key].keys():
-                item_key = f"{key}/{item}"
-                if item in self.providers.keys() and self.providers[item] != dataset_class:
+        for dataset in datasource_class.metadata["datasets"]:
+            self.providers[dataset] = datasource_class
+            for table in datasource_class.metadata["datasets"][dataset]:
+                key = f"{dataset}/{table}"
+                if table in self.providers and self.providers[table] != datasource_class:
                     _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(
-                            item, self.providers[item], dataset_class
+                            table, self.providers[table], datasource_class
                         )
                     )
-                self.providers[item_key] = dataset_class
+                self.providers[key] = datasource_class
 
     def register_external_dataset(self, name, base_url, path, field_mapping=None):
         from datapunt_geosearch.datasource import ExternalDataSource
@@ -57,27 +54,33 @@ class DatasetRegistry:
         if field_mapping is not None:
             meta["field_mapping"] = field_mapping
 
-        dataset_class = type(class_name, (ExternalDataSource,), dict(metadata=meta))
+        datasource_class = type(class_name, (ExternalDataSource,), dict(metadata=meta))
 
-        self.register_dataset("EXT_{}".format(name.upper()), dataset_class)
-        return dataset_class
+        self.register_datasource("EXT_{}".format(name.upper()), datasource_class)
+        return datasource_class
 
-    def get_all_datasets(self):
+    def get_all_datasources(self):
         self.init_datasets()
         return self.providers
 
     def get_all_dataset_names(self):
-        return self.get_all_datasets().keys()
+        return self.get_all_datasources().keys()
 
     def get_by_name(self, name):
-        return self.get_all_datasets().get(name)
+        return self.get_all_datasources().get(name)
 
-    def filter_datasets(self, names=None, scopes=None):
+    def filter_datasources(self, names: List[str], scopes: Optional[List[str]]=None) -> Set[DataSourceBase]:
+        """Return the datasource classes associated with the given datasets or tables (given by `names`).
+
+        The result is deduplicated because it is not guaranteed that the searched keys
+        return a unique set of datasources. This occurs for example when two datasets
+        from hosted by the same datsource are used as search keys.
+        """
         return set(
             [
-                dataset
-                for name, dataset in self.get_all_datasets().items()
-                if name in names and dataset.check_scopes(scopes=scopes)
+                datasource_cls
+                for name, datasource_cls in self.get_all_datasources().items()
+                if name in names and datasource_cls.check_scopes(scopes=scopes)
             ]
         )
 
@@ -106,15 +109,13 @@ class DatasetRegistry:
             - dataset_name
             - dataset_path  (optional, for amsterdam schema datasets)
           class_name (str): Name for the new class
-          dsn_name: DSN name for namespacing
+          dsn_name: DSN for namespacing
           scopes: Optional comma separated list of Authentication scopes for dataset.
           field_name_transformation: Optional function that will transform field names.
 
         Returns:
           DataSourceBase subclass for given dataset.
         """
-        from datapunt_geosearch.datasource import DataSourceBase
-
         if field_name_transformation is None:
             field_name_transformation = lambda x: x
 
@@ -154,7 +155,7 @@ class DatasetRegistry:
         geometry_field = field_name_transformation(row["geometry_field"])
         id_field = field_name_transformation(row["id_field"])
 
-        base_url = base_url or DATAPUNT_API_URL
+        base_url = base_url or app.config['DATAPUNT_API_URL']
 
         fields = [
             f"{name_field} as display",
@@ -172,7 +173,7 @@ class DatasetRegistry:
             )
             fields += list(temporal_bounds)
 
-        dataset_class = type(
+        datasource_class = type(
             class_name,
             (DataSourceBase,),
             {
@@ -188,13 +189,16 @@ class DatasetRegistry:
             },
         )
 
-        self.register_dataset(dsn_name=dsn_name, dataset_class=dataset_class)
-        return dataset_class
+        self.register_datasource(dsn_name, datasource_class)
+        return datasource_class
 
     def init_datasets(self):
+        """Initialize dynamic datasources. In this case a
+        Datasource class is generated for each dataset in vsd and
+        in the dataservices database."""
         if (
             self._datasets_initialized is None
-            or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY
+            or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY_SECONDS
         ):
             self.init_vsd_datasets()
             self.init_dataservices_datasets()
@@ -206,7 +210,7 @@ class DatasetRegistry:
         Returns dict with datasets created.
         """
         if dsn is None:
-            dsn = DSN_VARIOUS_SMALL_DATASETS
+            dsn = app.config['DSN_VARIOUS_SMALL_DATASETS']
         try:
             dbconn = dbconnection(dsn)
         except psycopg2.Error as e:
@@ -232,7 +236,7 @@ class DatasetRegistry:
                 row=row,
                 class_name=row["name"].upper() + "GenAPIDataSource",
                 dsn_name="DSN_VARIOUS_SMALL_DATASETS",
-                base_url=f"{DATAPUNT_API_URL}",
+                base_url=f"{app.config['DATAPUNT_API_URL']}",
             )
             if dataset is not None:
                 datasets[row["name"]] = dataset
@@ -250,15 +254,8 @@ class DatasetRegistry:
         return temporal.dimensions.get("geldigOp")
 
     def init_dataservices_datasets(self, dsn=None):
-        if dsn is None:
-            try:
-                from datapunt_geosearch.config import DSN_DATASERVICES_DATASETS
-            except ImportError:
-                return
-            else:
-                dsn = DSN_DATASERVICES_DATASETS
         try:
-            dbconn = dbconnection(dsn)
+            dbconn = dbconnection(app.config['DSN_DATASERVICES_DATASETS'])
         except psycopg2.Error as e:
             _logger.error("Error creating connection: %s" % e)
             raise DataSourceException("error connecting to datasource") from e
@@ -292,7 +289,7 @@ class DatasetRegistry:
                 row=row,
                 class_name=row["dataset_name"] + row["name"] + "DataservicesDataSource",
                 dsn_name="DSN_DATASERVICES_DATASETS",
-                base_url=f"{DATAPUNT_API_URL}v1/",
+                base_url=f"{app.config['DATAPUNT_API_URL']}v1/",
                 scopes=scopes,
                 field_name_transformation=lambda field_id: to_snake_case(field_id),
                 temporal_dimension=self._fetch_temporal_dimensions(
@@ -305,5 +302,11 @@ class DatasetRegistry:
 
         return datasets
 
-
+# Initialize the registry with the statically defined Datasources
 registry = DatasetRegistry()
+
+registry.register_datasource("DSN_BAG", BagDataSource)
+registry.register_datasource("DSN_NAP", NapMeetboutenDataSource)
+registry.register_datasource("DSN_MUNITIE", MunitieMilieuDataSource)
+registry.register_datasource("DSN_MUNITIE", BominslagMilieuDataSource)
+registry.register_datasource("DSN_MONUMENTEN", MonumentenDataSource)

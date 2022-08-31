@@ -6,7 +6,6 @@ import urllib.parse
 from .config import DATAPUNT_API_URL
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
-from datapunt_geosearch.registry import registry
 from psycopg2 import sql
 
 
@@ -51,6 +50,7 @@ class DataSourceBase(object):
         else:
             self.dbconn = connection
 
+        # why FGS a shallow copy?
         self.meta = self.metadata.copy()
 
     @classmethod
@@ -89,6 +89,15 @@ class DataSourceBase(object):
         return False
 
     def execute_queries(self, datasets=None):
+        """Execute queries on all datasets in the datasource.
+
+        Datasets are optionally filtered by `datasets`. Filtering can be
+        done with "<dataset/table>" or by "<dataset>". In the latter case
+        all tables under that dataset will be queried.
+
+        For example datasets=["bag"] will query all tables under the root "bag"
+        in the self.metadata["datasets"] dict.
+        """
         datasets = datasets or []
         if "fields" in self.meta:
             self.fields = ",".join(self.meta["fields"])
@@ -106,7 +115,7 @@ class DataSourceBase(object):
                     ):
                         # Actively filter datasets
                         continue
-
+ 
                     if self.meta["operator"] == "contains":
                         rows = self.execute_polygon_query(cur, table, self.temporal_bounds)
                     else:
@@ -227,6 +236,7 @@ class DataSourceBase(object):
         return cur.fetchall()
 
     def query(self, x, y, rd=True, radius=None, limit=None):
+        """Query all datasets in this datasource"""
         self.use_rd = rd
         self.x = x
         self.y = y
@@ -493,26 +503,3 @@ class MonumentenDataSource(DataSourceBase):
             return {"type": "Error", "message": "Error in database integrity: %s" % repr(err)}
         except TypeError as err:
             return {"type": "Error", "message": "Error in handling, {}".format(repr(err))}
-
-
-registry.register_dataset("DSN_BAG", BagDataSource)
-registry.register_dataset("DSN_NAP", NapMeetboutenDataSource)
-registry.register_dataset("DSN_MUNITIE", MunitieMilieuDataSource)
-registry.register_dataset("DSN_MUNITIE", BominslagMilieuDataSource)
-registry.register_dataset("DSN_MONUMENTEN", MonumentenDataSource)
-
-
-def get_dataset_class(ds_name, dsn=None):
-    """
-    When this method is called the first time the catalog is read and for all
-    datasets in the catalog a subclass of DataSource is created and added to the
-    _datasets mapping
-    :param ds_name: Name of dataset (ie 'biz')
-    :param dsn optional datasource name for reading catalog. Required for testing
-    :return: subclass of DataSource for this dataset
-    """
-    return registry.get_by_name(ds_name)
-
-
-def get_all_dataset_names(dsn=None):
-    return registry.get_all_dataset_names()

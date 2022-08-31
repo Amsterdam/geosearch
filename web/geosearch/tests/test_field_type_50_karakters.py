@@ -1,6 +1,5 @@
 import unittest
-
-from datapunt_geosearch import config
+from flask import current_app as app
 from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.registry import DatasetRegistry
 
@@ -25,7 +24,7 @@ class TestFieldType50Karakters(unittest.TestCase):
 
         # setup context data
         registry = DatasetRegistry()
-        context_data = registry.init_dataset(row=test_row, class_name="TestDataset", dsn_name=config.DSN_VARIOUS_SMALL_DATASETS)
+        context_data = registry.init_dataset(row=test_row, class_name="TestDataset", dsn_name=app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
         
         # make connection and set vars

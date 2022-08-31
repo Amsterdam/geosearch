@@ -1,6 +1,5 @@
 import unittest
-
-from datapunt_geosearch import config
+from flask import current_app as app
 from datapunt_geosearch import datasource
 
 
@@ -9,7 +8,7 @@ class TestMunitieDataset(unittest.TestCase):
         x = 120001.1
         y = 486420.9
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
@@ -21,7 +20,7 @@ class TestMunitieDataset(unittest.TestCase):
         radius = 600
         limit = 2
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
 
         results = ds.query(x, y, radius=radius)
         self.assertEqual(len(results['features']), 3)
@@ -33,7 +32,7 @@ class TestMunitieDataset(unittest.TestCase):
         x = 52.364559349655
         y = 4.87336380721222
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 1)
@@ -43,7 +42,7 @@ class TestMunitieDataset(unittest.TestCase):
         y = 4.88121013879857
         radius = 600
 
-        ds = datasource.BominslagMilieuDataSource(dsn=config.DSN_MILIEU)
+        ds = datasource.BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
         results = ds.query(x, y, rd=False, radius=radius)
 
         self.assertEqual(len(results['features']), 3)

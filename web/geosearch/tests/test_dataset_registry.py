@@ -2,17 +2,17 @@ import time
 import unittest
 import unittest.mock
 
-from datapunt_geosearch import config
 from datapunt_geosearch import datasource
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.registry import registry, DatasetRegistry
+from flask import current_app as app
 
 
 class TestDatasetRegistry(unittest.TestCase):
     def test_biz_class_registered_in_registry(self):
-        ds_class = datasource.get_dataset_class(
-            "vsd/biz", dsn=config.DSN_VARIOUS_SMALL_DATASETS
+        ds_class = registry.get_by_name(
+            "vsd/biz"
         )
         self.assertEqual(registry.providers["vsd/biz"], ds_class)
 
@@ -22,10 +22,10 @@ class TestDatasetRegistry(unittest.TestCase):
 
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
+        test_registry.register_datasource("DSN_TEST_DATASET", TestDataset)
 
         self.assertEqual(
-            test_registry.get_all_datasets(),
+            test_registry.get_all_datasources(),
             {
                 "magic": TestDataset,
                 "magic/test1": TestDataset,
@@ -48,7 +48,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry._datasets_initialized = time.time()
         result = test_registry.init_dataset(row, "TestDataset", "DSN_TEST_DATASET")
 
-        self.assertTrue(issubclass(result, datasource.DataSourceBase))
+        self.assertTrue(issubclass(result, DataSourceBase))
         self.assertEqual(result.metadata["geofield"], row["geometry_field"])
         self.assertEqual(
             result.metadata["datasets"], {"vsd": {"test_name": "test.test_table"}}
@@ -127,9 +127,9 @@ class TestDatasetRegistry(unittest.TestCase):
     def test_init_vsd_datasets_calling_init_dataset_for_each_catalog(self):
         registry = DatasetRegistry()
         registry.init_dataset = unittest.mock.MagicMock()
-        registry.init_vsd_datasets(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        registry.init_vsd_datasets(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
-        dbconn = dbconnection(config.DSN_VARIOUS_SMALL_DATASETS)
+        dbconn = dbconnection(app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
         datasets = dbconn.fetch_all(
             "SELECT * FROM cat_dataset WHERE enable_geosearch = true"
@@ -147,18 +147,18 @@ class TestDatasetRegistry(unittest.TestCase):
                 registry.init_dataset.mock_calls,
             )
 
-    def test_filter_datasets(self):
-        class TestDataset(DataSourceBase):
+    def test_filter_datasources(self):
+        class TestDataSource(DataSourceBase):
             metadata = {"datasets": {"magic": {"test1": [], "test2": []}}}
 
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
+        test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
-        self.assertEqual(test_registry.filter_datasets(names=["magic/test1"]), {TestDataset})
+        self.assertEqual(test_registry.filter_datasources(names=["magic/test1"]), {TestDataSource})
 
-    def test_filter_datasets_with_scopes_no_scope_provided(self):
-        class TestDataset(DataSourceBase):
+    def test_filter_datasources_with_scopes_no_scope_provided(self):
+        class TestDataSource(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}
@@ -166,12 +166,12 @@ class TestDatasetRegistry(unittest.TestCase):
 
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
+        test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
-        self.assertEqual(test_registry.filter_datasets(names=["test1"]), set())
+        self.assertEqual(test_registry.filter_datasources(names=["test1"]), set())
 
-    def test_filter_datasets_with_scopes_incorrect_scope_provided(self):
-        class TestDataset(DataSourceBase):
+    def test_filter_datasources_with_scopes_incorrect_scope_provided(self):
+        class TestDataSource(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}
@@ -179,16 +179,16 @@ class TestDatasetRegistry(unittest.TestCase):
 
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
+        test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
         self.assertEqual(
-            test_registry.filter_datasets(names=["test1"],
+            test_registry.filter_datasources(names=["test1"],
                                           scopes=["TEST/READ"]),
             set()
         )
 
-    def test_filter_datasets_with_scopes_correct_scope_provided(self):
-        class TestDataset(DataSourceBase):
+    def test_filter_datasources_with_scopes_correct_scope_provided(self):
+        class TestDataSource(DataSourceBase):
             metadata = {
                 "datasets": {"magic": {"test1": [], "test2": []}},
                 "scopes": {"TEST/WRITE"}
@@ -196,12 +196,12 @@ class TestDatasetRegistry(unittest.TestCase):
 
         test_registry = DatasetRegistry()
         test_registry._datasets_initialized = time.time()
-        test_registry.register_dataset("DSN_TEST_DATASET", TestDataset)
+        test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
         self.assertEqual(
-            test_registry.filter_datasets(names=["magic/test1"],
+            test_registry.filter_datasources(names=["magic/test1"],
                                           scopes=["TEST/WRITE"]),
-            {TestDataset}
+            {TestDataSource}
         )
 
     def test_init_dataservices_dataset(self):
@@ -280,7 +280,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry.providers["test1"] = fake_provider
 
         with unittest.mock.patch("datapunt_geosearch.registry._logger") as logger_mock:
-            test_registry.register_dataset("DSN_TEST", TestDataset)
+            test_registry.register_datasource("DSN_TEST", TestDataset)
 
         self.assertEqual(
             logger_mock.mock_calls,

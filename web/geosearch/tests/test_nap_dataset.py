@@ -1,6 +1,6 @@
 import unittest
 
-from datapunt_geosearch import config
+from flask import current_app as app
 from datapunt_geosearch import datasource
 
 
@@ -9,7 +9,7 @@ class TestNapDataset(unittest.TestCase):
         x = 120364.0
         y = 488156.3
 
-        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        ds = datasource.NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
@@ -21,7 +21,7 @@ class TestNapDataset(unittest.TestCase):
         radius = 70
         limit = 1
 
-        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        ds = datasource.NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
 
         results = ds.query(x, y, radius=radius)
         self.assertEqual(len(results['features']), 5)
@@ -33,7 +33,7 @@ class TestNapDataset(unittest.TestCase):
         x = 52.38018
         y = 4.87851
 
-        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        ds = datasource.NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 1)
@@ -43,7 +43,7 @@ class TestNapDataset(unittest.TestCase):
         y = 4.87851
         radius = 70
 
-        ds = datasource.NapMeetboutenDataSource(dsn=config.DSN_NAP)
+        ds = datasource.NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
         results = ds.query(x, y, rd=False, radius=radius)
 
         self.assertEqual(len(results['features']), 6)

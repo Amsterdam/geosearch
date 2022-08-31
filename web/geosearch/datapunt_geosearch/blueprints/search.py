@@ -1,20 +1,12 @@
 # Python
 import logging
 
-from flask import Blueprint, request, jsonify, current_app, Response
-from flask import send_from_directory
-from flask import abort
+from flask import Blueprint, request, jsonify, Response, send_from_directory, abort, current_app as app
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.authz import authenticate
 from datapunt_geosearch.authz import get_current_authz_scopes
-from datapunt_geosearch.datasource import BagDataSource
-from datapunt_geosearch.datasource import BominslagMilieuDataSource
-from datapunt_geosearch.datasource import MunitieMilieuDataSource
-from datapunt_geosearch.datasource import NapMeetboutenDataSource
-# from datapunt_geosearch.datasource import TellusDataSource
-from datapunt_geosearch.datasource import MonumentenDataSource
-from datapunt_geosearch.datasource import get_dataset_class
+from datapunt_geosearch.datasource import BagDataSource, BominslagMilieuDataSource, MunitieMilieuDataSource, NapMeetboutenDataSource, MonumentenDataSource
 from datapunt_geosearch.blueprints.engine import generate_async
 from datapunt_geosearch.registry import registry
 
@@ -66,10 +58,14 @@ def send_doc():
 def search_everywhere():
     """
     Search in all datasets combined.
-    Required argumesnts:
+    Required arguments:
      - x/y or lat/lon for position
      - radius for searching within radius
      - datasets - subset of datasets to search in.
+
+    The `datasets` param is constructed as <dataset>/<table>
+    For example:
+        precariobelasting/bedrijfsvaartuigen
     """
     x, y, rd, limit, resp = get_coords_and_type(request.args)
     if resp:
@@ -92,10 +88,18 @@ def search_everywhere():
 @search.route('/catalogus/', methods=['GET'])
 @authenticate
 def search_catalogus():
+    """Generate a list of all values that can be used as input to the root endpoint.
+    """
+
+    # Note that we filter the top-level keys as they are  defined in
+    # DataSourceClass.metadata["datasets"] since it is completely illogical
+    # and unpredictable for users of the API what the results will be when these
+    # keys are used. They are not based on any known naming-scheme except for the
+    # fact that they are used in this codebase.
     dataset_names = [
         name
-        for name, dataset in registry.get_all_datasets().items()
-        if dataset.check_scopes(scopes=get_current_authz_scopes())
+        for name, dataset in registry.get_all_datasources().items()
+        if dataset.check_scopes(scopes=get_current_authz_scopes()) and "/" in name
     ]
 
     return jsonify({'datasets': dataset_names})
@@ -125,22 +129,23 @@ def search_in_datasets():
 
     # Got coords, radius and item. Time to search
     if item in ['peilmerk', 'meetbout']:
-        ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
+        ds = NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
     elif item in ['gevrijwaardgebied', 'uitgevoerdonderzoek',
                   'verdachtgebied']:
-        ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = MunitieMilieuDataSource(dsn=app.config['DSN_MILIEU'])
     elif item == 'bominslag':
-        ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
     elif item == 'monument':
-        ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
+        ds = MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
     elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',
                   'buurtcombinatie', 'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco',
                   'kadastraal_object', 'beperking'}:
-        ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
+        ds = BagDataSource(dsn=app.config['DSN_BAG'])
     else:
-        ds_class = get_dataset_class(f"vsd/{item}")
-        ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
+        ds_class = registry.get_by_name(f"vsd/{item}")
+        ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
+    # Why is this overridden based on the query? The ds class holds info about the datasets.
     # Checking for radius and item type
     radius = request.args.get('radius')
     if radius:
@@ -165,7 +170,7 @@ def search_geo_nap():
 
     # If no error is found, query
     if not resp:
-        ds = NapMeetboutenDataSource(dsn=current_app.config['DSN_NAP'])
+        ds = NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit,
                         radius=request.args.get('radius'))
 
@@ -182,7 +187,7 @@ def search_geo_monumenten():
 
     # If no error is found, query
     if not resp:
-        ds = MonumentenDataSource(dsn=current_app.config['DSN_MONUMENTEN'])
+        ds = MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         kwargs = {
             'rd': rd,
             'limit': limit,
@@ -203,7 +208,7 @@ def search_geo_munitie():
 
     # If no error is found, query
     if not resp:
-        ds = MunitieMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = MunitieMilieuDataSource(dsn=app.config['DSN_MILIEU'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
     return jsonify(resp)
@@ -217,7 +222,7 @@ def search_geo_bominslag():
 
     # If no error is found, query
     if not resp:
-        ds = BominslagMilieuDataSource(dsn=current_app.config['DSN_MILIEU'])
+        ds = BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit,
                         radius=request.args.get('radius'))
 
@@ -231,7 +236,7 @@ def _search_geo_bag():
 
     # If no error is found, query
     if not resp:
-        ds = BagDataSource(dsn=current_app.config['DSN_BAG'])
+        ds = BagDataSource(dsn=app.config['DSN_BAG'])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
     return jsonify(resp)
@@ -250,19 +255,22 @@ def search_geo_atlas():
 
 
 # This should be the last (catchall) route/view combination
-@search.route('/<dataset>/', methods=['GET', 'OPTIONS'])
+@search.route('/<string:dataset>/', methods=['GET', 'OPTIONS'])
 @retry_on_psycopg2_error
 def search_geo_genapi(dataset):
-    """Performing a geo search for radius around a point using postgres"""
+    """Performing a geo search for radius around a point using postgres.
+    
+    Only queries vsd
+    """
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
     if not resp:
-        ds_class = get_dataset_class(f"vsd/{dataset}")
+        ds_class = registry.get_by_name(f"vsd/{dataset}")
         if ds_class is None:
             abort(404)
         else:
             # For now we always use the same database for all generic API datasets
-            ds = ds_class(dsn=current_app.config['DSN_VARIOUS_SMALL_DATASETS'])
+            ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
             resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get('radius'))
     return jsonify(resp)
 

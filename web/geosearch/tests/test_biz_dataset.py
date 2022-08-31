@@ -1,22 +1,21 @@
 import time
 import unittest
 
-from datapunt_geosearch import config
-from datapunt_geosearch import datasource
+from flask import current_app as app
 from datapunt_geosearch.registry import registry
 
 
 class TestBIZDataset(unittest.TestCase):
     def setUp(self):
         registry._datasets_initialized = time.time()
-        registry.init_vsd_datasets(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        registry.init_vsd_datasets(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
     def test_query(self):
         x = 121723
         y = 486199
 
-        ds_class = datasource.get_dataset_class('vsd/biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
-        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds_class = registry.get_by_name('vsd/biz')
+        ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
 
         expected = ds.dbconn.fetch_one("""
         SELECT *
@@ -36,8 +35,8 @@ class TestBIZDataset(unittest.TestCase):
         lat = 52.36287
         lon = 4.87529
 
-        ds_class = datasource.get_dataset_class('vsd/biz', dsn=config.DSN_VARIOUS_SMALL_DATASETS)
-        ds = ds_class(dsn=config.DSN_VARIOUS_SMALL_DATASETS)
+        ds_class = registry.get_by_name('vsd/biz')
+        ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
         results = ds.query(lat, lon, rd=False)
 
         expected = ds.dbconn.fetch_one("""

@@ -13,7 +13,7 @@ health = Blueprint('health', __name__)
 @health.route('/status', methods=['GET', 'HEAD', 'OPTIONS'])
 def system_status():
     message = json.dumps({
-        "Delay": registry.INITIALIZE_DELAY,
+        "Delay": registry.INITIALIZE_DELAY_SECONDS,
         "Datasets initialized": registry._datasets_initialized,
         "Time since last refresh": time.time() - (registry._datasets_initialized or time.time())
     })

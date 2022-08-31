@@ -1,7 +1,7 @@
 import unittest
 
-from datapunt_geosearch import config
 from datapunt_geosearch import datasource
+from flask import current_app as app
 
 
 class TestBAGDataset(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestBAGDataset(unittest.TestCase):
         x = 120993
         y = 485919
 
-        ds = datasource.BagDataSource(dsn=config.DSN_BAG)
+        ds = datasource.BagDataSource(dsn=app.config['DSN_BAG'])
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 6)
@@ -19,7 +19,7 @@ class TestBAGDataset(unittest.TestCase):
         x = 52.36011
         y = 4.88798
 
-        ds = datasource.BagDataSource(dsn=config.DSN_BAG)
+        ds = datasource.BagDataSource(dsn=app.config['DSN_BAG'])
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 6)
