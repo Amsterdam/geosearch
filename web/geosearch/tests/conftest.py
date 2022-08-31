@@ -1,9 +1,11 @@
+import os
 from contextlib import contextmanager
 import time
 from jwcrypto.jwt import JWT
 import pytest
-from datapunt_geosearch import config, authz
+from datapunt_geosearch import authz
 from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch import create_app
 
 
 # NB. Although the whole amsterdam schema is present in the test database,
@@ -126,9 +128,27 @@ FAKE_SCHEMA = """
 """
 
 
+@pytest.fixture(scope="session", autouse=True)
+def flask_test_app():
+  """Wraps the entire test session in an app context"""
+  app = create_app(os.getenv("TEST_SETTINGS_MODULE", "datapunt_geosearch.config"))
+  app.testing = True
+  ctx = app.app_context()
+  ctx.push()
+  yield app
+  ctx.pop()
+
+@pytest.fixture(scope="class")
+def test_client(request, flask_test_app):
+  """A client factory wrapped in an Application context"""
+  if request.cls is not None:
+    request.cls.client = flask_test_app.test_client
+  else:
+    return flask_test_app.test_client
+
 @pytest.fixture(scope="session")
-def dataservices_db():
-    dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
+def dataservices_db(flask_test_app):
+    dataservices_db_connection = dbconnection(flask_test_app.config['DSN_DATASERVICES_DATASETS'])
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             f"""
@@ -203,8 +223,8 @@ def dataservices_db():
 
 
 @pytest.fixture
-def dataservices_fake_data():
-    dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
+def dataservices_fake_data(flask_test_app):
+    dataservices_db_connection = dbconnection(flask_test_app.config['DSN_DATASERVICES_DATASETS'])
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
@@ -251,13 +271,13 @@ def dataservices_fake_data():
 
 
 @pytest.fixture()
-def dataservices_fake_temporal_data_creator(request):
+def dataservices_fake_temporal_data_creator(request, flask_test_app):
     """Fixture to create additional temporal records.
 
     NB. This fixture needs to be used in conjunction with `dataservices_fake_data`
     when a full teardown (DROP tables) is needed.
     """
-    dataservices_db_connection = dbconnection(config.DSN_DATASERVICES_DATASETS)
+    dataservices_db_connection = dbconnection(flask_test_app.config['DSN_DATASERVICES_DATASETS'])
 
     @contextmanager
     def _creator(self, begin_geldigheid, eind_geldigheid):
@@ -293,9 +313,9 @@ def dataservices_fake_temporal_data_creator(request):
 
 
 @pytest.fixture
-def create_authz_token(request):
+def create_authz_token(request, flask_test_app):
     def _create_authz_token(self, subject, scopes):
-        jwks = authz.get_keyset(jwks=config.JWKS)
+        jwks = authz.get_keyset(jwks=flask_test_app.config['JWKS'])
         assert len(jwks) > 0
 
         key = next(iter(jwks["keys"]))

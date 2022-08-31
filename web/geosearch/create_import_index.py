@@ -37,12 +37,12 @@ from collections import Counter
 
 from datapunt_geosearch.config import DSN_BAG, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS, DSN_MILIEU, DSN_NAP
 
+from datapunt_geosearch.registry import registry
 from datapunt_geosearch.datasource import BagDataSource, dbconnection
 from datapunt_geosearch.datasource import BominslagMilieuDataSource
 from datapunt_geosearch.datasource import MunitieMilieuDataSource
 from datapunt_geosearch.datasource import NapMeetboutenDataSource
 from datapunt_geosearch.datasource import MonumentenDataSource
-from datapunt_geosearch.datasource import get_dataset_class, get_all_dataset_names
 
 import psycopg2.extras
 
@@ -168,9 +168,9 @@ VALUES(%s, %s, %s, %s, %s)
 
 if __name__ == '__main__':
     # First add all data for all generic datasets to the sources
-    dataset_names = get_all_dataset_names(dsn=DSN_VARIOUS_SMALL_DATASETS)
+    dataset_names = registry.get_all_dataset_names(dsn=DSN_VARIOUS_SMALL_DATASETS)
     for dataset_name in dataset_names:
-        ds_class = get_dataset_class(dataset_name)
+        ds_class = registry.get_by_name(dataset_name)
         sources[dataset_name] = {
             'ds': ds_class,
             'config': DSN_VARIOUS_SMALL_DATASETS

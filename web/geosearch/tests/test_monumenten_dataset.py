@@ -1,7 +1,7 @@
 import unittest
 from psycopg2 import Error as Psycopg2Error
 
-from datapunt_geosearch import config
+from flask import current_app as app
 from datapunt_geosearch import datasource
 from datapunt_geosearch.db import retry_on_psycopg2_error
 
@@ -11,7 +11,7 @@ class TestMonumentenDataset(unittest.TestCase):
         x = 123476
         y = 485368
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         results = ds.query(x, y)
 
         self.assertEqual(len(results['features']), 1)
@@ -23,7 +23,7 @@ class TestMonumentenDataset(unittest.TestCase):
         radius = 2500
         limit = 4
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
 
         results = ds.query(x, y, radius=radius)
 
@@ -36,7 +36,7 @@ class TestMonumentenDataset(unittest.TestCase):
         x = 52.3553072
         y = 4.9244779
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         results = ds.query(x, y, rd=False)
 
         self.assertEqual(len(results['features']), 1)
@@ -46,7 +46,7 @@ class TestMonumentenDataset(unittest.TestCase):
         y = 4.900848228657843
         radius = 250
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         results = ds.query(x, y, rd=False, radius=radius)
 
         self.assertEqual(len(results['features']), 525)
@@ -56,7 +56,7 @@ class TestMonumentenDataset(unittest.TestCase):
         y = 4.95020269748781
         radius = 200
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         results = ds.query(x, y, rd=False, radius=radius, monumenttype='isnot_pand_bouwblok')
 
         self.assertEqual(len(results['features']), 1)
@@ -66,7 +66,7 @@ class TestMonumentenDataset(unittest.TestCase):
         y = 4.95020269748781
         radius = 200
 
-        ds = datasource.MonumentenDataSource(dsn=config.DSN_MONUMENTEN)
+        ds = datasource.MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
         results = ds.query(x, y, rd=False, radius=radius)
 
         self.assertEqual(len(results['features']), 3)

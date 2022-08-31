@@ -5,8 +5,7 @@ try:
     import orjson as json
 except ImportError:
     import json
-
-from datapunt_geosearch.config import DEFAULT_SEARCH_DATASETS
+from flask import current_app as app
 from datapunt_geosearch.registry import registry
 
 
@@ -17,13 +16,13 @@ def generate_async(request_args, authz_scopes=None):
     if request_args.get('datasets'):
         datasets = request_args.get('datasets').split(',')
     else:
-        datasets = DEFAULT_SEARCH_DATASETS
+        datasets = app.config['DEFAULT_SEARCH_DATASETS']
 
-    fetch = partial(fetch_data, request_args=request_args, datasets=datasets)
+    fetch = partial(fetch_data, request_args=request_args, datasets=datasets, config=app.config)
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for result in executor.map(fetch, registry.filter_datasets(
+        for result in executor.map(fetch, registry.filter_datasources(
                 names=datasets,
                 scopes=authz_scopes
         ), timeout=1):
@@ -36,13 +35,11 @@ def generate_async(request_args, authz_scopes=None):
     yield ']}'
 
 
-def fetch_data(sourceClass, request_args, datasets, retry=None):
-    from datapunt_geosearch import config
-
+def fetch_data(sourceClass, request_args, datasets, config):
     dsn = None
     if sourceClass.dsn_name is not None:
         try:
-            dsn = getattr(config, sourceClass.dsn_name)
+            dsn = config[sourceClass.dsn_name]
         except AttributeError:
             _logger.error(
                 "Can not find configuration for %s." % sourceClass.dsn_name,

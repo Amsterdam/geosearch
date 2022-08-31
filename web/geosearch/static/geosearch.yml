@@ -35,14 +35,14 @@ parameters:
   latParam:
     name: lat
     in: query
-    description: lat of coordinate to search for. Example value 52.372239620672204 Requires a complementing lon parameter.
+    description: latitude of coordinate to search for. Example value 52.372239620672204 Requires a complementing lon parameter.
     required: false
     type: number
     format: double
   lonParam:
     name: lon
     in: query
-    description: lon of coordinate to search for. Example value 4.900848228657843 Requires a complementing lat parameter.
+    description: longitude of coordinate to search for. Example value 4.900848228657843 Requires a complementing lat parameter.
     required: false
     type: number
     format: double
@@ -66,42 +66,21 @@ paths:
       summary: Generic Geo Search in all datasets combined.
       description: >
         Search in all datasets combined.
-        Required argumesnts:
+        Required arguments:
           - x/y or lat/lon for position
           - radius for searching within radius
-          - datasets - subset of datasets to search in.
+          - datasets - subset of datasets to search in. The /catalogus/ endpoint gives a listing of the possible values.
       parameters:
         - name: datasets
           in: query
-          required: true
+          required: false
           type: array
           items: 
             type: string
-            enum:
-              - peilmerk
-              - meetbout
-              - bominslag
-              - gevrijwaardgebied
-              - uitgevoerdonderzoek
-              - verdachtgebied
-              - bouwblok
-              - buurt
-              - buurtcombinatie
-              - gebiedsgerichtwerken
-              - grootstedelijkgebied
-              - ligplaats
-              - openbareruimte
-              - pand
-              - stadsdeel
-              - standplaats
-              - unesco
-              - verblijfsobject
-              - beperking
-              - kadastraal_object
-              - biz
-              - parkeervakken
           description: >
             Dataset and/or subset name(s) to search in presented as comma separated list.
+            The /catalogus/ endpoint gives a listing of the possible values.
+            
         - $ref: "#/parameters/xParam"
         - $ref: "#/parameters/yParam"
         - $ref: "#/parameters/latParam"
@@ -120,7 +99,7 @@ paths:
       description: >
         List all Dataset names available to be used as `Dataset` parameter in Generic Search endpoint (url: `/?datasets=`).
 
-        Based on authentication level provided users may see different list of datasets.
+        Based on authorisation scopes, users may see different list of datasets.
       tags:
         - Geosearch
       responses:

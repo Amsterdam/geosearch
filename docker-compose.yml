@@ -23,8 +23,8 @@ services:
         - UWSGI_STATS=0.0.0.0:9191
         - UWSGI_MODULE=wsgi
         - UWSGI_CALLABLE=app
-        - UWSGI_MASTER=1
         - UWSGI_MASTER=4
+        - UWSGI_PY_AUTO_RELOAD=1
         - BAG_V11_DB_USER_OVERRIDE=insecure
         - NAP_DB_USER_OVERRIDE=insecure
         - MILIEUTHEMAS_DB_USER_OVERRIDE=insecure
@@ -43,3 +43,4 @@ services:
         - MONUMENTEN_DB_HOST_OVERRIDE=database
         - VARIOUS_SMALL_DATASETS_DB_HOST_OVERRIDE=database
         - DATASERVICES_DB_HOST_OVERRIDE=database
+        - TEST_SETTINGS_MODULE=datapunt_geosearch.test_config

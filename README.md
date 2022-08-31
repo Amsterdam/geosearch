@@ -2,7 +2,7 @@
 
 Local development is done using docker.
 
-Update different project databases with current data dumps from the objectstore:
+Update different development databases with current data dumps from the objectstore:
 
     docker-compose up -d
     docker-compose exec database update-db.sh bag_v11
@@ -10,7 +10,16 @@ Update different project databases with current data dumps from the objectstore:
     docker-compose exec database update-db.sh milieuthemas
     docker-compose exec database update-db.sh monumenten
     docker-compose exec database update-db.sh various_small_datasets
-    docker-compose exec database update-db.sh datasets
+    docker-compose exec database update-db.sh dataservices
+
+Create the testdatabases:
+
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_bag_v11 WITH TEMPLATE bag_v11 OWNER insecure;"
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_nap WITH TEMPLATE nap OWNER insecure;"
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_milieuthemas WITH TEMPLATE milieuthemas OWNER insecure;"
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_monumenten WITH TEMPLATE monumenten OWNER insecure;"
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_various_small_datasets WITH TEMPLATE various_small_datasets OWNER insecure;"
+    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_dataservices WITH TEMPLATE dataservices OWNER insecure;"
 
 Running the testsuite
     docker-compose exec web pytest
