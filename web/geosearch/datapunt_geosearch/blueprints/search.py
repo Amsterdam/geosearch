@@ -79,10 +79,10 @@ def search_everywhere():
         limit=limit,
     ))
 
-    return Response(generate_async(
+    return Response("".join([x for x in generate_async(
         request_args=request_args,
         authz_scopes=get_current_authz_scopes()
-    ), content_type='application/json')
+    )]), content_type='application/json')
 
 
 @search.route('/catalogus/', methods=['GET'])

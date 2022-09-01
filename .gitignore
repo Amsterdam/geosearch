@@ -76,3 +76,6 @@ venv/
 
 # Apple
 .DS_Store
+
+# Docker
+docker-compose.override.y*ml
