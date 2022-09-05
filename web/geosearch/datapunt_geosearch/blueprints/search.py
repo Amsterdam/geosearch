@@ -1,7 +1,7 @@
 # Python
 import logging
 
-from flask import Blueprint, request, jsonify, Response, send_from_directory, abort, current_app as app
+from flask import Blueprint, request, jsonify, Response, send_from_directory, abort, stream_with_context, current_app as app
 
 from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.authz import authenticate
@@ -79,10 +79,10 @@ def search_everywhere():
         limit=limit,
     ))
 
-    return Response("".join([x for x in generate_async(
+    return Response(stream_with_context(generate_async(
         request_args=request_args,
         authz_scopes=get_current_authz_scopes()
-    )]), content_type='application/json')
+    )), content_type='application/json')
 
 
 @search.route('/catalogus/', methods=['GET'])
