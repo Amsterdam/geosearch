@@ -1,32 +1,28 @@
 # Setup of local development
 
-Local development is done using docker.
+Local development is done using docker. We use snapshots of the online databases for development and testing.
+Note that these snapshots are not automatically updated when the schema changes, so it is possible that our
+tests are running on older versions of the schemas.
 
-Update different development databases with current data dumps from the objectstore:
+1) Ensure containers are running with `docker-compose up`
+2) Download and create the different development and test databases with current data dumps from the objectstore.
+This process should not take more than 5 minutes on the average internet connection. There is a convenience script
+in the root folder for this step, called `init_dbs.sh`
+3) Take the testsuite for a spin `docker-compose exec web pytest -v`
 
-    docker-compose up -d
-    docker-compose exec database update-db.sh bag_v11
-    docker-compose exec database update-db.sh nap
-    docker-compose exec database update-db.sh milieuthemas
-    docker-compose exec database update-db.sh monumenten
-    docker-compose exec database update-db.sh various_small_datasets
-    docker-compose exec database update-db.sh dataservices
+**Note**: There have been some issues with connecting to CloudVPS from local docker-containers. This can be circumvented
+by downloading the databases onto your host (`download_dbs.sh` is a script to do this), mounting the downloaded dumps into
+the `database` container `/tmp` folder and then running `init_dbs.sh` (from step 2 above).
 
-Create the testdatabases:
+A `docker-compose.override.yml` as the following would mount the directory from `download_dbs.sh` into the database container:
 
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_bag_v11 WITH TEMPLATE bag_v11 OWNER insecure;"
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_nap WITH TEMPLATE nap OWNER insecure;"
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_milieuthemas WITH TEMPLATE milieuthemas OWNER insecure;"
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_monumenten WITH TEMPLATE monumenten OWNER insecure;"
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_various_small_datasets WITH TEMPLATE various_small_datasets OWNER insecure;"
-    docker-compose exec database psql -U postgres -c "CREATE DATABASE test_dataservices WITH TEMPLATE dataservices OWNER insecure;"
-
-Running the testsuite
-    docker-compose exec web pytest
-
-#### NOTE that this testsuite uses dumps from production to make assertions about the data, the assertions are therefore *not deterministic*
-#### this must be fixed in the near future
-
+```
+version: "3.0"
+services:
+  database:
+    volumes:
+      - "/tmp/downloaded_dbs:/tmp"
+```
 
 # Geospatial queries
 
