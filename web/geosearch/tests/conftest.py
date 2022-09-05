@@ -8,10 +8,6 @@ from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch import create_app
 
 
-# NB. Although the whole amsterdam schema is present in the test database,
-# the only information that Geosearch currently is obtaining from this
-# schema is the `tables[].temporal` attribute!
-
 FAKE_SCHEMA = """
 {
   "type": "dataset",
