@@ -13,16 +13,16 @@ import requests
 
 class GeoIndex(object):
     mapping = {
-        'naam': 'naam',
-        'center': 'geometrie',
+        "naam": "naam",
+        "center": "geometrie",
     }
     index_meta = {
-        'dataset': None,
-        'type': None,
+        "dataset": None,
+        "type": None,
     }
-    geosearch_index = 'geo'
+    geosearch_index = "geo"
     model = None
-    elastic_url = 'http://0.0.0.0:9200/geo/'
+    elastic_url = "http://0.0.0.0:9200/geo/"
     batch_size = 10
 
     def map_geofield(self):
@@ -31,26 +31,25 @@ class GeoIndex(object):
         Important!
         If no index_meta has been set this cannot execute
         """
-        if not self.index_meta['dataset']:
+        if not self.index_meta["dataset"]:
             return None
         # @TODO switch to raw python
         mapping = {
-            'properties': {
-                'center': {
-                    'type': 'geo_point'
-                },
+            "properties": {
+                "center": {"type": "geo_point"},
             },
         }
         # Setting the mapping for the type creating
         r = requests.put(
-            self.elastic_url + '_mapping/' + self.index_meta['dataset'],
-            data=json.dumps(mapping))
+            self.elastic_url + "_mapping/" + self.index_meta["dataset"],
+            data=json.dumps(mapping),
+        )
         return r.status_code
 
     def get_queryset(self):
         """Overwrite this for custom query sets"""
         try:
-            return self.model.objects.order_by('id')
+            return self.model.objects.order_by("id")
         except AttributeError:  # Handling a case in which there is no model set
             return None
 
@@ -60,14 +59,13 @@ class GeoIndex(object):
             return []  # Queryset not created returning an empty list
         total = qs.count()
 
-        total_batches = int(total / self.batch_size)
         for i, start in enumerate(range(0, total, self.batch_size)):
             end = min(start + self.batch_size, total)
             yield (i + 1, qs[start:end])
 
     def index(self):
         """Index the model to the geosearch index"""
-        print('indexing')
+        print("indexing")
         for batch_count, qs in self.batch():
             data = []
             for item in qs:
@@ -75,15 +73,16 @@ class GeoIndex(object):
                 for key, value in self.mapping.items():
                     entry[key] = getattr(item, value)
                 # Transforming to wgs84 for elastic
-                entry['center'].transform('wgs84')
-                entry['center'] = entry['center'].coords
+                entry["center"].transform("wgs84")
+                entry["center"] = entry["center"].coords
                 # Adding index meta
                 entry.update(self.index_meta)
                 # Replacing the / for - in the type
-                entry['type'] = entry['type'].replace('/', '-')
+                entry["type"] = entry["type"].replace("/", "-")
                 # @TODO switch to bulk insert
-                r = requests.post(self.elastic_url + entry['dataset'],
-                                  data=json.dumps(entry))
+                requests.post(
+                    self.elastic_url + entry["dataset"], data=json.dumps(entry)
+                )
 
                 data.append(entry)
                 # @TODO switch over to raw python
@@ -111,7 +110,7 @@ class GeoIndexTask(GeoIndex):
         elif not self.queryset:
             # No query set or mode. Cant produce anything
             return None
-        queryset = self.queryset.order_by('id')[:50]
+        queryset = self.queryset.order_by("id")[:50]
         return queryset
 
     def execute(self):

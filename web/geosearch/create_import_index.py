@@ -55,44 +55,29 @@ from datapunt_geosearch.datasource import (
 from datapunt_geosearch.registry import registry
 
 sources = {
-    "bag": {
-        'ds': BagDataSource,
-        'config': DSN_BAG
-    },
-    "monumenten": {
-        'ds': MonumentenDataSource,
-        'config': DSN_MONUMENTEN
-    },
-    "bominslagmilieu": {
-        'ds': BominslagMilieuDataSource,
-        'config': DSN_MILIEU
-    },
-    "munitiemilieu": {
-        'ds': MunitieMilieuDataSource,
-        'config': DSN_MILIEU
-    },
-    "nap": {
-        'ds': NapMeetboutenDataSource,
-        'config': DSN_NAP
-    },
+    "bag": {"ds": BagDataSource, "config": DSN_BAG},
+    "monumenten": {"ds": MonumentenDataSource, "config": DSN_MONUMENTEN},
+    "bominslagmilieu": {"ds": BominslagMilieuDataSource, "config": DSN_MILIEU},
+    "munitiemilieu": {"ds": MunitieMilieuDataSource, "config": DSN_MILIEU},
+    "nap": {"ds": NapMeetboutenDataSource, "config": DSN_NAP},
 }
 
 
 # Mapping van item naar authorisatie scope
-required_scopes = {
-}
+required_scopes = {}
 
 # URI can be generated
 # type can be generated
 
-master_index_table_name = 'geo_master'
+master_index_table_name = "geo_master"
 
 
 def create_index_table(conn):
     with conn.transaction_cursor() as cur:
         # If something went wrong the previous time
-        cur.execute(f'''DROP TABLE IF EXISTS {master_index_table_name}_new''')
-        cur.execute(f'''
+        cur.execute(f"""DROP TABLE IF EXISTS {master_index_table_name}_new""")
+        cur.execute(
+            f"""
 CREATE TABLE {master_index_table_name}_new (
     dataset char varying(36) NOT NULL,
     id char varying(36) NOT NULL,
@@ -101,23 +86,32 @@ CREATE TABLE {master_index_table_name}_new (
     data JSONB,
     PRIMARY KEY(dataset, id)
 )
-        ''')
-        cur.execute(f'''
-CREATE INDEX ON {master_index_table_name}_new USING gist (wkb_geometry)        
-        ''')
+        """
+        )
+        cur.execute(
+            f"""
+CREATE INDEX ON {master_index_table_name}_new USING gist (wkb_geometry)
+        """
+        )
 
 
 def rename_index_table(conn):
     with conn.transaction_cursor() as cur:
-        cur.execute(f'''
+        cur.execute(
+            f"""
 ALTER TABLE IF EXISTS {master_index_table_name} rename to {master_index_table_name}_old
-        ''')
-        cur.execute(f'''
-ALTER TABLE {master_index_table_name}_new rename to {master_index_table_name}       
-        ''')
-        cur.execute(f'''
-DROP TABLE IF EXISTS {master_index_table_name}_old        
-        ''')
+        """
+        )
+        cur.execute(
+            f"""
+ALTER TABLE {master_index_table_name}_new rename to {master_index_table_name}
+        """
+        )
+        cur.execute(
+            f"""
+DROP TABLE IF EXISTS {master_index_table_name}_old
+        """
+        )
 
 
 def get_index_data(sources, conn):
@@ -125,63 +119,70 @@ def get_index_data(sources, conn):
     with conn.transaction_cursor() as write_cursor:
         for key, value in sources.items():
             print(f"Process {key}")
-            ds = value['ds'](value['config'])
-            operator = ds.meta['operator']
-            geofield = ds.meta['geofield']
-            if 'fields' in ds.meta:
-                fields = ','.join(ds.meta['fields'])
-                for field in ds.meta['fields']:
-                    m = re.match(f'''{geofield} as (.*)$''', field)
+            ds = value["ds"](value["config"])
+            ds.meta["operator"]
+            geofield = ds.meta["geofield"]
+            if "fields" in ds.meta:
+                fields = ",".join(ds.meta["fields"])
+                for field in ds.meta["fields"]:
+                    m = re.match(f"""{geofield} as (.*)$""", field)
                     if m:
                         geofield = m.group(1)
             else:
-                fields = '*'
-            with ds.dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as read_cur:
-                for dataset_name, datasets in ds.meta['datasets'].items():
+                fields = "*"
+            with ds.dbconn.cursor(
+                cursor_factory=psycopg2.extras.RealDictCursor
+            ) as read_cur:
+                for dataset_name, datasets in ds.meta["datasets"].items():
                     for dataset_ident, table in datasets.items():
                         print(f"Processing dataset: {dataset_ident}")
-                        if dataset_ident in required_scopes:
-                            scope = "'" + required_scopes[dataset_ident] + "'"
-                        else:
-                            scope = 'NULL'
-                        query = """SELECT {} FROM {}""".format(
-                            fields,
-                            table)
+                        query = """SELECT {} FROM {}""".format(fields, table)
                         read_cur.execute(query)
                         for record in read_cur:
                             count[dataset_ident] += 1
-                            if count[dataset_ident] > 0 and (count[dataset_ident] % 1000) == 0:
-                                print(f"Processing item {count[dataset_ident]} in {dataset_ident}")
-                            uri = record.pop('uri')  # uri can be recreated
-                            if 'id' not in record:
-                                m = re.search(r'/([0-9\-a-fA-F]+)/$', uri)
+                            if (
+                                count[dataset_ident] > 0
+                                and (count[dataset_ident] % 1000) == 0
+                            ):
+                                print(
+                                    f"Process {count[dataset_ident]} in {dataset_ident}"
+                                )
+                            uri = record.pop("uri")  # uri can be recreated
+                            if "id" not in record:
+                                m = re.search(r"/([0-9\-a-fA-F]+)/$", uri)
                                 id1 = m.group(1)
                             else:
-                                id1 = record.pop('id')
+                                id1 = record.pop("id")
                             id1 = str(id1)
-                            display = record.pop('display')
+                            display = record.pop("display")
                             wkb_geometry = record.pop(geofield)
-                            record.pop('type', None)  # type can be recreated on  the fly
-                            json_data = None if len(record) == 0 else json.dumps(record, default=str)
+                            record.pop(
+                                "type", None
+                            )  # type can be recreated on  the fly
+                            json_data = (
+                                None
+                                if len(record) == 0
+                                else json.dumps(record, default=str)
+                            )
 
-                            write_cursor.execute(f'''
-INSERT INTO {master_index_table_name}_new(dataset, id, display, wkb_geometry, data) 
-VALUES(%s, %s, %s, %s, %s)                            
-                            ''', (dataset_ident, id1, display, wkb_geometry, json_data))
+                            write_cursor.execute(
+                                f"""
+INSERT INTO {master_index_table_name}_new(dataset, id, display, wkb_geometry, data)
+VALUES(%s, %s, %s, %s, %s)
+                            """,
+                                (dataset_ident, id1, display, wkb_geometry, json_data),
+                            )
 
     for key, item in sorted(count.items(), key=lambda x: x[1], reverse=True):
         print(key, item)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # First add all data for all generic datasets to the sources
     dataset_names = registry.get_all_dataset_names(dsn=DSN_VARIOUS_SMALL_DATASETS)
     for dataset_name in dataset_names:
         ds_class = registry.get_by_name(dataset_name)
-        sources[dataset_name] = {
-            'ds': ds_class,
-            'config': DSN_VARIOUS_SMALL_DATASETS
-        }
+        sources[dataset_name] = {"ds": ds_class, "config": DSN_VARIOUS_SMALL_DATASETS}
 
     conn = dbconnection(DSN_VARIOUS_SMALL_DATASETS)
     create_index_table(conn)

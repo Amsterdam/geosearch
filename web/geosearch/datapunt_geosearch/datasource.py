@@ -117,11 +117,15 @@ class DataSourceBase(object):
                     ):
                         # Actively filter datasets
                         continue
- 
+
                     if self.meta["operator"] == "contains":
-                        rows = self.execute_polygon_query(cur, table, self.temporal_bounds)
+                        rows = self.execute_polygon_query(
+                            cur, table, self.temporal_bounds
+                        )
                     else:
-                        rows = self.execute_point_query(cur, table, self.temporal_bounds)
+                        rows = self.execute_point_query(
+                            cur, table, self.temporal_bounds
+                        )
 
                     if not len(rows):
                         _logger.debug(table, "no results")
@@ -142,14 +146,19 @@ class DataSourceBase(object):
         return features
 
     def get_variable_sql(self, table: str) -> Dict[str, sql.Identifier]:
-        """Get the variable sql parts for this Datasource as psycopg2 Identifiers and SQL"""
+        """Get the variable sql parts for this
+        Datasource as psycopg2 Identifiers and SQL"""
         return dict(
-            fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # Properly escape SQL in self.fields
+            fields=sql.SQL(", ").join(
+                map(sql.SQL, self.fields.split(","))
+            ),  # Properly escape SQL in self.fields
             table_name=sql.Identifier(table.split(".")[1]),
             schema=sql.Identifier(table.split(".")[0]),
             geo_field=sql.Identifier(self.meta["geofield"]),
             extra_where=sql.SQL(self.extra_where),
-            limit=sql.SQL("LIMIT {}").format(self.limit and sql.Placeholder("limit") or sql.SQL("ALL")),
+            limit=sql.SQL("LIMIT {}").format(
+                self.limit and sql.Placeholder("limit") or sql.SQL("ALL")
+            ),
         )
 
     # Point query
@@ -158,20 +167,26 @@ class DataSourceBase(object):
         if temporal_bounds is not None:
             start, end = temporal_bounds
             tmp_bounds = sql.SQL(
-                " AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+                " AND ({start} < now() or {start} IS NULL)\
+                     AND ({end} > now() OR {end} IS NULL)"
             ).format(start=sql.Identifier(start), end=sql.Identifier(end))
 
         coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
         if not self.use_rd:
-            # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
-            coordinate_stmt = sql.SQL("ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)")
-        stmt = sql.SQL("""
+            # In this case, coordinates are latlng and projected to rijksdriehoek
+            coordinate_stmt = sql.SQL(
+                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)"
+            )
+        stmt = sql.SQL(
+            """
             SELECT {fields},
                 ST_Distance({geo_field},
                 {coordinate_stmt}) AS distance
             FROM {schema}.{table_name}
-            WHERE ST_DWithin({geo_field}, {coordinate_stmt}, {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
-        """).format(
+            WHERE ST_DWithin({geo_field}, {coordinate_stmt}, {radius})\
+                 {extra_where} {temp_predicate} ORDER BY distance {limit}
+        """
+        ).format(
             radius=sql.Placeholder("radius"),
             temp_predicate=tmp_bounds,
             coordinate_stmt=coordinate_stmt.format(
@@ -180,7 +195,9 @@ class DataSourceBase(object):
             ),
             **self.get_variable_sql(table),
         )
-        cur.execute(stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit})
+        cur.execute(
+            stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit}
+        )
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table, temporal_bounds=None):
@@ -188,19 +205,26 @@ class DataSourceBase(object):
         if temporal_bounds is not None:
             start, end = temporal_bounds
             tmp_bounds = sql.SQL(
-                " AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+                " AND ({start} < now() or {start} IS NULL)\
+                     AND ({end} > now() OR {end} IS NULL)"
             ).format(start=sql.Identifier(start), end=sql.Identifier(end))
-    
+
         coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
         if not self.use_rd:
-            coordinate_stmt = sql.SQL("ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)")
+            coordinate_stmt = sql.SQL(
+                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)"
+            )
 
-        stmt = sql.SQL("""
-            SELECT {fields}, ST_Distance(ST_Centroid({geo_field}), {coordinate_stmt}) AS distance
+        stmt = sql.SQL(
+            """
+            SELECT {fields},\
+                 ST_Distance(ST_Centroid({geo_field}), {coordinate_stmt}) AS distance
             FROM {schema}.{table_name}
-            WHERE {geo_field} && {coordinate_stmt} 
-                AND ST_Contains({geo_field}, {coordinate_stmt}) {extra_where} {temp_predicate} ORDER BY distance
-        """).format(
+            WHERE {geo_field} && {coordinate_stmt}
+                AND ST_Contains({geo_field}, {coordinate_stmt})\
+                     {extra_where} {temp_predicate} ORDER BY distance
+        """
+        ).format(
             temp_predicate=tmp_bounds,
             coordinate_stmt=coordinate_stmt.format(
                 x=sql.Placeholder("x"),
@@ -226,11 +250,20 @@ class DataSourceBase(object):
         try:
             return {"type": "FeatureCollection", "features": self.execute_queries()}
         except DataSourceException as err:
-            return {"type": "Error", "message": "Error executing query: %s" % err.message}
+            return {
+                "type": "Error",
+                "message": "Error executing query: %s" % err.message,
+            }
         except psycopg2.ProgrammingError as err:
-            return {"type": "Error", "message": "Error in database integrity: %s" % repr(err)}
+            return {
+                "type": "Error",
+                "message": "Error in database integrity: %s" % repr(err),
+            }
         except TypeError as err:
-            return {"type": "Error", "message": "Error in handling, {}".format(repr(err))}
+            return {
+                "type": "Error",
+                "message": "Error in handling, {}".format(repr(err)),
+            }
 
 
 class ExternalDataSource(DataSourceBase):
@@ -261,7 +294,8 @@ class ExternalDataSource(DataSourceBase):
             )
         )
     )
-    Request will be performed on: https://acc.api.data.amsterdam.nl/parkeervakken/geosearch/
+    Request will be performed on:
+     https://acc.api.data.amsterdam.nl/parkeervakken/geosearch/
     """
 
     dsn_name = None
@@ -288,7 +322,9 @@ class ExternalDataSource(DataSourceBase):
             request_params["radius"] = self.radius
         for dataset in self.meta["datasets"]:
             for dataset_indent, subset_url in self.meta["datasets"][dataset].items():
-                if len(datasets) and not (dataset in datasets or dataset_indent in datasets):
+                if len(datasets) and not (
+                    dataset in datasets or dataset_indent in datasets
+                ):
                     continue
 
                 features += self.fetch_data(
@@ -298,9 +334,12 @@ class ExternalDataSource(DataSourceBase):
                 )
         return features
 
-    def fetch_data(self, dataset_name: str, subset_url: str, request_params: dict = None):
+    def fetch_data(
+        self, dataset_name: str, subset_url: str, request_params: dict = None
+    ):
         """
-        Fetch data from self.meta["base_url"] + subset url and format it before returning.
+        Fetch data from self.meta["base_url"] + subset url and format it
+        before returning.
         Wraps requests.RequestException and retuns empty list if it's raisen.
 
         :param subset_url: relative to self.meta["base_url"] path
@@ -336,7 +375,7 @@ class ExternalDataSource(DataSourceBase):
                         item[key] = value_template(self.meta["base_url"], item)
                     except Exception as e:
                         _logger.error(
-                            f"Incorrect format template: {key} in {dataset_name}. Error: {e}."
+                            f"Incorrect format template: {key} in {dataset_name}. Error: {e}."  # noqa: E501
                         )
             end_result.append(dict(properties=item))
         return end_result
@@ -415,7 +454,7 @@ class MunitieMilieuDataSource(DataSourceBase):
         "datasets": {
             "munitie": {
                 "gevrijwaardgebied": "public.geo_bommenkaart_gevrijwaardgebied_polygon",
-                "uitgevoerdonderzoek": "public.geo_bommenkaart_uitgevoerdonderzoek_polygon",
+                "uitgevoerdonderzoek": "public.geo_bommenkaart_uitgevoerdonderzoek_polygon",  # noqa: E501
                 "verdachtgebied": "public.geo_bommenkaart_verdachtgebied_polygon",
             }
         },
@@ -427,8 +466,11 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
     metadata = {
         "geofield": "geometrie",
         "operator": "within",
-        "datasets": {"munitie": {"bominslag": "public.geo_bommenkaart_bominslag_point"}},
+        "datasets": {
+            "munitie": {"bominslag": "public.geo_bommenkaart_bominslag_point"}
+        },
     }
+
 
 class MonumentenDataSource(DataSourceBase):
     dsn_name = "DSN_MONUMENTEN"
@@ -460,7 +502,13 @@ class MonumentenDataSource(DataSourceBase):
 
         if self.monumenttype:
             monumenttype_list = self.monumenttype.split("_")
-            monumenttypes = {"pand", "bouwwerk", "parkterrein", "beeldhouwkunst", "bouwblok"}
+            monumenttypes = {
+                "pand",
+                "bouwwerk",
+                "parkterrein",
+                "beeldhouwkunst",
+                "bouwblok",
+            }
             if (
                 len(monumenttype_list) >= 2
                 and (monumenttype_list[0] == "is" or monumenttype_list[0] == "isnot")
@@ -474,8 +522,17 @@ class MonumentenDataSource(DataSourceBase):
         try:
             return {"type": "FeatureCollection", "features": self.execute_queries()}
         except DataSourceException as err:
-            return {"type": "Error", "message": "Error executing query: %s" % err.message}
+            return {
+                "type": "Error",
+                "message": "Error executing query: %s" % err.message,
+            }
         except psycopg2.ProgrammingError as err:
-            return {"type": "Error", "message": "Error in database integrity: %s" % repr(err)}
+            return {
+                "type": "Error",
+                "message": "Error in database integrity: %s" % repr(err),
+            }
         except TypeError as err:
-            return {"type": "Error", "message": "Error in handling, {}".format(repr(err))}
+            return {
+                "type": "Error",
+                "message": "Error in handling, {}".format(repr(err)),
+            }

@@ -1,0 +1,22 @@
+[flake8]
+ignore = 
+   # Black splits lines before binary operators
+    W503,
+    #  Black enforces whitespace around slice operators
+    E203,
+    # Do not enforce newlines before class docstrings
+    D203
+exclude =
+    .git
+    __pycache__,
+    dist,
+    build,
+    venv,
+
+# Black defaults to 88 and has some pretty good reasons for it
+# a.k.a: Raymond Hettinger says so:
+# https://www.youtube.com/watch?v=wf-BqAjZb8M&feature=youtu.be&t=260
+max-line-length=88
+
+# Allow longer lines for test fixtures
+per-file-ignores = tests/conftest.py:E501
