@@ -18,5 +18,8 @@ exclude =
 # https://www.youtube.com/watch?v=wf-BqAjZb8M&feature=youtu.be&t=260
 max-line-length=88
 
-# Allow longer lines for test fixtures
-per-file-ignores = tests/conftest.py:E501
+per-file-ignores =
+	# Allow longer lines for test fixtures
+	web/geosearch/tests/conftest.py:E501
+	# Allow unused imports because config is used as an object by Flask app
+	web/geosearch/datapunt_geosearch/*config.py:F401

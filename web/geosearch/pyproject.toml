@@ -1,3 +1,0 @@
-[tool.isort]
-profile = "black"
-src_paths = ["datapunt_geosearch", "tests"]

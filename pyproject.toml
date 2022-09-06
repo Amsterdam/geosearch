@@ -1,0 +1,6 @@
+[tool.isort]
+profile = "black"
+src_paths = ["web/geosearch/datapunt_geosearch", "web/geosearch/tests"]
+
+[tool.bandit]
+exclude_dirs = ["web/geosearch/create_import_index.py", "web/geosearch/tests"]

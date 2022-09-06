@@ -1,5 +1,12 @@
 # Setup of local development
 
+## Virtual env setup
+
+1) `pip install -r web/requirements_dev.txt`
+2) `pre-commit install`
+
+## Container setup
+
 Local development is done using docker. We use snapshots of the online databases for development and testing.
 Note that these snapshots are not automatically updated when the database schema changes, so it is possible that our
 tests are running on older versions of the schemas.
