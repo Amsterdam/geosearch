@@ -24,14 +24,17 @@ services:
       - "/tmp/downloaded_dbs:/tmp"
 ```
 
+## A note on formatting and git blame
+
+black formatting was introduced late in this project by a monster commit.
+To avoid git blame getting confused, configure git to ignore that commit:
+
+`$ git config blame.ignoreRevsFile .git-blame-ignore-revs`
+
 # Geospatial queries
 
 Doel is zoeken op coordinaat door de (aangegeven) aanwezige database
 views en features teruggeven aan de client in geojson formaat.
-
-## Taal/framework keuze
-
-Flask
 
 ## Soorten queries
 Er zijn twee soorten postgis queries van toepassing voor de usecase:
