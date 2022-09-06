@@ -7,6 +7,7 @@ from .config import DATAPUNT_API_URL
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 from psycopg2 import sql
+from typing import Dict
 
 
 _logger = logging.getLogger(__name__)
@@ -139,6 +140,17 @@ class DataSourceBase(object):
                         )
         return features
 
+    def get_variable_sql(self, table: str) -> Dict[str, sql.Identifier]:
+        """Get the variable sql parts for this Datasource as psycopg2 Identifiers and SQL"""
+        return dict(
+            fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # Properly escape SQL in self.fields
+            table_name=sql.Identifier(table.split(".")[1]),
+            schema=sql.Identifier(table.split(".")[0]),
+            geo_field=sql.Identifier(self.meta["geofield"]),
+            extra_where=sql.SQL(self.extra_where),
+            limit=sql.SQL("LIMIT {}").format(self.limit and sql.Placeholder("limit") or sql.SQL("ALL")),
+        )
+
     # Point query
     def execute_point_query(self, cur, table, temporal_bounds=None):
         tmp_bounds = sql.SQL("")
@@ -148,91 +160,54 @@ class DataSourceBase(object):
                 " AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
             ).format(start=sql.Identifier(start), end=sql.Identifier(end))
 
+        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
         if not self.use_rd:
             # In this case, coordinates are assumed to be latlng and projected to rijksdriehoek
-            stmt = sql.SQL("""
-                SELECT {fields},
-                    ST_Distance({geo_field},
-                    ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)) AS distance
-                FROM {schema}.{table_name}
-                WHERE ST_DWithin({geo_field}, ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992), {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
-            """).format(
-                fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # Properly escape SQL in self.fields
-                table_name=sql.Identifier(table.split(".")[1]),
-                schema=sql.Identifier(table.split(".")[0]),
-                geo_field=sql.Identifier(self.meta["geofield"]),
+            coordinate_stmt = sql.SQL("ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)")
+        stmt = sql.SQL("""
+            SELECT {fields},
+                ST_Distance({geo_field},
+                {coordinate_stmt}) AS distance
+            FROM {schema}.{table_name}
+            WHERE ST_DWithin({geo_field}, {coordinate_stmt}, {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
+        """).format(
+            radius=sql.Placeholder("radius"),
+            temp_predicate=tmp_bounds,
+            coordinate_stmt=coordinate_stmt.format(
                 x=sql.Placeholder("x"),
                 y=sql.Placeholder("y"),
-                radius=sql.Placeholder("radius"),
-                extra_where=sql.SQL(self.extra_where),
-                temp_predicate=tmp_bounds,
-                limit=sql.SQL("LIMIT {}").format(self.limit and sql.Placeholder("limit") or sql.SQL("ALL"))
-            )
-        else:
-            stmt = sql.SQL("""
-                SELECT {fields},
-                    ST_Distance({geo_field},
-                    ST_GeomFromText('POINT({x} {y})', 28992)) AS distance
-                FROM {schema}.{table_name}
-                WHERE ST_DWithin({geo_field}, ST_GeomFromText('POINT({x} {y})', 28992), {radius}) {extra_where} {temp_predicate} ORDER BY distance {limit}
-            """).format(
-                fields=sql.SQL(", ").join(map(sql.SQL, self.fields.split(","))), # TODO: Properly escape SQL in self.fields string
-                table_name=sql.Identifier(table.split(".")[1]),
-                schema=sql.Identifier(table.split(".")[0]),
-                geo_field=sql.Identifier(self.meta["geofield"]),
-                x=sql.Placeholder("x"),
-                y=sql.Placeholder("y"),
-                radius=sql.Placeholder("radius"),
-                extra_where=sql.SQL(self.extra_where),
-                temp_predicate=tmp_bounds,
-                limit=sql.SQL("LIMIT {}").format(sql.Placeholder("limit") if self.limit else sql.SQL("ALL"))
-            )
-        
+            ),
+            **self.get_variable_sql(table),
+        )
         cur.execute(stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit})
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table, temporal_bounds=None):
-        if not self.use_rd:
-            sql = """
-                SELECT {}, ST_Distance(ST_Centroid({}),
-                    ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) AS distance
-                FROM {}
-                WHERE {} && ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)
-                  AND ST_Contains({}, ST_Transform(ST_GeomFromText('POINT(%s %s)', 4326), 28992)) {}
-            """.format(
-                self.fields,
-                self.meta["geofield"],
-                table,
-                self.meta["geofield"],
-                self.meta["geofield"],
-                self.extra_where,
-            )
-        else:
-            sql = """
-                SELECT {}, ST_Distance(ST_Centroid({}),
-                    ST_GeomFromText('POINT(%s %s)', 28992)) as distance
-                FROM {}
-                WHERE {} && ST_GeomFromText('POINT(%s %s)', 28992)
-                  AND ST_Contains({}, ST_GeomFromText('POINT(%s %s)', 28992)) {}
-            """.format(
-                self.fields,
-                self.meta["geofield"],
-                table,
-                self.meta["geofield"],
-                self.meta["geofield"],
-                self.extra_where,
-            )
-
+        tmp_bounds = sql.SQL("")
         if temporal_bounds is not None:
             start, end = temporal_bounds
-            sql += (
-                f" AND ({start} < now() OR {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
-            )
+            tmp_bounds = sql.SQL(
+                " AND ({start} < now() or {start} IS NULL) AND ({end} > now() OR {end} IS NULL)"
+            ).format(start=sql.Identifier(start), end=sql.Identifier(end))
+    
+        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
+        if not self.use_rd:
+            coordinate_stmt = sql.SQL("ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)")
 
-        sql += " ORDER BY distance"
-
-        args = (self.x, self.y) if self.use_rd else (self.y, self.x)
-        cur.execute(sql, args * 3)
+        stmt = sql.SQL("""
+            SELECT {fields}, ST_Distance(ST_Centroid({geo_field}), {coordinate_stmt}) AS distance
+            FROM {schema}.{table_name}
+            WHERE {geo_field} && {coordinate_stmt} 
+                AND ST_Contains({geo_field}, {coordinate_stmt}) {extra_where} {temp_predicate} ORDER BY distance
+        """).format(
+            temp_predicate=tmp_bounds,
+            coordinate_stmt=coordinate_stmt.format(
+                x=sql.Placeholder("x"),
+                y=sql.Placeholder("y"),
+            ),
+            **self.get_variable_sql(table),
+        )
+        cur.execute(stmt, {"x": self.x, "y": self.y})
         return cur.fetchall()
 
     def query(self, x, y, rd=True, radius=None, limit=None):

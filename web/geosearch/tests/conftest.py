@@ -8,10 +8,6 @@ from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch import create_app
 
 
-# NB. Although the whole amsterdam schema is present in the test database,
-# the only information that Geosearch currently is obtaining from this
-# schema is the `tables[].temporal` attribute!
-
 FAKE_SCHEMA = """
 {
   "type": "dataset",
@@ -130,7 +126,10 @@ FAKE_SCHEMA = """
 
 @pytest.fixture(scope="session", autouse=True)
 def flask_test_app():
-  """Wraps the entire test session in an app context"""
+  """Wraps the entire test session in an app context.
+  `autouse` ensures that this fixture gets executed before other fixtures
+  in the same scope.
+  """
   app = create_app(os.getenv("TEST_SETTINGS_MODULE", "datapunt_geosearch.config"))
   app.testing = True
   ctx = app.app_context()
@@ -209,7 +208,7 @@ def dataservices_db(flask_test_app):
             """
         )
 
-    yield None
+    yield
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
@@ -259,7 +258,7 @@ def dataservices_fake_data(flask_test_app):
         """
         )
 
-    yield None
+    yield
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
