@@ -1,7 +1,17 @@
 import logging
 import os
 
-from datapunt_geosearch.base_config import DATAPUNT_API_URL, DEFAULT_SEARCH_DATASETS, get_db_settings, db_connection_string, JW_KEYSET, JWKS, JWKS_SIGNING_ALGORITHMS, JWKS_TEST_KEY, JWKS_URL
+from datapunt_geosearch.base_config import (
+    DATAPUNT_API_URL,
+    DEFAULT_SEARCH_DATASETS,
+    JW_KEYSET,
+    JWKS,
+    JWKS_SIGNING_ALGORITHMS,
+    JWKS_TEST_KEY,
+    JWKS_URL,
+    db_connection_string,
+    get_db_settings,
+)
 
 DSN_BAG = db_connection_string.format(**get_db_settings('bag_v11'))
 DSN_NAP = db_connection_string.format(**get_db_settings('nap'))

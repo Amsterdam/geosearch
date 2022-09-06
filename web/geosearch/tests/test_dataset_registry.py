@@ -2,11 +2,12 @@ import time
 import unittest
 import unittest.mock
 
-from datapunt_geosearch import datasource
-from datapunt_geosearch.db import dbconnection
-from datapunt_geosearch.datasource import DataSourceBase
-from datapunt_geosearch.registry import registry, DatasetRegistry
 from flask import current_app as app
+
+from datapunt_geosearch import datasource
+from datapunt_geosearch.datasource import DataSourceBase
+from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch.registry import DatasetRegistry, registry
 
 
 class TestDatasetRegistry(unittest.TestCase):

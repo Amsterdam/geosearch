@@ -2,6 +2,7 @@ import time
 import unittest
 
 from flask import current_app as app
+
 from datapunt_geosearch.registry import registry
 
 

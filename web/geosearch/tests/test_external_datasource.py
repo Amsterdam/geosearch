@@ -2,8 +2,8 @@ import time
 import unittest
 import unittest.mock
 from urllib.parse import urljoin
-from requests.exceptions import HTTPError
 
+from requests.exceptions import HTTPError
 
 from datapunt_geosearch import datasource
 from datapunt_geosearch.registry import DatasetRegistry

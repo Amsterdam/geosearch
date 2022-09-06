@@ -1,5 +1,7 @@
 import unittest
+
 from flask import current_app as app
+
 from datapunt_geosearch import datasource
 
 

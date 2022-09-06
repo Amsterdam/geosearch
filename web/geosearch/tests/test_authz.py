@@ -3,8 +3,8 @@ import unittest
 import unittest.mock
 
 import flask
-from flask import current_app as app
 import pytest
+from flask import current_app as app
 
 
 @pytest.mark.usefixtures("dataservices_db", "create_authz_token", "dataservices_fake_data", "test_client")

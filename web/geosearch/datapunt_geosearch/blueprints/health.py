@@ -1,10 +1,10 @@
 # Packages
-import time
 import json
+import time
+
 from flask import Blueprint, Response, current_app
 
-from datapunt_geosearch.datasource import BagDataSource, \
-    NapMeetboutenDataSource
+from datapunt_geosearch.datasource import BagDataSource, NapMeetboutenDataSource
 from datapunt_geosearch.registry import registry
 
 health = Blueprint('health', __name__)

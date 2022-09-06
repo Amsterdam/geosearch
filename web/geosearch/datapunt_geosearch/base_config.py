@@ -3,6 +3,7 @@ from typing import Dict
 
 from datapunt_geosearch.authz import get_keyset
 
+
 def get_db_settings(db: str) -> Dict[str, str]:
     """
     Get the complete settings for a given database. Taking all possible

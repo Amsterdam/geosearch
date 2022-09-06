@@ -1,13 +1,15 @@
 import concurrent.futures
-from functools import partial
 import logging
+from functools import partial
+
 try:
     import orjson as json
 except ImportError:
     import json
-from flask import current_app as app
-from datapunt_geosearch.registry import registry
 
+from flask import current_app as app
+
+from datapunt_geosearch.registry import registry
 
 _logger = logging.getLogger(__name__)
 
