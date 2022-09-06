@@ -45,9 +45,12 @@ class DatasetRegistry:
             self.providers[dataset] = datasource_class
             for table in datasource_class.metadata["datasets"][dataset]:
                 key = f"{dataset}/{table}"
-                if table in self.providers and self.providers[table] != datasource_class:
+                if (
+                    table in self.providers
+                    and self.providers[table] != datasource_class
+                ):
                     _logger.debug(
-                        "Provider for {} already defined {} and will be overwritten by {}.".format(
+                        "Provider for {} already defined {} and will be overwritten by {}.".format(  # noqa: E501
                             table, self.providers[table], datasource_class
                         )
                     )
@@ -77,8 +80,11 @@ class DatasetRegistry:
     def get_by_name(self, name):
         return self.get_all_datasources().get(name)
 
-    def filter_datasources(self, names: List[str], scopes: Optional[List[str]]=None) -> Set[DataSourceBase]:
-        """Return the datasource classes associated with the given datasets or tables (given by `names`).
+    def filter_datasources(
+        self, names: List[str], scopes: Optional[List[str]] = None
+    ) -> Set[DataSourceBase]:
+        """Return the datasource classes associated with
+        the given datasets or tables (given by `names`).
 
         The result is deduplicated because it is not guaranteed that the searched keys
         return a unique set of datasources. This occurs for example when two datasets
@@ -125,7 +131,9 @@ class DatasetRegistry:
           DataSourceBase subclass for given dataset.
         """
         if field_name_transformation is None:
-            field_name_transformation = lambda x: x
+
+            def field_name_transformation(x):
+                return x
 
         if row.get("schema") is None:
             row["schema"] = "public"
@@ -163,7 +171,7 @@ class DatasetRegistry:
         geometry_field = field_name_transformation(row["geometry_field"])
         id_field = field_name_transformation(row["id_field"])
 
-        base_url = base_url or app.config['DATAPUNT_API_URL']
+        base_url = base_url or app.config["DATAPUNT_API_URL"]
 
         fields = [
             f"{name_field} as display",
@@ -218,7 +226,7 @@ class DatasetRegistry:
         Returns dict with datasets created.
         """
         if dsn is None:
-            dsn = app.config['DSN_VARIOUS_SMALL_DATASETS']
+            dsn = app.config["DSN_VARIOUS_SMALL_DATASETS"]
         try:
             dbconn = dbconnection(dsn)
         except psycopg2.Error as e:
@@ -263,7 +271,7 @@ class DatasetRegistry:
 
     def init_dataservices_datasets(self, dsn=None):
         try:
-            dbconn = dbconnection(app.config['DSN_DATASERVICES_DATASETS'])
+            dbconn = dbconnection(app.config["DSN_DATASERVICES_DATASETS"])
         except psycopg2.Error as e:
             _logger.error("Error creating connection: %s" % e)
             raise DataSourceException("error connecting to datasource") from e
@@ -309,6 +317,7 @@ class DatasetRegistry:
                 datasets[key] = dataset
 
         return datasets
+
 
 # Initialize the registry with the statically defined Datasources
 registry = DatasetRegistry()

@@ -10,15 +10,13 @@ from datapunt_geosearch.blueprints import health, search
 
 
 def create_app(import_path: str = "datapunt_geosearch.config"):
-    sentry_dsn = os.getenv('SENTRY_DSN')
+    sentry_dsn = os.getenv("SENTRY_DSN")
     if sentry_dsn:
         sentry_sdk.init(
-            dsn=sentry_dsn,
-            environment="geosearch",
-            integrations=[FlaskIntegration()]
+            dsn=sentry_dsn, environment="geosearch", integrations=[FlaskIntegration()]
         )
 
-    app = Flask('geosearch')
+    app = Flask("geosearch")
     CORS(app)
 
     app.config.from_object(import_path)

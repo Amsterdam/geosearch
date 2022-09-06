@@ -13,6 +13,7 @@ def retry_on_psycopg2_error(func):
     Decorator that retries 3 times after Postgres error, in particular if
     the connection was not valid anymore because the database was restarted
     """
+
     @functools.wraps(func)
     def wrapper_retry(*args, **kwargs):
         retry = 0
@@ -24,10 +25,11 @@ def retry_on_psycopg2_error(func):
                 if retry > 3:
                     raise
                 else:
-                    _logger.warning(f'Retry query for {func.__name__} ({retry})')
+                    _logger.warning(f"Retry query for {func.__name__} ({retry})")
                     continue
             break
         return result
+
     return wrapper_retry
 
 
@@ -38,7 +40,7 @@ def dbconnection(dsn):
 
 
 class _DBConnection:
-    """ Wraps a PostgreSQL database connection that reports crashes and tries
+    """Wraps a PostgreSQL database connection that reports crashes and tries
     its best to repair broken connections.
 
     NOTE: doesn't always work, but the failure scenario is very hard to
@@ -57,7 +59,7 @@ class _DBConnection:
             self._conn.autocommit = True
 
     def _is_usable(self):
-        """ Checks whether the connection is usable.
+        """Checks whether the connection is usable.
 
         :returns boolean: True if we can query the database, False otherwise
         """
@@ -70,7 +72,7 @@ class _DBConnection:
 
     @contextlib.contextmanager
     def _connection(self):
-        """ Contextmanager that catches tries to ensure we have a database
+        """Contextmanager that catches tries to ensure we have a database
         connection. Yields a Connection object.
 
         If a :class:`psycopg2.DatabaseError` occurs then it will check whether
@@ -80,7 +82,7 @@ class _DBConnection:
             self._connect()
             yield self._conn
         except psycopg2.Error as e:
-            _logger.critical('AUTHZ DatabaseError: {}'.format(e))
+            _logger.critical("AUTHZ DatabaseError: {}".format(e))
             if not self._is_usable():
                 with contextlib.suppress(psycopg2.Error):
                     self._conn.close()
@@ -89,8 +91,7 @@ class _DBConnection:
 
     @contextlib.contextmanager
     def transaction_cursor(self, cursor_factory=None):
-        """ Yields a cursor with transaction.
-        """
+        """Yields a cursor with transaction."""
         with self._connection() as transaction:
             with transaction:
                 with transaction.cursor(cursor_factory=cursor_factory) as cur:
@@ -98,20 +99,17 @@ class _DBConnection:
 
     @contextlib.contextmanager
     def cursor(self, cursor_factory=None):
-        """ Yields a cursor without transaction.
-        """
+        """Yields a cursor without transaction."""
         with self._connection() as conn:
             with conn.cursor(cursor_factory=cursor_factory) as cur:
                 yield cur
 
     def fetch_all(self, sql):
-        with self.cursor(
-                cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        with self.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(sql)
             return cur.fetchall()
 
     def fetch_one(self, sql):
-        with self.cursor(
-                cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        with self.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(sql)
             return cur.fetchone()

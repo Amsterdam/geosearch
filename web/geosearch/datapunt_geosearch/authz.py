@@ -27,10 +27,12 @@ def authenticate(func):
     Optionally updates `g.authz_scopes` with scopes available for given token.
     Returns 401 in case token is invalid.
     """
+
     @functools.wraps(func)
     def wrapper():
         check_authentication(request=flask_request)
         return func()
+
     return wrapper
 
 
@@ -47,9 +49,11 @@ def check_authentication(request):
     token = get_token_from_request(request=request)
     if token is not None:
         try:
-            jwt = JWT(jwt=token,
-                      key=current_app.config.get("JW_KEYSET"),
-                      algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"))
+            jwt = JWT(
+                jwt=token,
+                key=current_app.config.get("JW_KEYSET"),
+                algs=current_app.config.get("JWKS_SIGNING_ALGORITHMS"),
+            )
         except JWTMissingKey as e:
             logger.warning("Auth problem: unknown key. {}".format(e))
             abort(401, "Incorrect Bearer. Unknown key.")
@@ -59,7 +63,7 @@ def check_authentication(request):
 
         claims = get_claims(jwt)
         if claims:
-            g.authz_scopes = claims['scopes']
+            g.authz_scopes = claims["scopes"]
     return None
 
 
@@ -67,11 +71,11 @@ def get_token_from_request(request):
     """
     Parse request and get Auth token from it, if Authorization header is set.
     """
-    authorization_header = request.headers.get('Authorization', None)
+    authorization_header = request.headers.get("Authorization", None)
     if authorization_header is not None:
-        match = re.fullmatch(r'bearer ([-\w.=]+)',
-                             authorization_header,
-                             flags=re.IGNORECASE)
+        match = re.fullmatch(
+            r"bearer ([-\w.=]+)", authorization_header, flags=re.IGNORECASE
+        )
         if match:
             return match[1]
     return None
@@ -82,19 +86,14 @@ def get_claims(jwt):
     Parse jwt response and return scopes only.
     """
     claims = json.loads(jwt.claims)
-    if 'scopes' in claims:
+    if "scopes" in claims:
         # Authz token structure
-        return {
-            'sub': claims.get('sub'),
-            'scopes': set(claims['scopes'])
-        }
-    elif claims.get('realm_access'):
+        return {"sub": claims.get("sub"), "scopes": set(claims["scopes"])}
+    elif claims.get("realm_access"):
         # Keycloak token structure
         return {
-            'sub': claims.get('sub'),
-            'scopes': {
-                convert_scope(r) for r in claims['realm_access']['roles']
-            }
+            "sub": claims.get("sub"),
+            "scopes": {convert_scope(r) for r in claims["realm_access"]["roles"]},
         }
     return None
 

@@ -17,7 +17,7 @@ from datapunt_geosearch.datasource import (
 from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.registry import registry
 
-search = Blueprint('search', __name__)
+search = Blueprint("search", __name__)
 
 _logger = logging.getLogger(__name__)
 
@@ -37,29 +37,28 @@ def get_coords_and_type(args):
     resp = None
     rd = True
 
-    x = args.get('x')
-    y = args.get('y')
-    limit = args.get('limit')
+    x = args.get("x")
+    y = args.get("y")
+    limit = args.get("limit")
 
     if not x or not y:
-        x = args.get('lat')
-        y = args.get('lon')
+        x = args.get("lat")
+        y = args.get("lon")
 
         if x and y:
             rd = False
         else:
-            resp = {'error': 'No coordinates found'}
+            resp = {"error": "No coordinates found"}
 
     return x, y, rd, limit, resp
 
 
-@search.route('/docs/geosearch.yml', methods=['GET', 'OPTIONS'])
+@search.route("/docs/geosearch.yml", methods=["GET", "OPTIONS"])
 def send_doc():
-    return send_from_directory('static', 'geosearch.yml',
-                               mimetype='application/x-yaml')
+    return send_from_directory("static", "geosearch.yml", mimetype="application/x-yaml")
 
 
-@search.route('/', methods=['GET', 'OPTIONS'])
+@search.route("/", methods=["GET", "OPTIONS"])
 @authenticate
 def search_everywhere():
     """
@@ -78,24 +77,29 @@ def search_everywhere():
         return jsonify(resp)
 
     request_args = dict(request.args)
-    request_args.update(dict(
-        x=x,
-        y=y,
-        rd=rd,
-        limit=limit,
-    ))
+    request_args.update(
+        dict(
+            x=x,
+            y=y,
+            rd=rd,
+            limit=limit,
+        )
+    )
 
-    return Response(stream_with_context(generate_async(
-        request_args=request_args,
-        authz_scopes=get_current_authz_scopes()
-    )), content_type='application/json')
+    return Response(
+        stream_with_context(
+            generate_async(
+                request_args=request_args, authz_scopes=get_current_authz_scopes()
+            )
+        ),
+        content_type="application/json",
+    )
 
 
-@search.route('/catalogus/', methods=['GET'])
+@search.route("/catalogus/", methods=["GET"])
 @authenticate
 def search_catalogus():
-    """Generate a list of all values that can be used as input to the root endpoint.
-    """
+    """Generate a list of all values that can be used as input to the root endpoint."""
 
     # Note that we filter the top-level keys as they are  defined in
     # DataSourceClass.metadata["datasets"] since it is completely illogical
@@ -108,10 +112,10 @@ def search_catalogus():
         if dataset.check_scopes(scopes=get_current_authz_scopes()) and "/" in name
     ]
 
-    return jsonify({'datasets': dataset_names})
+    return jsonify({"datasets": dataset_names})
 
 
-@search.route('/search/', methods=['GET', 'OPTIONS'])
+@search.route("/search/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_in_datasets():
     """
@@ -129,46 +133,59 @@ def search_in_datasets():
     if resp:
         return jsonify(resp)
 
-    item = request.args.get('item')
+    item = request.args.get("item")
     if not item:
-        return jsonify({'error': 'No item type found'})
+        return jsonify({"error": "No item type found"})
 
     # Got coords, radius and item. Time to search
-    if item in ['peilmerk', 'meetbout']:
-        ds = NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
-    elif item in ['gevrijwaardgebied', 'uitgevoerdonderzoek',
-                  'verdachtgebied']:
-        ds = MunitieMilieuDataSource(dsn=app.config['DSN_MILIEU'])
-    elif item == 'bominslag':
-        ds = BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
-    elif item == 'monument':
-        ds = MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
-    elif item in {'openbareruimte', 'verblijfsobject', 'pand', 'ligplaats', 'standplaats', 'stadsdeel', 'buurt',
-                  'buurtcombinatie', 'bouwblok', 'grootstedelijkgebied', 'gebiedsgerichtwerken', 'unesco',
-                  'kadastraal_object', 'beperking'}:
-        ds = BagDataSource(dsn=app.config['DSN_BAG'])
+    if item in ["peilmerk", "meetbout"]:
+        ds = NapMeetboutenDataSource(dsn=app.config["DSN_NAP"])
+    elif item in ["gevrijwaardgebied", "uitgevoerdonderzoek", "verdachtgebied"]:
+        ds = MunitieMilieuDataSource(dsn=app.config["DSN_MILIEU"])
+    elif item == "bominslag":
+        ds = BominslagMilieuDataSource(dsn=app.config["DSN_MILIEU"])
+    elif item == "monument":
+        ds = MonumentenDataSource(dsn=app.config["DSN_MONUMENTEN"])
+    elif item in {
+        "openbareruimte",
+        "verblijfsobject",
+        "pand",
+        "ligplaats",
+        "standplaats",
+        "stadsdeel",
+        "buurt",
+        "buurtcombinatie",
+        "bouwblok",
+        "grootstedelijkgebied",
+        "gebiedsgerichtwerken",
+        "unesco",
+        "kadastraal_object",
+        "beperking",
+    }:
+        ds = BagDataSource(dsn=app.config["DSN_BAG"])
     else:
         ds_class = registry.get_by_name(f"vsd/{item}")
-        ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
+        ds = ds_class(dsn=app.config["DSN_VARIOUS_SMALL_DATASETS"])
 
-    # Why is this overridden based on the query? The ds class holds info about the datasets.
+    # Why is this overridden based on the query?
+    # The ds class holds info about the datasets.
     # Checking for radius and item type
-    radius = request.args.get('radius')
+    radius = request.args.get("radius")
     if radius:
-        ds.meta['operator'] = 'within'
+        ds.meta["operator"] = "within"
     else:
-        ds.meta['operator'] = 'contains'
+        ds.meta["operator"] = "contains"
 
     # Filtering to the required dataset
     known_dataset = ds.filter_dataset(item)
     if not known_dataset:
-        return jsonify({'error': 'Unknown item type'})
+        return jsonify({"error": "Unknown item type"})
 
     resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=radius)
     return jsonify(resp)
 
 
-@search.route('/nap/', methods=['GET', 'OPTIONS'])
+@search.route("/nap/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
@@ -176,37 +193,34 @@ def search_geo_nap():
 
     # If no error is found, query
     if not resp:
-        ds = NapMeetboutenDataSource(dsn=app.config['DSN_NAP'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit,
-                        radius=request.args.get('radius'))
+        ds = NapMeetboutenDataSource(dsn=app.config["DSN_NAP"])
+        resp = ds.query(
+            float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius")
+        )
 
     return jsonify(resp)
 
 
-@search.route('/monumenten/', methods=['GET', 'OPTIONS'])
+@search.route("/monumenten/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_geo_monumenten():
     """Performing a geo search for radius around a point using postgres"""
     x, y, rd, limit, resp = get_coords_and_type(request.args)
 
-    monumenttype = request.args.get('monumenttype')
+    monumenttype = request.args.get("monumenttype")
 
     # If no error is found, query
     if not resp:
-        ds = MonumentenDataSource(dsn=app.config['DSN_MONUMENTEN'])
-        kwargs = {
-            'rd': rd,
-            'limit': limit,
-            'radius': request.args.get('radius')
-        }
+        ds = MonumentenDataSource(dsn=app.config["DSN_MONUMENTEN"])
+        kwargs = {"rd": rd, "limit": limit, "radius": request.args.get("radius")}
         if monumenttype is not None:
-            kwargs['monumenttype'] = monumenttype
+            kwargs["monumenttype"] = monumenttype
         resp = ds.query(float(x), float(y), **kwargs)
 
     return jsonify(resp)
 
 
-@search.route('/munitie/', methods=['GET', 'OPTIONS'])
+@search.route("/munitie/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
@@ -214,13 +228,13 @@ def search_geo_munitie():
 
     # If no error is found, query
     if not resp:
-        ds = MunitieMilieuDataSource(dsn=app.config['DSN_MILIEU'])
+        ds = MunitieMilieuDataSource(dsn=app.config["DSN_MILIEU"])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
     return jsonify(resp)
 
 
-@search.route('/bominslag/', methods=['GET', 'OPTIONS'])
+@search.route("/bominslag/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_geo_bominslag():
     """Performing a geo search for radius around a point using postgres"""
@@ -228,9 +242,10 @@ def search_geo_bominslag():
 
     # If no error is found, query
     if not resp:
-        ds = BominslagMilieuDataSource(dsn=app.config['DSN_MILIEU'])
-        resp = ds.query(float(x), float(y), rd=rd, limit=limit,
-                        radius=request.args.get('radius'))
+        ds = BominslagMilieuDataSource(dsn=app.config["DSN_MILIEU"])
+        resp = ds.query(
+            float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius")
+        )
 
     return jsonify(resp)
 
@@ -242,30 +257,30 @@ def _search_geo_bag():
 
     # If no error is found, query
     if not resp:
-        ds = BagDataSource(dsn=app.config['DSN_BAG'])
+        ds = BagDataSource(dsn=app.config["DSN_BAG"])
         resp = ds.query(float(x), float(y), rd=rd, limit=limit)
 
     return jsonify(resp)
 
 
-@search.route('/bag/', methods=['GET', 'OPTIONS'])
+@search.route("/bag/", methods=["GET", "OPTIONS"])
 def search_geo_bag():
     # shine new endpoint
     return _search_geo_bag()
 
 
-@search.route('/atlas/', methods=['GET', 'OPTIONS'])
+@search.route("/atlas/", methods=["GET", "OPTIONS"])
 def search_geo_atlas():
     # old should be replaced
     return _search_geo_bag()
 
 
 # This should be the last (catchall) route/view combination
-@search.route('/<string:dataset>/', methods=['GET', 'OPTIONS'])
+@search.route("/<string:dataset>/", methods=["GET", "OPTIONS"])
 @retry_on_psycopg2_error
 def search_geo_genapi(dataset):
     """Performing a geo search for radius around a point using postgres.
-    
+
     Only queries vsd
     """
     x, y, rd, limit, resp = get_coords_and_type(request.args)
@@ -276,16 +291,21 @@ def search_geo_genapi(dataset):
             abort(404)
         else:
             # For now we always use the same database for all generic API datasets
-            ds = ds_class(dsn=app.config['DSN_VARIOUS_SMALL_DATASETS'])
-            resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get('radius'))
+            ds = ds_class(dsn=app.config["DSN_VARIOUS_SMALL_DATASETS"])
+            resp = ds.query(
+                float(x),
+                float(y),
+                rd=rd,
+                limit=limit,
+                radius=request.args.get("radius"),
+            )
     return jsonify(resp)
 
 
 # Adding cors headers
 @search.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add(
-        'Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
     return response
