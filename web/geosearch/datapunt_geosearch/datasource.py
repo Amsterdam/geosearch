@@ -1,14 +1,15 @@
 import logging
-import psycopg2.extras
-import requests
 import urllib.parse
-
-from .config import DATAPUNT_API_URL
-from datapunt_geosearch.db import dbconnection
-from datapunt_geosearch.exceptions import DataSourceException
-from psycopg2 import sql
 from typing import Dict
 
+import psycopg2.extras
+import requests
+from psycopg2 import sql
+
+from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch.exceptions import DataSourceException
+
+from .config import DATAPUNT_API_URL
 
 _logger = logging.getLogger(__name__)
 

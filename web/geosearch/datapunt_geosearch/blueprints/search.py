@@ -1,15 +1,21 @@
 # Python
 import logging
 
-from flask import Blueprint, request, jsonify, Response, send_from_directory, abort, stream_with_context, current_app as app
+from flask import Blueprint, Response, abort
+from flask import current_app as app
+from flask import jsonify, request, send_from_directory, stream_with_context
 
-from datapunt_geosearch.db import retry_on_psycopg2_error
-from datapunt_geosearch.authz import authenticate
-from datapunt_geosearch.authz import get_current_authz_scopes
-from datapunt_geosearch.datasource import BagDataSource, BominslagMilieuDataSource, MunitieMilieuDataSource, NapMeetboutenDataSource, MonumentenDataSource
+from datapunt_geosearch.authz import authenticate, get_current_authz_scopes
 from datapunt_geosearch.blueprints.engine import generate_async
+from datapunt_geosearch.datasource import (
+    BagDataSource,
+    BominslagMilieuDataSource,
+    MonumentenDataSource,
+    MunitieMilieuDataSource,
+    NapMeetboutenDataSource,
+)
+from datapunt_geosearch.db import retry_on_psycopg2_error
 from datapunt_geosearch.registry import registry
-
 
 search = Blueprint('search', __name__)
 

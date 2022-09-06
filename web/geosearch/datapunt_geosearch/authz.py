@@ -2,15 +2,13 @@ import functools
 import json
 import logging
 import re
-import requests
 
+import requests
+from flask import abort, current_app, g
+from flask import request as flask_request
+from jwcrypto.common import JWException
 from jwcrypto.jwk import JWKSet
 from jwcrypto.jwt import JWT, JWTMissingKey
-from jwcrypto.common import JWException
-from flask import request as flask_request
-from flask import current_app
-from flask import abort
-from flask import g
 
 logger = logging.getLogger(__name__)
 

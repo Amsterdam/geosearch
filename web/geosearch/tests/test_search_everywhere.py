@@ -1,9 +1,11 @@
-from datetime import date
 import json
-from dateutil.relativedelta import relativedelta
 import unittest
+from datetime import date
+
 import pytest
+from dateutil.relativedelta import relativedelta
 from flask import current_app as app
+
 from datapunt_geosearch.registry import registry
 
 

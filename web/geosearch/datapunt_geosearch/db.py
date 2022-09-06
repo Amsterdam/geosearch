@@ -5,7 +5,6 @@ import logging
 import psycopg2.extras
 from psycopg2 import Error as Psycopg2Error
 
-
 _logger = logging.getLogger(__name__)
 
 

@@ -1,9 +1,9 @@
 import time
 import unittest
 
-from datapunt_geosearch.registry import registry, DatasetRegistry
-
 from schematools.utils import to_snake_case
+
+from datapunt_geosearch.registry import DatasetRegistry, registry
 
 
 class TestDisplayFieldCamelCase(unittest.TestCase):

@@ -1,12 +1,12 @@
 import os
-from contextlib import contextmanager
 import time
-from jwcrypto.jwt import JWT
-import pytest
-from datapunt_geosearch import authz
-from datapunt_geosearch.db import dbconnection
-from datapunt_geosearch import create_app
+from contextlib import contextmanager
 
+import pytest
+from jwcrypto.jwt import JWT
+
+from datapunt_geosearch import authz, create_app
+from datapunt_geosearch.db import dbconnection
 
 FAKE_SCHEMA = """
 {

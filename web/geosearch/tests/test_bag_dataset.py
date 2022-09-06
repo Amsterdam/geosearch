@@ -1,7 +1,8 @@
 import unittest
 
-from datapunt_geosearch import datasource
 from flask import current_app as app
+
+from datapunt_geosearch import datasource
 
 
 class TestBAGDataset(unittest.TestCase):

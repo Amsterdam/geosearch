@@ -1,7 +1,8 @@
 import unittest
-from psycopg2 import Error as Psycopg2Error
 
 from flask import current_app as app
+from psycopg2 import Error as Psycopg2Error
+
 from datapunt_geosearch import datasource
 from datapunt_geosearch.db import retry_on_psycopg2_error
 

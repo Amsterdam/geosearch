@@ -1,16 +1,24 @@
-from collections import defaultdict
-from flask import current_app as app
 import json
 import logging
-import psycopg2.extras
-from typing import Dict, List, Set, Optional
 import time
-from datapunt_geosearch.exceptions import DataSourceException
-from datapunt_geosearch.db import dbconnection
+from collections import defaultdict
+from typing import Dict, List, Optional, Set
 
-from schematools.utils import to_snake_case
+import psycopg2.extras
+from flask import current_app as app
 from schematools.types import DatasetSchema
-from datapunt_geosearch.datasource import DataSourceBase, BagDataSource, NapMeetboutenDataSource, BominslagMilieuDataSource, MonumentenDataSource, MunitieMilieuDataSource
+from schematools.utils import to_snake_case
+
+from datapunt_geosearch.datasource import (
+    BagDataSource,
+    BominslagMilieuDataSource,
+    DataSourceBase,
+    MonumentenDataSource,
+    MunitieMilieuDataSource,
+    NapMeetboutenDataSource,
+)
+from datapunt_geosearch.db import dbconnection
+from datapunt_geosearch.exceptions import DataSourceException
 
 _logger = logging.getLogger(__name__)
 

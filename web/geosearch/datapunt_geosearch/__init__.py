@@ -6,7 +6,7 @@ from flask import Flask
 from flask_cors import CORS
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from datapunt_geosearch.blueprints import search, health
+from datapunt_geosearch.blueprints import health, search
 
 
 def create_app(import_path: str = "datapunt_geosearch.config"):

@@ -1,5 +1,16 @@
 import logging
-from datapunt_geosearch.base_config import DATAPUNT_API_URL, DEFAULT_SEARCH_DATASETS, db_connection_string, get_db_settings, JWKS_TEST_KEY, JWKS, JWKS_SIGNING_ALGORITHMS, JWKS_URL, JW_KEYSET
+
+from datapunt_geosearch.base_config import (
+    DATAPUNT_API_URL,
+    DEFAULT_SEARCH_DATASETS,
+    JW_KEYSET,
+    JWKS,
+    JWKS_SIGNING_ALGORITHMS,
+    JWKS_TEST_KEY,
+    JWKS_URL,
+    db_connection_string,
+    get_db_settings,
+)
 
 # db entries are overridden
 DSN_BAG = db_connection_string.format(**get_db_settings('bag_v11') | {'db': 'test_bag_v11'})

@@ -1,7 +1,10 @@
 import unittest
+
 from flask import current_app as app
+
 from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.registry import DatasetRegistry
+
 
 class TestFieldType50Karakters(unittest.TestCase):
     

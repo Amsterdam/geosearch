@@ -35,17 +35,24 @@ import json
 import re
 from collections import Counter
 
-from datapunt_geosearch.config import DSN_BAG, DSN_MONUMENTEN, DSN_VARIOUS_SMALL_DATASETS, DSN_MILIEU, DSN_NAP
-
-from datapunt_geosearch.registry import registry
-from datapunt_geosearch.datasource import BagDataSource, dbconnection
-from datapunt_geosearch.datasource import BominslagMilieuDataSource
-from datapunt_geosearch.datasource import MunitieMilieuDataSource
-from datapunt_geosearch.datasource import NapMeetboutenDataSource
-from datapunt_geosearch.datasource import MonumentenDataSource
-
 import psycopg2.extras
 
+from datapunt_geosearch.config import (
+    DSN_BAG,
+    DSN_MILIEU,
+    DSN_MONUMENTEN,
+    DSN_NAP,
+    DSN_VARIOUS_SMALL_DATASETS,
+)
+from datapunt_geosearch.datasource import (
+    BagDataSource,
+    BominslagMilieuDataSource,
+    MonumentenDataSource,
+    MunitieMilieuDataSource,
+    NapMeetboutenDataSource,
+    dbconnection,
+)
+from datapunt_geosearch.registry import registry
 
 sources = {
     "bag": {
