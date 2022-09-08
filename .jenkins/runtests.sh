@@ -5,6 +5,11 @@ set -u
 
 DIR="$(dirname $0)"
 
+echo "VARS!!!!!!"
+echo $OS_TENANT_ID
+echo $OS_AUTH_TOKEN
+echo "!!!!!!VARS"
+
 dc() {
 	docker-compose -p geotest -f ${DIR}/docker-compose-test.yml $*;
 }
