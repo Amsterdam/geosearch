@@ -82,13 +82,13 @@ De volgende endpoints zijn beschikbaar voor geosearch:
 Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
 
 ### Voorbeelden Api endpoints
-<http://localhost:8000/monumenten/?lat=52.372239620672204&lon=4.900848228657843&radius=25000>
+<http://localhost:8022/monumenten/?lat=52.372239620672204&lon=4.900848228657843&radius=25000>
 
-<http://localhost:8000/monumenten/?x=121879&y=487262&radius=25000>
+<http://localhost:8022/monumenten/?x=121879&y=487262&radius=25000>
 
-<http://localhost:8000/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
+<http://localhost:8022/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
 
-<http://localhost:8000/search/?x=121879&y=487262&radius=25000&item=monument>
+<http://localhost:8022/search/?x=121879&y=487262&radius=25000&item=monument>
 
-<http://localhost:8000/biz/?x=121723&y=486199>
+<http://localhost:8022/biz/?x=121723&y=486199>
 
