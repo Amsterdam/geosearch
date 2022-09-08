@@ -22,14 +22,17 @@ node {
         checkout scm
     }
     stage("Test") {
-        environment {
-            OS_TENANT_ID = credentials("85110731-49ab-410f-8607-e1596fae6964")
-            OS_AUTH_TOKEN = credentials("fea1348c-b0e0-413e-b9e9-fabc66871e77")
-        }
-        steps {
-            sh ".jenkins/runtests.sh"
-            sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
-        }
+        tryStep "test",
+            withCredentials([
+                string(credentialsId:"85110731-49ab-410f-8607-e1596fae6964", variable: "OS_TENANT_ID")
+                string(credentialsId:"fea1348c-b0e0-413e-b9e9-fabc66871e77", variable: "OS_AUTH_TOKEN")
+            ]) {
+                sh ".jenkins/runtests.sh"
+              }, 
+              {
+                sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
+
+              }
     }
     stage("Build image") {
         tryStep "build", {
