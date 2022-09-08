@@ -22,11 +22,11 @@ node {
         checkout scm
     }
     stage("Test") {
-	environment {
+        tryStep "test", {
+	    environment {
 		OS_TENANT_ID = credentials("85110731-49ab-410f-8607-e1596fae6964")
 		OS_AUTH_TOKEN = credentials("fea1348c-b0e0-413e-b9e9-fabc66871e77")
-	}
-        tryStep "test", {
+	    }
             sh ".jenkins/runtests.sh"
         }, {
             sh "docker-compose -p geosearch -f .jenkins/docker-compose.yml down"
