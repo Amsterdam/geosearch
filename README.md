@@ -1,37 +1,47 @@
 # Setup of local development
 
+## Virtual env setup
+
+1) `pip install -r web/requirements_dev.txt`
+2) `pre-commit install`
+
+## Container setup
+
 Local development is done using docker. We use snapshots of the online databases for development and testing.
-Note that these snapshots are not automatically updated when the schema changes, so it is possible that our
+Note that these snapshots are not automatically updated when the database schema changes, so it is possible that our
 tests are running on older versions of the schemas.
 
-1) Ensure containers are running with `docker-compose up`
-2) Download and create the different development and test databases with current data dumps from the objectstore.
-This process should not take more than 5 minutes on the average internet connection. There is a convenience script
-in the root folder for this step, called `init_dbs.sh`
-3) Take the testsuite for a spin `docker-compose exec web pytest -v`
+1) Set the `OS_TENANT_ID` and `OS_AUTH_URL` env vars so we can connect to the object store. (Can be retrieved from openstack)
+2) Start database container:
 
-**Note**: There have been some issues with connecting to CloudVPS from local docker-containers. This can be circumvented
-by downloading the databases onto your host (`download_dbs.sh` is a script to do this), mounting the downloaded dumps into
-the `database` container `/tmp` folder and then running `init_dbs.sh` (from step 2 above).
+    `docker-compose up database`
 
-A `docker-compose.override.yml` as the following would mount the directory from `download_dbs.sh` into the database container:
+3) Setup the databases for local dev and testing:
 
-```
-version: "3.0"
-services:
-  database:
-    volumes:
-      - "/tmp/downloaded_dbs:/tmp"
-```
+    `docker-compose exec database init-dbs.sh`
+
+4) Start the app
+
+    `docker-compose up web`
+
+5) Take the testsuite for a spin:
+
+    `docker-compose exec web pytest -v`
+
+**Note**: There have been some issues with connecting to CloudVPS from local docker-containers
+over the VET network. This can be circumvented by switching off the VET VPN when running these steps.
+
+## A note on formatting and git blame
+
+black formatting was introduced late in this project by a monster commit.
+To avoid git blame getting confused, configure git to ignore that commit:
+
+`$ git config blame.ignoreRevsFile .git-blame-ignore-revs`
 
 # Geospatial queries
 
 Doel is zoeken op coordinaat door de (aangegeven) aanwezige database
 views en features teruggeven aan de client in geojson formaat.
-
-## Taal/framework keuze
-
-Flask
 
 ## Soorten queries
 Er zijn twee soorten postgis queries van toepassing voor de usecase:

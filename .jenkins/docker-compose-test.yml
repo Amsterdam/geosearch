@@ -7,34 +7,57 @@ services:
       POSTGRES_PASSWORD: insecure
       POSTGRES_DB: bag_v11
       POSTGRES_USER: bag_v11
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
     volumes:
         - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   nap_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_DB: nap
       POSTGRES_USER: nap
       POSTGRES_PASSWORD: insecure
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
+    volumes:
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   milieuthemas_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: milieuthemas
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
+    volumes:
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   monumenten_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: monumenten
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
+    volumes:
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   various_small_datasets_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: various_small_datasets
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
+    volumes:
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   dataservices_db:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
       POSTGRES_USER: dataservices
+      OS_TENANT_ID: ${OS_TENANT_ID}
+      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
+    volumes:
+        - "../db-scripts/download-db.sh:/bin/download-db.sh"  # Make CI download the test fixtures
   web_test:
     build: ../web
     environment:
