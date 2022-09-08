@@ -25,9 +25,12 @@ node {
         tryStep "test", {
             withCredentials([
                 string(credentialsId:"85110731-49ab-410f-8607-e1596fae6964", variable: "OS_TENANT_ID"),
-                string(credentialsId:"fea1348c-b0e0-413e-b9e9-fabc66871e77", variable: "OS_AUTH_TOKEN")
+                file(credentialsId:"OS_CREDS", variable: "OS_CREDS"),
             ]) {
-                sh ".jenkins/runtests.sh"
+                sh '''
+                    export OS_AUTH_TOKEN=$(curl -H "Content-Type: application/json" -s 'https://identity.stack.cloudvps.com/v2.0/tokens' -d @$OS_CREDS | python -c "import sys; import json; print(json.loads(sys.stdin.read())['access']['token']['id'])")
+                    .jenkins/runtests.sh
+                '''
                }
             }, 
             {
