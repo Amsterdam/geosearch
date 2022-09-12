@@ -163,9 +163,9 @@ class DataSourceBase(object):
         )
 
     def get_db_crs(self) -> sql.Literal:
-        if self.crs is not None:
-            return sql.SQL(self.crs.split(":")[-1])
-        return sql.SQL("28992")
+        if self.crs is None:
+            return sql.Literal(28992)
+        return sql.Literal(int(self.crs.split(":")[-1]))
 
     # Point query
     def execute_point_query(self, cur, table, temporal_bounds=None):
