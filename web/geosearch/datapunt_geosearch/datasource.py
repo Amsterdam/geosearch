@@ -36,6 +36,7 @@ class DataSourceBase(object):
     fields = "*"
     extra_where = ""
     temporal_bounds = None
+    crs = None
 
     def __init__(self, dsn=None, connection=None):
         _logger.debug("Creating DataSource: %s" % self.dataset)
@@ -161,6 +162,11 @@ class DataSourceBase(object):
             ),
         )
 
+    def get_db_crs(self) -> sql.Literal:
+        if self.crs is not None:
+            return sql.SQL(self.crs.split(":")[-1])
+        return sql.SQL("28992")
+
     # Point query
     def execute_point_query(self, cur, table, temporal_bounds=None):
         tmp_bounds = sql.SQL("")
@@ -171,11 +177,11 @@ class DataSourceBase(object):
                      AND ({end} > now() OR {end} IS NULL)"
             ).format(start=sql.Identifier(start), end=sql.Identifier(end))
 
-        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
+        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', {crs})")
         if not self.use_rd:
             # In this case, coordinates are latlng and projected to rijksdriehoek
             coordinate_stmt = sql.SQL(
-                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)"
+                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), {crs})"
             )
         stmt = sql.SQL(
             """
@@ -190,8 +196,7 @@ class DataSourceBase(object):
             radius=sql.Placeholder("radius"),
             temp_predicate=tmp_bounds,
             coordinate_stmt=coordinate_stmt.format(
-                x=sql.Placeholder("x"),
-                y=sql.Placeholder("y"),
+                x=sql.Placeholder("x"), y=sql.Placeholder("y"), crs=self.get_db_crs()
             ),
             **self.get_variable_sql(table),
         )
@@ -209,10 +214,10 @@ class DataSourceBase(object):
                      AND ({end} > now() OR {end} IS NULL)"
             ).format(start=sql.Identifier(start), end=sql.Identifier(end))
 
-        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', 28992)")
+        coordinate_stmt = sql.SQL("ST_GeomFromText('POINT({x} {y})', {crs})")
         if not self.use_rd:
             coordinate_stmt = sql.SQL(
-                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), 28992)"
+                "ST_Transform(ST_GeomFromText('POINT({y} {x})', 4326), {crs})"
             )
 
         stmt = sql.SQL(
@@ -227,8 +232,7 @@ class DataSourceBase(object):
         ).format(
             temp_predicate=tmp_bounds,
             coordinate_stmt=coordinate_stmt.format(
-                x=sql.Placeholder("x"),
-                y=sql.Placeholder("y"),
+                x=sql.Placeholder("x"), y=sql.Placeholder("y"), crs=self.get_db_crs()
             ),
             **self.get_variable_sql(table),
         )
