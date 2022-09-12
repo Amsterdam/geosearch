@@ -6,7 +6,8 @@ from typing import Dict, List, Optional, Set
 
 import psycopg2.extras
 from flask import current_app as app
-from schematools.types import DatasetSchema
+from schematools.exceptions import SchemaObjectNotFound
+from schematools.types import DatasetSchema, DatasetTableSchema
 from schematools.utils import to_snake_case
 
 from datapunt_geosearch.datasource import (
@@ -21,6 +22,8 @@ from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
 _logger = logging.getLogger(__name__)
+
+DEFAULT_CRS = "EPSG:28992"
 
 
 class DatasetRegistry:
@@ -107,6 +110,7 @@ class DatasetRegistry:
         scopes=None,
         field_name_transformation=None,
         temporal_dimension=None,
+        crs=None,
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -202,6 +206,7 @@ class DatasetRegistry:
                 },
                 "dsn_name": dsn_name,
                 "temporal_bounds": temporal_bounds,
+                "crs": crs,
             },
         )
 
@@ -259,15 +264,24 @@ class DatasetRegistry:
 
         return datasets
 
-    def _fetch_temporal_dimensions(self, schema_data, table_name):
-        if schema_data is None:
-            return None
-        dataset_schema = DatasetSchema.from_dict(json.loads(schema_data))
-        dataset_table = dataset_schema.get_table_by_id(table_name)
+    def _fetch_temporal_dimensions(self, dataset_table):
         temporal = dataset_table.temporal
         if temporal is None:
             return None
         return temporal.dimensions.get("geldigOp")
+
+    def _fetch_crs(self, dataset_table: DatasetTableSchema, geo_field: Optional[str]):
+        # TODO: Move this to schematools
+        if geo_field:
+            try:
+                field = dataset_table.get_field_by_id(to_snake_case(geo_field))
+                return field.data.get(
+                    "crs",
+                    dataset_table.data.get("crs", dataset_table.dataset.data["crs"]),
+                )
+            except SchemaObjectNotFound:
+                pass
+        return DEFAULT_CRS
 
     def init_dataservices_datasets(self, dsn=None):
         try:
@@ -296,6 +310,26 @@ class DatasetRegistry:
         """
         datasets = dict()
         for row in dbconn.fetch_all(sql):
+            # TODO: Remove all code assuming that schema_data can be inconsistent
+            crs = DEFAULT_CRS
+            temporal_dimension = None
+            if row["schema_data"]:
+                try:
+                    dataset_schema = DatasetSchema.from_dict(
+                        json.loads(row["schema_data"])
+                    )
+                    dataset_table = dataset_schema.get_table_by_id(row["name"])
+                    crs = self._fetch_crs(dataset_table, row["geometry_field"])
+                    temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
+                except SchemaObjectNotFound:
+                    # we should be able to assume that the ams-schemas are
+                    # internally consistent but there is code (tests) in this
+                    # codebase making the assumption that we can create
+                    # Datasources for internally inconsistent schemas (i.e. presence of
+                    # tables that are not referenced by the dataset)
+                    # this is a workaround.
+                    pass
+
             scopes = set()
             if row["dataset_authorization"]:
                 scopes = set(row["dataset_authorization"].split(","))
@@ -308,9 +342,8 @@ class DatasetRegistry:
                 base_url=f"{app.config['DATAPUNT_API_URL']}v1/",
                 scopes=scopes,
                 field_name_transformation=lambda field_id: to_snake_case(field_id),
-                temporal_dimension=self._fetch_temporal_dimensions(
-                    row["schema_data"], row["name"]
-                ),
+                temporal_dimension=temporal_dimension,
+                crs=crs,
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"
