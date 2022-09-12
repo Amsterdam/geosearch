@@ -23,6 +23,8 @@ from datapunt_geosearch.exceptions import DataSourceException
 
 _logger = logging.getLogger(__name__)
 
+DEFAULT_CRS = "EPSG:28992"
+
 
 class DatasetRegistry:
     """
@@ -219,7 +221,7 @@ class DatasetRegistry:
             self._datasets_initialized is None
             or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY_SECONDS
         ):
-            # self.init_vsd_datasets()
+            self.init_vsd_datasets()
             self.init_dataservices_datasets()
             self._datasets_initialized = time.time()
 
@@ -279,7 +281,7 @@ class DatasetRegistry:
                 )
             except SchemaObjectNotFound:
                 pass
-        return "EPSG:28992"
+        return DEFAULT_CRS
 
     def init_dataservices_datasets(self, dsn=None):
         try:
@@ -308,8 +310,26 @@ class DatasetRegistry:
         """
         datasets = dict()
         for row in dbconn.fetch_all(sql):
-            dataset_schema = DatasetSchema.from_dict(json.loads(row["schema_data"]))
-            dataset_table = dataset_schema.get_table_by_id(row["name"])
+            # TODO: Remove all code assuming that schema_data can be inconsistent
+            crs = DEFAULT_CRS
+            temporal_dimension = None
+            if row["schema_data"]:
+                try:
+                    dataset_schema = DatasetSchema.from_dict(
+                        json.loads(row["schema_data"])
+                    )
+                    dataset_table = dataset_schema.get_table_by_id(row["name"])
+                    crs = self._fetch_crs(dataset_table, row["geometry_field"])
+                    temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
+                except SchemaObjectNotFound:
+                    # we should be able to assume that the ams-schemas are
+                    # internally consistent but there is code (tests) in this
+                    # codebase making the assumption that we can create
+                    # Datasources for internally inconsistent schemas (i.e. presence of
+                    # tables that are not referenced by the dataset)
+                    # this is a workaround.
+                    pass
+
             scopes = set()
             if row["dataset_authorization"]:
                 scopes = set(row["dataset_authorization"].split(","))
@@ -322,8 +342,8 @@ class DatasetRegistry:
                 base_url=f"{app.config['DATAPUNT_API_URL']}v1/",
                 scopes=scopes,
                 field_name_transformation=lambda field_id: to_snake_case(field_id),
-                temporal_dimension=self._fetch_temporal_dimensions(dataset_table),
-                crs=self._fetch_crs(dataset_table, row["geometry_field"]),
+                temporal_dimension=temporal_dimension,
+                crs=crs,
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"
