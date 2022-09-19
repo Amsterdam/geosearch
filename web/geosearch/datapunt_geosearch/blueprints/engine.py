@@ -29,7 +29,7 @@ def generate_async(request_args, authz_scopes=None):
         for result in executor.map(
             fetch,
             registry.filter_datasources(names=datasets, scopes=authz_scopes),
-            timeout=1,
+            timeout=5,
         ):
             for row in result:
                 if first_item:

@@ -322,12 +322,15 @@ class DatasetRegistry:
                     crs = self._fetch_crs(dataset_table, row["geometry_field"])
                     temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
                 except SchemaObjectNotFound:
-                    # we should be able to assume that the ams-schemas are
+                    # We should be able to assume that the ams-schemas are
                     # internally consistent but there is code (tests) in this
                     # codebase making the assumption that we can create
                     # Datasources for internally inconsistent schemas (i.e. presence of
                     # tables that are not referenced by the dataset)
                     # this is a workaround.
+                    _logger.warn(
+                        f"Table {row['name']} in db but not referenced by dataset"
+                    )
                     pass
 
             scopes = set()

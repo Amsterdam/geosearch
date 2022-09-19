@@ -8,7 +8,7 @@ from flask import abort, current_app, g
 from flask import request as flask_request
 from jwcrypto.common import JWException
 from jwcrypto.jwk import JWKSet
-from jwcrypto.jwt import JWT, JWTMissingKey
+from jwcrypto.jwt import JWT, JWTExpired, JWTMissingKey
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,9 @@ def check_authentication(request):
         except JWTMissingKey as e:
             logger.warning("Auth problem: unknown key. {}".format(e))
             abort(401, "Incorrect Bearer. Unknown key.")
+        except JWTExpired as e:
+            logger.warning("Auth problem: expired JWT. {}".format(e))
+            abort(401, "Expired JWT.")
         except ValueError as e:
             logger.warning("Auth problem: incorrect token. {}".format(e))
             abort(401, "Incorrect Bearer.")
