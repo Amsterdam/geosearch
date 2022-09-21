@@ -83,7 +83,7 @@ class _DBConnection:
             yield self._conn
         except psycopg2.Error as e:
             _logger.critical("AUTHZ DatabaseError: {}".format(e))
-            if not self._is_usable():
+            if self._conn is not None and not self._is_usable():
                 with contextlib.suppress(psycopg2.Error):
                     self._conn.close()
                 self._conn = None
