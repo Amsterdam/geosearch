@@ -1,5 +1,6 @@
 import os
 from logging.config import dictConfig
+from pathlib import Path
 from typing import Dict
 
 from datapunt_geosearch.authz import get_keyset
@@ -7,24 +8,34 @@ from datapunt_geosearch.authz import get_keyset
 DATABASE_SET_ROLE = os.getenv("DATABASE_SET_ROLE", False)
 
 
-def get_db_settings(db: str) -> Dict[str, str]:
+def get_db_settings(db_key: str) -> Dict[str, str]:
     """
     Get the complete settings for a given database. Taking all possible
     environments into account.
 
     :rtype: Dict[str, str]
-    :param db:
+    :param db_key: the key used as env var prefix
     :param docker_host:
     :param localport:
     :return: A dict containing all settings:
              'username', 'password', 'host', 'port' and 'db'
     """
+    db = os.getenv(f"{db_key.upper()}_DB_DATABASE_OVERRIDE", db_key)
+    if os.getenv("CLOUD_ENV") == "azure":
+        # Note that the secrets are named after the name of the db in Azure
+        # in stead of the db_key used to get settings from the environment.
+        password = Path(
+            f"/mnt/secrets-store/{db.replace('_', '-')}-db-password"
+        ).read_text()
+    else:
+        password = os.environ[f"{db_key.upper()}_DB_PASSWORD_OVERRIDE"]
+
     return {
-        "username": os.environ[f"{db.upper()}_DB_USER_OVERRIDE"],
-        "password": os.environ[f"{db.upper()}_DB_PASSWORD_OVERRIDE"],
-        "host": os.environ[f"{db.upper()}_DB_HOST_OVERRIDE"],
-        "port": os.getenv(f"{db.upper()}_DB_PORT_OVERRIDE", "5432"),
-        "db": os.getenv(f"{db.upper()}_DB_DATABASE_OVERRIDE", db),
+        "username": os.environ[f"{db_key.upper()}_DB_USER_OVERRIDE"],
+        "password": password,
+        "host": os.environ[f"{db_key.upper()}_DB_HOST_OVERRIDE"],
+        "port": os.getenv(f"{db_key.upper()}_DB_PORT_OVERRIDE", "5432"),
+        "db": db,
     }
 
 
