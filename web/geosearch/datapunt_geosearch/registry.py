@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Set
 import psycopg2.extras
 from flask import current_app as app
 from schematools.exceptions import SchemaObjectNotFound
+from schematools.naming import to_snake_case
 from schematools.types import DatasetSchema, DatasetTableSchema
-from schematools.utils import to_snake_case
 
 from datapunt_geosearch.datasource import (
     BagDataSource,
@@ -344,7 +344,7 @@ class DatasetRegistry:
                 dsn_name="DSN_DATASERVICES_DATASETS",
                 base_url=f"{app.config['DATAPUNT_API_URL']}v1/",
                 scopes=scopes,
-                field_name_transformation=lambda field_id: to_snake_case(field_id),
+                field_name_transformation=to_snake_case,
                 temporal_dimension=temporal_dimension,
                 crs=crs,
             )
