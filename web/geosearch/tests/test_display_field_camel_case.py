@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from schematools.utils import to_snake_case
+from schematools.naming import to_snake_case
 
 from datapunt_geosearch.registry import DatasetRegistry
 
