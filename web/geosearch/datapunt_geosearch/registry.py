@@ -188,8 +188,8 @@ class DatasetRegistry:
         temporal_bounds = None
         if temporal_dimension is not None:
             temporal_bounds = (
-                field_name_transformation(temporal_dimension.start),
-                field_name_transformation(temporal_dimension.end),
+                field_name_transformation(temporal_dimension.start.db_name),
+                field_name_transformation(temporal_dimension.end.db_name),
             )
             fields += list(temporal_bounds)
 
@@ -211,7 +211,6 @@ class DatasetRegistry:
         )
 
         self.register_datasource(dsn_name, datasource_class)
-        _logger.debug(f"Registered {datasource_class} with DSN {dsn_name}")
         return datasource_class
 
     def init_datasets(self):

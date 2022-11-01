@@ -14,13 +14,7 @@ from .config import DATAPUNT_API_URL
 _logger = logging.getLogger(__name__)
 
 
-class Meta(type):
-    def __str__(cls):
-        return f"<Datasource: db: {cls.db} crs: {cls.crs}\
-             validity: {cls.temporal_bounds}>"
-
-
-class DataSourceBase(metaclass=Meta):
+class DataSourceBase:
     """
     Base class for querying geo spatial datasets
     """
@@ -111,7 +105,6 @@ class DataSourceBase(metaclass=Meta):
         if "fields" in self.meta:
             self.fields = ",".join(self.meta["fields"])
 
-        _logger.debug(f"QUERYING {type(self)}")
         features = []
         with self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             for dataset in self.meta["datasets"]:
