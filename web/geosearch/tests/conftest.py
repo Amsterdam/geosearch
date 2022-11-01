@@ -64,6 +64,9 @@ FAKE_SCHEMA = """
             "format": "date-time",
             "description": ""
           },
+          "volgnummer": {
+            "type": "integer"
+          },
           "geometry": {
             "$ref": "https://geojson.org/schema/Geometry.json"
           }
@@ -112,6 +115,9 @@ FAKE_SCHEMA = """
             "type": "string",
             "format": "date-time",
             "description": ""
+          },
+          "volgnummer": {
+            "type": "integer"
           },
           "geometry": {
             "$ref": "https://geojson.org/schema/Geometry.json"
