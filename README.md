@@ -11,7 +11,28 @@ Local development is done using docker. We use snapshots of the online databases
 Note that these snapshots are not automatically updated when the database schema changes, so it is possible that our
 tests are running on older versions of the schemas.
 
-1) Set the `OS_TENANT_ID` and `OS_AUTH_URL` env vars so we can connect to the object store. (Can be retrieved from openstack)
+1) Set the `OS_TENANT_ID` and `OS_AUTH_TOKEN` env vars so we can connect to the object store. (Can be retrieved from openstack)    
+
+    In case of cloudVPS, `OS_AUTH_TOKEN` can be retrieved from the keystone endpoint of the objectstore using:
+
+    ```bash
+        export OS_AUTH_TOKEN=$(curl -H "Content-Type: application/json" -s 'https://identity.stack.cloudvps.com/v2.0/tokens' -d @$OS_CREDS | python -c "import sys; import json; print(json.loads(sys.stdin.read())['access['token']['id'])")
+    ```
+
+    where OS_CREDS points to a json formatted file containing the objectstore credentials. this file has the following format:
+
+    ```json
+        {
+            "auth": {
+                "passwordCredentials": {
+                    "username": "",
+                    "password": ""
+                },
+                "tenantName": ""
+        }
+    }
+    ```
+
 2) Start database container:
 
     `docker-compose up database`
