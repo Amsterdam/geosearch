@@ -14,7 +14,7 @@ requests==2.23.0
 sentry-sdk==0.6.6
 six==1.12.0
 Werkzeug==0.16.1
-jwcrypto==0.7
+jwcrypto==1.4
 pytest==5.3.5
 PyYAML==5.4
 python-string-utils==1.0.0
