@@ -211,6 +211,7 @@ class DatasetRegistry:
         )
 
         self.register_datasource(dsn_name, datasource_class)
+        _logger.debug(f"Registered {datasource_class} with DSN {dsn_name}")
         return datasource_class
 
     def init_datasets(self):
@@ -264,7 +265,7 @@ class DatasetRegistry:
 
         return datasets
 
-    def _fetch_temporal_dimensions(self, dataset_table):
+    def _fetch_temporal_dimensions(self, dataset_table: DatasetTableSchema):
         temporal = dataset_table.temporal
         if temporal is None:
             return None
