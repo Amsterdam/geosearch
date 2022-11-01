@@ -25,9 +25,13 @@ DSN_DATASERVICES_DATASETS = db_connection_string.format(
 
 
 logging.debug(
-    "Database config:\n" "Bag: %s\n" "Nap: %s\n" "Milieu: %s\n" "Monumenten: %s\n",
-    "Various Small Datasets: %s\n",
-    "Dataservices: %s\n",
+    "\n\nApp Database config:\n\
+         Bag: %s\n\
+         Nap: %s\n\
+         Milieu: %s\n\
+         Monumenten: %s\n\
+        Various Small Datasets: %s\n\
+        Dataservices: %s\n\n",
     DSN_BAG,
     DSN_NAP,
     DSN_MILIEU,

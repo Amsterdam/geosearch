@@ -1,4 +1,5 @@
 import os
+from logging.config import dictConfig
 from typing import Dict
 
 from datapunt_geosearch.authz import get_keyset
@@ -71,3 +72,22 @@ JWKS_SIGNING_ALGORITHMS = [
 ]
 
 JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)
+
+dictConfig(
+    {
+        "version": 1,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+            }
+        },
+        "handlers": {
+            "wsgi": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://flask.logging.wsgi_errors_stream",
+                "formatter": "default",
+            }
+        },
+        "root": {"level": os.getenv("LOG_LEVEL", "INFO"), "handlers": ["wsgi"]},
+    }
+)
