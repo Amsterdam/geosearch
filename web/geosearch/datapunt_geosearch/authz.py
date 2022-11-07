@@ -41,11 +41,14 @@ def check_authentication(request):
     Optionally check authentication via on request.
 
     Returns None if request contains no Authorization header.
-    In case Authorization header is correct - updates `g.authz_scopes` with
-     scopes from claims defined in JWT token.
+    In case Authorization header is correct
+        - sets scopes from claims defined in JWT token on appcontext
+        - sets user defined in JWT token on appcontext
+
     Aborts with 401 in case Authorization header contains incorrect token.
     """
     g.authz_scopes = None
+    g.token_subject = None
     token = get_token_from_request(request=request)
     if token is not None:
         try:
@@ -67,7 +70,7 @@ def check_authentication(request):
         claims = get_claims(jwt)
         if claims:
             g.authz_scopes = claims["scopes"]
-    return None
+            g.token_subject = claims["sub"]
 
 
 def get_token_from_request(request):

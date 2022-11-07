@@ -1,7 +1,7 @@
 import logging
 
-from datapunt_geosearch.base_config import DATAPUNT_API_URL  # noqa: F401
-from datapunt_geosearch.base_config import (
+from datapunt_geosearch.base_config import (  # noqa: F401
+    DATAPUNT_API_URL,
     DEFAULT_SEARCH_DATASETS,
     JW_KEYSET,
     JWKS,
@@ -47,3 +47,5 @@ logging.debug(
     DSN_VARIOUS_SMALL_DATASETS,
     DSN_DATASERVICES_DATASETS,
 )
+
+DATABASE_SET_ROLE = False

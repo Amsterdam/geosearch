@@ -111,6 +111,7 @@ class DatasetRegistry:
         field_name_transformation=None,
         temporal_dimension=None,
         crs=None,
+        set_user_role=False,
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -207,6 +208,7 @@ class DatasetRegistry:
                 "dsn_name": dsn_name,
                 "temporal_bounds": temporal_bounds,
                 "crs": crs,
+                "set_user_role": set_user_role,
             },
         )
 
@@ -347,6 +349,9 @@ class DatasetRegistry:
                 field_name_transformation=to_snake_case,
                 temporal_dimension=temporal_dimension,
                 crs=crs,
+                # Connections to the reference database must use role switching
+                # on Azure.
+                set_user_role=True,
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"

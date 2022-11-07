@@ -116,6 +116,7 @@ def search_catalogus():
 
 
 @search.route("/search/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_in_datasets():
     """
@@ -186,6 +187,7 @@ def search_in_datasets():
 
 
 @search.route("/nap/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_geo_nap():
     """Performing a geo search for radius around a point using postgres"""
@@ -202,6 +204,7 @@ def search_geo_nap():
 
 
 @search.route("/monumenten/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_geo_monumenten():
     """Performing a geo search for radius around a point using postgres"""
@@ -221,6 +224,7 @@ def search_geo_monumenten():
 
 
 @search.route("/munitie/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_geo_munitie():
     """Performing a geo search for radius around a point using postgres"""
@@ -235,6 +239,7 @@ def search_geo_munitie():
 
 
 @search.route("/bominslag/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_geo_bominslag():
     """Performing a geo search for radius around a point using postgres"""
@@ -250,6 +255,7 @@ def search_geo_bominslag():
     return jsonify(resp)
 
 
+@authenticate
 @retry_on_psycopg2_error
 def _search_geo_bag():
     """Performing a geo search for radius around a point using postgres"""
@@ -263,6 +269,7 @@ def _search_geo_bag():
     return jsonify(resp)
 
 
+@authenticate
 @search.route("/bag/", methods=["GET", "OPTIONS"])
 def search_geo_bag():
     # shine new endpoint
@@ -270,6 +277,7 @@ def search_geo_bag():
 
 
 @search.route("/atlas/", methods=["GET", "OPTIONS"])
+@authenticate
 def search_geo_atlas():
     # old should be replaced
     return _search_geo_bag()
@@ -277,6 +285,7 @@ def search_geo_atlas():
 
 # This should be the last (catchall) route/view combination
 @search.route("/<string:dataset>/", methods=["GET", "OPTIONS"])
+@authenticate
 @retry_on_psycopg2_error
 def search_geo_genapi(dataset):
     """Performing a geo search for radius around a point using postgres.
