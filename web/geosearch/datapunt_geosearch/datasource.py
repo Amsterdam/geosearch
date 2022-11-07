@@ -37,16 +37,18 @@ class DataSourceBase:
     extra_where = ""
     temporal_bounds = None
     crs = None
+    # whether the db connection should switch end user context for querying
+    set_user_role = False
 
     def __init__(self, dsn=None, connection=None):
-        _logger.debug("Creating DataSource: %s" % self.dataset)
+        _logger.debug("Creating DataSource: %s" % self.__class__.__name__)
 
         if not dsn and connection is None:
             raise ValueError("dsn needs to be defined")
 
         if connection is None:
             try:
-                self.dbconn = dbconnection(dsn)
+                self.dbconn = dbconnection(dsn, set_user_role=self.set_user_role)
             except psycopg2.Error as e:
                 _logger.error("Error creating connection: %s" % e)
                 raise DataSourceException("error connecting to datasource") from e
@@ -129,7 +131,7 @@ class DataSourceBase:
                         )
 
                     if not len(rows):
-                        _logger.debug(table, "no results")
+                        _logger.debug("no results for table: %s", table)
                         continue
 
                     for row in rows:

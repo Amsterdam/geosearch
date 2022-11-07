@@ -73,7 +73,7 @@ master_index_table_name = "geo_master"
 
 
 def create_index_table(conn):
-    with conn.transaction_cursor() as cur:
+    with conn.cursor() as cur:
         # If something went wrong the previous time
         cur.execute(f"""DROP TABLE IF EXISTS {master_index_table_name}_new""")
         cur.execute(

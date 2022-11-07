@@ -1,6 +1,4 @@
-import concurrent.futures
 import logging
-from functools import partial
 
 try:
     import orjson as json
@@ -19,32 +17,23 @@ def generate_async(request_args, authz_scopes=None):
         datasets = request_args.get("datasets").split(",")
     else:
         datasets = app.config["DEFAULT_SEARCH_DATASETS"]
-
-    fetch = partial(
-        fetch_data, request_args=request_args, datasets=datasets, config=app.config
-    )
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        for result in executor.map(
-            fetch,
-            registry.filter_datasources(names=datasets, scopes=authz_scopes),
-            timeout=5,
-        ):
-            for row in result:
-                if first_item:
-                    first_item = False
-                else:
-                    yield ","
-                yield json.dumps(row)
+    for ds in registry.filter_datasources(names=datasets, scopes=authz_scopes):
+        for row in fetch_data(ds, request_args, datasets):
+            if first_item:
+                first_item = False
+            else:
+                yield ","
+            yield json.dumps(row)
     yield "]}"
 
 
-def fetch_data(sourceClass, request_args, datasets, config):
+def fetch_data(sourceClass, request_args, datasets):
     dsn = None
     if sourceClass.dsn_name is not None:
         try:
-            dsn = config[sourceClass.dsn_name]
+            dsn = app.config[sourceClass.dsn_name]
         except AttributeError:
             _logger.error(
                 "Can not find configuration for %s." % sourceClass.dsn_name,
@@ -56,7 +45,6 @@ def fetch_data(sourceClass, request_args, datasets, config):
     datasource.use_rd = request_args["rd"]
     datasource.x = float(request_args["x"])
     datasource.y = float(request_args["y"])
-
     if request_args.get("radius"):
         datasource.radius = request_args.get("radius")
 

@@ -1,7 +1,8 @@
 import logging
 
-from datapunt_geosearch.base_config import DATAPUNT_API_URL  # noqa: F401
-from datapunt_geosearch.base_config import (
+from datapunt_geosearch.base_config import (  # noqa: F401
+    DATABASE_SET_ROLE,
+    DATAPUNT_API_URL,
     DEFAULT_SEARCH_DATASETS,
     JW_KEYSET,
     JWKS,
@@ -31,11 +32,13 @@ logging.debug(
          Milieu: %s\n\
          Monumenten: %s\n\
         Various Small Datasets: %s\n\
-        Dataservices: %s\n\n",
+        Dataservices: %s\n\
+        Role switching %s\n\n",
     DSN_BAG,
     DSN_NAP,
     DSN_MILIEU,
     DSN_MONUMENTEN,
     DSN_VARIOUS_SMALL_DATASETS,
     DSN_DATASERVICES_DATASETS,
+    "active" if DATABASE_SET_ROLE else "inactive",
 )

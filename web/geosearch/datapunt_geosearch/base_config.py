@@ -4,6 +4,8 @@ from typing import Dict
 
 from datapunt_geosearch.authz import get_keyset
 
+DATABASE_SET_ROLE = os.getenv("DATABASE_SET_ROLE", False)
+
 
 def get_db_settings(db: str) -> Dict[str, str]:
     """

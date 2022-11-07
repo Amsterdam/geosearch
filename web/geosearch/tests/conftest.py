@@ -144,6 +144,13 @@ def flask_test_app():
     ctx.pop()
 
 
+@pytest.fixture
+def active_user_context(flask_test_app):
+    flask_test_app.config["DATABASE_SET_ROLE"] = True
+    yield
+    flask_test_app.config["DATABASE_SET_ROLE"] = False
+
+
 @pytest.fixture(scope="class")
 def test_client(request, flask_test_app):
     """A client factory wrapped in an Application context"""
@@ -151,6 +158,46 @@ def test_client(request, flask_test_app):
         request.cls.client = flask_test_app.test_client
     else:
         return flask_test_app.test_client
+
+
+@pytest.fixture
+def role_configuration(flask_test_app):
+    with dbconnection(
+        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
+    ).cursor() as cursor:
+        cursor.execute(
+            """
+        CREATE ROLE "test@test.nl_role" WITH LOGIN;
+        CREATE ROLE "anonymous_role" WITH LOGIN;
+        CREATE ROLE "medewerker_role" WITH LOGIN;
+        GRANT "test@test.nl_role" TO insecure;
+        GRANT "anonymous_role" TO insecure;
+        GRANT "medewerker_role" TO insecure;
+        GRANT SELECT ON TABLE fake_fake TO "test@test.nl_role";
+        GRANT SELECT ON TABLE fake_fake TO "anonymous_role";
+        GRANT SELECT ON TABLE fake_fake TO "medewerker_role";
+        GRANT SELECT ON TABLE datasets_dataset TO "test@test.nl_role";
+        GRANT SELECT ON TABLE datasets_datasettable TO "test@test.nl_role";
+        GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
+        GRANT SELECT ON TABLE datasets_datasettable TO "anonymous_role";
+      """
+        )
+
+    yield
+
+    with dbconnection(
+        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
+    ).cursor() as cursor:
+        cursor.execute(
+            """
+        DROP OWNED BY "test@test.nl_role";
+        DROP OWNED BY "anonymous_role";
+        DROP OWNED BY "medewerker_role";
+        DROP ROLE "test@test.nl_role";
+        DROP ROLE "anonymous_role";
+        DROP ROLE "medewerker_role";
+      """
+        )
 
 
 @pytest.fixture(scope="session")
@@ -161,7 +208,6 @@ def dataservices_db(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             f"""
-            BEGIN;
             DROP TABLE IF EXISTS "datasets_dataset" CASCADE;
             CREATE TABLE "datasets_dataset" (
               "id" serial NOT NULL PRIMARY KEY,
@@ -215,19 +261,15 @@ def dataservices_db(flask_test_app):
               dataset_id,
               auth
             ) VALUES (2, 'fake_secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET');
-            COMMIT;
             """
         )
-
     yield
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        BEGIN;
         DROP TABLE "datasets_datasettable" CASCADE;
         DROP TABLE "datasets_dataset" CASCADE;
-        COMMIT;
         """
         )
 
@@ -240,6 +282,8 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
+        DROP TABLE IF EXISTS "fake_fake";
+        DROP TABLE IF EXISTS "fake_secret";
         CREATE TABLE IF NOT EXISTS "fake_fake" (
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
@@ -258,7 +302,6 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        BEGIN;
         INSERT INTO "fake_fake" (id, name, geometry) VALUES (
           1,
           'test',
@@ -267,7 +310,6 @@ def dataservices_fake_data(flask_test_app):
           1,
           'secret test',
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
-        COMMIT;
         """
         )
 
@@ -299,7 +341,6 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
         with dataservices_db_connection.cursor() as cursor:
             cursor.execute(
                 f"""
-            BEGIN;
             INSERT INTO "fake_fake" (id, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
                 (
                   {id_counter},
@@ -308,20 +349,14 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
                   {eind_geldigheid},
                   ST_GeomFromText('POINT(123282.6 487674.8)', 28992)
                 );
-            COMMIT;
             """
             )
             id_counter += 1
-            yield
-            with dataservices_db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    BEGIN;
-                    DELETE FROM "fake_fake"
-                    WHERE id >= 10;
-                    COMMIT;
-                """
-                )
+
+        yield
+
+        with dataservices_db_connection.cursor() as cursor:
+            cursor.execute('DELETE FROM "fake_fake" WHERE id >= 10;')
 
     request.cls.data_creator = _creator
 
@@ -339,9 +374,12 @@ def create_authz_token(request, flask_test_app):
 
         token = JWT(
             header=header,
-            claims={"iat": now, "exp": now + 600, "scopes": scopes, "subject": subject},
+            claims={"iat": now, "exp": now + 600, "scopes": scopes, "sub": subject},
         )
         token.make_signed_token(key)
-        return "bearer " + token.serialize()
+        return token.serialize()
 
-    request.cls.create_authz_token = _create_authz_token
+    if request.cls is not None:
+        request.cls.create_authz_token = _create_authz_token
+    else:
+        return _create_authz_token

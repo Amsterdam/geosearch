@@ -43,7 +43,7 @@ class CatalogusEndpointTestCase(unittest.TestCase):
     def test_correct_bearer_accepted_and_scopes_assigned(self):
         token = self.create_authz_token(subject="test@test.nl", scopes=["CA/W", "TEST"])
         with self.client() as client:
-            client.get("/catalogus/", headers={"Authorization": token})
+            client.get("/catalogus/", headers={"Authorization": f"Bearer {token}"})
             self.assertEqual(flask.g.authz_scopes, {"CA/W", "TEST"})
 
     def test_dataset_table_with_authorization_not_visible(self):
@@ -57,7 +57,9 @@ class CatalogusEndpointTestCase(unittest.TestCase):
     def test_dataset_table_with_authorization_not_visible_with_no_scope(self):
         token = self.create_authz_token(subject="test@test.nl", scopes=["CA/W", "TEST"])
         with self.client() as client:
-            response = client.get("/catalogus/", headers={"Authorization": token})
+            response = client.get(
+                "/catalogus/", headers={"Authorization": f"Bearer {token}"}
+            )
             self.assertEqual(flask.g.authz_scopes, {"TEST", "CA/W"})
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
@@ -68,7 +70,9 @@ class CatalogusEndpointTestCase(unittest.TestCase):
             subject="test@test.nl", scopes=["CA/W", "TEST", "FAKE/SECRET"]
         )
         with self.client() as client:
-            response = client.get("/catalogus/", headers={"Authorization": token})
+            response = client.get(
+                "/catalogus/", headers={"Authorization": f"Bearer {token}"}
+            )
             self.assertEqual(flask.g.authz_scopes, {"CA/W", "TEST", "FAKE/SECRET"})
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
