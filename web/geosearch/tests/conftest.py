@@ -4,6 +4,7 @@ from contextlib import contextmanager
 
 import pytest
 from jwcrypto.jwt import JWT
+from psycopg2 import sql
 
 from datapunt_geosearch import authz, create_app
 from datapunt_geosearch.db import dbconnection
@@ -166,13 +167,14 @@ def role_configuration(flask_test_app):
         flask_test_app.config["DSN_DATASERVICES_DATASETS"]
     ).cursor() as cursor:
         cursor.execute(
-            """
+            sql.SQL(
+                """
         CREATE ROLE "test@test.nl_role" WITH LOGIN;
         CREATE ROLE "anonymous_role" WITH LOGIN;
         CREATE ROLE "medewerker_role" WITH LOGIN;
-        GRANT "test@test.nl_role" TO insecure;
-        GRANT "anonymous_role" TO insecure;
-        GRANT "medewerker_role" TO insecure;
+        GRANT "test@test.nl_role" TO {appuser};
+        GRANT "anonymous_role" TO {appuser};
+        GRANT "medewerker_role" TO {appuser};
         GRANT SELECT ON TABLE fake_fake TO "test@test.nl_role";
         GRANT SELECT ON TABLE fake_fake TO "anonymous_role";
         GRANT SELECT ON TABLE fake_fake TO "medewerker_role";
@@ -181,6 +183,7 @@ def role_configuration(flask_test_app):
         GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "anonymous_role";
       """
+            ).format(appuser=sql.Identifier(cursor.connection.info.user))
         )
 
     yield
