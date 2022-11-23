@@ -24,7 +24,8 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
     if os.getenv("CLOUD_ENV") == "azure":
         # Note that the secrets are named after the name of the db in Azure
         # in stead of the db_key used to get settings from the environment.
-        password = Path(f"/mnt/secrets-store/{db_key.upper()}_PW_LOCATION").read_text()
+        location = os.environ[f"{db_key.upper()}_PW_LOCATION"]
+        password = Path(f"/mnt/secrets-store/{location}").read_text()
     else:
         password = os.environ[f"{db_key.upper()}_DB_PASSWORD_OVERRIDE"]
 
