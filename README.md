@@ -1,5 +1,16 @@
 # Setup of local development
 
+## API docs
+
+- go to `https://api.data.amsterdam.nl/api/swagger/?url=/geosearch/docs/geosearch.yml`
+- put `/geosearch/docs/geosearch.yml` into the search bar
+
+### Notes
+
+- there is currently no guarantee that these docs are 100% up to date
+- the possible datasets/tables that canbe used for filtering can be retrieved from `/catalogus/`
+- behavior of filtering on datasets is non-deterministic and opaque because 1) it is not described and 2) if there is a name collision, results may disappear
+
 ## Virtual env setup
 
 1) `pip install -r web/requirements_dev.txt`
