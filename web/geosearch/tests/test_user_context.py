@@ -7,7 +7,9 @@ from flask import g
 from datapunt_geosearch import db
 from datapunt_geosearch.base_config import CLOUD_ENV
 
-only_run_on_azure = pytest.mark.skipif(CLOUD_ENV.lower() != "azure")
+only_run_on_azure = pytest.mark.skipif(
+    CLOUD_ENV.lower() != "azure", reason="End user context is only applicable on Azure"
+)
 
 
 @only_run_on_azure
