@@ -192,14 +192,16 @@ def role_configuration(flask_test_app):
 
     with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
         cursor.execute(
-            """
-        DROP OWNED BY "test@test.nl_role";
-        DROP OWNED BY "anonymous_role";
-        DROP OWNED BY "medewerker_role";
+            sql.SQL(
+                """
+        REASSIGN OWNED BY "test@test.nl_role" TO {adminuser};
+        REASSIGN OWNED BY "anonymous_role" TO {adminuser};
+        REASSIGN OWNED BY "medewerker_role" TO {adminuser};
         DROP ROLE "test@test.nl_role";
         DROP ROLE "anonymous_role";
         DROP ROLE "medewerker_role";
-      """
+              """
+            ).format(adminuser=sql.Identifier(cursor.connection.info.user))
         )
 
 
