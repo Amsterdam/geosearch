@@ -22,9 +22,10 @@ DSN_MONUMENTEN = db_connection_string.format(**get_db_settings("monumenten"))
 DSN_VARIOUS_SMALL_DATASETS = db_connection_string.format(
     **get_db_settings("various_small_datasets")
 )
-DSN_DATASERVICES_DATASETS = db_connection_string.format(
-    **get_db_settings("dataservices")
-)
+
+dataservices_settings = get_db_settings("dataservices")
+DSN_DATASERVICES_DATASETS = db_connection_string.format(**dataservices_settings)
+DATASERVICES_USER = dataservices_settings["username"]
 
 
 logging.debug(

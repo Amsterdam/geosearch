@@ -163,6 +163,10 @@ def test_client(request, flask_test_app):
 
 @pytest.fixture
 def role_configuration(flask_test_app):
+    # The dataservices user is not created with NOINHERIT so this does not
+    # properly mimick the real situation. In this case we are just testing
+    # whether role switching occurs at all, not whether privileges are also switched.
+    dataservices_user = flask_test_app.config["DATASERVICES_USER"]
     with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
         cursor.execute(
             sql.SQL(
@@ -181,7 +185,7 @@ def role_configuration(flask_test_app):
         GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "anonymous_role";
       """
-            ).format(appuser=sql.Identifier(cursor.connection.info.user))
+            ).format(appuser=sql.Identifier(dataservices_user))
         )
 
     yield
