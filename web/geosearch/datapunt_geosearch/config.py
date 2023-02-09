@@ -1,9 +1,11 @@
 import logging
 
 from datapunt_geosearch.base_config import (  # noqa: F401
+    CLOUD_ENV,
     DATABASE_SET_ROLE,
     DATAPUNT_API_URL,
     DEFAULT_SEARCH_DATASETS,
+    DSN_ADMIN_USER,
     JW_KEYSET,
     JWKS,
     JWKS_SIGNING_ALGORITHMS,

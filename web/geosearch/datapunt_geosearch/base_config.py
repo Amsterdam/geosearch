@@ -36,7 +36,7 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
              'username', 'password', 'host', 'port' and 'db'
     """
     db = os.getenv(f"{db_key.upper()}_DB_DATABASE_OVERRIDE", db_key)
-    if os.getenv("CLOUD_ENV") == "azure":
+    if os.getenv("CLOUD_ENV").lower() == "azure":
         # Note that the secrets are named after the name of the db in Azure
         # in stead of the db_key used to get settings from the environment.
         location = os.environ[f"{db_key.upper()}_PW_LOCATION"]
