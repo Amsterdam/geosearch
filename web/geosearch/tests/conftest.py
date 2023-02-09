@@ -197,9 +197,9 @@ def role_configuration(flask_test_app):
         REASSIGN OWNED BY "test@test.nl_role" TO {adminuser};
         REASSIGN OWNED BY "anonymous_role" TO {adminuser};
         REASSIGN OWNED BY "medewerker_role" TO {adminuser};
-        DROP OWNED BY "test@test.nl_role" TO {adminuser};
-        DROP OWNED BY "anonymous_role" TO {adminuser};
-        DROP OWNED BY "medewerker_role" TO {adminuser};
+        DROP OWNED BY "test@test.nl_role";
+        DROP OWNED BY "anonymous_role";
+        DROP OWNED BY "medewerker_role";
         DROP ROLE "test@test.nl_role";
         DROP ROLE "anonymous_role";
         DROP ROLE "medewerker_role";
