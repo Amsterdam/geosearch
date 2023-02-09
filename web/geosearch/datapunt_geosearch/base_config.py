@@ -13,7 +13,7 @@ db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
 # On Azure we need a superuser to configure end user context in tests
 if CLOUD_ENV.lower() == "azure":
     DSN_ADMIN_USER = db_connection_string.format(
-        {
+        **{
             "username": os.environ["TEST_ADMIN_USER"],
             "password": os.environ["TEST_ADMIN_PASSWORD"],
             "host": os.environ["TEST_ADMIN_HOST"],
