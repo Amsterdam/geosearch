@@ -1,11 +1,15 @@
 import json
 
+import pytest
 from flask import current_app as app
 from flask import g
 
 from datapunt_geosearch import db
 
+only_run_on_azure = pytest.mark.skipif(app.config["CLOUD_ENV"].lower() != "azure")
 
+
+@only_run_on_azure
 def test_user_not_set_by_default(test_client, dataservices_db, dataservices_fake_data):
     """Prove that usercontext not set when not configured"""
     with test_client() as client:
@@ -18,6 +22,7 @@ def test_user_not_set_by_default(test_client, dataservices_db, dataservices_fake
         )
 
 
+@only_run_on_azure
 def test_anonymous_when_no_jwt(
     active_user_context,
     test_client,
@@ -45,6 +50,7 @@ def test_anonymous_when_no_jwt(
     )
 
 
+@only_run_on_azure
 def test_end_user_when_jwt(
     active_user_context,
     test_client,
@@ -78,6 +84,7 @@ def test_end_user_when_jwt(
     )
 
 
+@only_run_on_azure
 def test_employee_when_internal_jwt_but_role_does_not_exist(
     active_user_context,
     test_client,

@@ -79,3 +79,5 @@ venv/
 
 # Docker
 docker-compose.override.y*ml
+
+.vscode

@@ -163,9 +163,7 @@ def test_client(request, flask_test_app):
 
 @pytest.fixture
 def role_configuration(flask_test_app):
-    with dbconnection(
-        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
-    ).cursor() as cursor:
+    with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
         cursor.execute(
             sql.SQL(
                 """
@@ -188,9 +186,7 @@ def role_configuration(flask_test_app):
 
     yield
 
-    with dbconnection(
-        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
-    ).cursor() as cursor:
+    with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
         cursor.execute(
             """
         DROP OWNED BY "test@test.nl_role";

@@ -6,6 +6,21 @@ from typing import Dict
 from datapunt_geosearch.authz import get_keyset
 
 DATABASE_SET_ROLE = os.getenv("DATABASE_SET_ROLE", False)
+CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")
+
+db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
+
+# On Azure we need a superuser to configure end user context in tests
+if CLOUD_ENV.lower() == "azure":
+    DSN_ADMIN_USER = db_connection_string.format(
+        {
+            "username": os.environ["TEST_ADMIN_USER"],
+            "password": os.environ["TEST_ADMIN_PASSWORD"],
+            "host": os.environ["TEST_ADMIN_HOST"],
+            "port": os.environ["TEST_ADMIN_PORT"],
+            "db": os.environ["TEST_ADMIN_DB"],
+        }
+    )
 
 
 def get_db_settings(db_key: str) -> Dict[str, str]:
@@ -37,8 +52,6 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
         "db": db,
     }
 
-
-db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
 
 DATAPUNT_API_URL = os.getenv("DATAPUNT_API_URL", "https://api.data.amsterdam.nl/")
 
