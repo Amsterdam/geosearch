@@ -284,9 +284,9 @@ def search_geo_atlas():
 
 
 # This should be the last (catchall) route/view combination
-@search.route("/<string:dataset>/", methods=["GET", "OPTIONS"])
 @authenticate
 @retry_on_psycopg2_error
+@search.route("/<string:dataset>/", methods=["GET", "OPTIONS"])
 def search_geo_genapi(dataset):
     """Performing a geo search for radius around a point using postgres.
 
