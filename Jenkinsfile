@@ -28,7 +28,7 @@ node {
                 file(credentialsId:"OS_CREDS", variable: "OS_CREDS"),
             ]) {
                 sh '''
-                    export OS_AUTH_TOKEN=$(curl -H "Content-Type: application/json" -s 'https://identity.stack.cloudvps.com/v2.0/tokens' -d @$OS_CREDS | python -c "import sys; import json; print(json.loads(sys.stdin.read())['access']['token']['id'])")
+                    export OS_AUTH_TOKEN=$(curl -H "Content-Type: application/json" -s 'https://identity.stack.cloudvps.com/v2.0/tokens' -d @$OS_CREDS | python3 -c "import sys; import json; print(json.loads(sys.stdin.read())['access']['token']['id'])")
                     .jenkins/runtests.sh
                 '''
                }
