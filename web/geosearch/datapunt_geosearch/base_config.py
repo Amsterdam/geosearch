@@ -10,6 +10,7 @@ CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")
 
 db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
 
+DSN_ADMIN_USER = ""  # needs an initial value, because is imported from elsewhere
 # On Azure we need a superuser to configure end user context in tests
 if CLOUD_ENV.lower() == "azure":
     DSN_ADMIN_USER = db_connection_string.format(
@@ -36,7 +37,8 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
              'username', 'password', 'host', 'port' and 'db'
     """
     db = os.getenv(f"{db_key.upper()}_DB_DATABASE_OVERRIDE", db_key)
-    if os.getenv("CLOUD_ENV").lower() == "azure":
+    password = os.environ[f"{db_key.upper()}_DB_PASSWORD_OVERRIDE"]
+    if CLOUD_ENV.lower() == "azure":
         try:
             # Note that the secrets are named after the name of the db in Azure
             # in stead of the db_key used to get settings from the environment.
@@ -44,7 +46,7 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
             password = Path(f"/mnt/secrets-store/{location}").read_text()
         except KeyError:
             # In this case we are testing on Azure
-            password = os.environ[f"{db_key.upper()}_DB_PASSWORD_OVERRIDE"]
+            pass
 
     return {
         "username": os.environ[f"{db_key.upper()}_DB_USER_OVERRIDE"],
