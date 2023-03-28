@@ -27,7 +27,7 @@ tests are running on older versions of the schemas.
     In case of cloudVPS, `OS_AUTH_TOKEN` can be retrieved from the keystone endpoint of the objectstore using:
 
     ```bash
-        export OS_AUTH_TOKEN=$(curl -H "Content-Type: application/json" -s 'https://identity.stack.cloudvps.com/v2.0/tokens' -d @$OS_CREDS | python -c "import sys; import json; print(json.loads(sys.stdin.read())['access']['token']['id'])")
+        export OS_AUTH_TOKEN=$(./get-os-token.sh)
     ```
 
     where OS_CREDS points to a json formatted file containing the objectstore credentials. this file has the following format:
