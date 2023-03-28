@@ -65,7 +65,6 @@ def search_everywhere():
     Search in all datasets combined.
     Required arguments:
      - x/y or lat/lon for position
-     - radius for searching within radius
      - datasets - subset of datasets to search in.
 
     The `datasets` param is constructed as <dataset>/<table>

@@ -4,19 +4,20 @@
 #
 #    pip-compile requirements.in
 #
-amsterdam-schema-tools==5.0
+amsterdam-schema-tools==5.8.1
     # via -r requirements.in
 arrow==1.2.3
     # via isoduration
 attrs==22.2.0
     # via
+    #   jsonlines
     #   jsonschema
     #   pg-grant
     #   pytest
 blinker==1.4
     # via -r requirements.in
 cachetools==5.3.0
-    # via amsterdam-schema-tools
+    # via -r requirements.in
 certifi==2022.12.7
     # via
     #   requests
@@ -37,9 +38,7 @@ decorator==5.1.1
 deepdiff==6.3.0
     # via amsterdam-schema-tools
 deprecated==1.2.13
-    # via
-    #   amsterdam-schema-tools
-    #   jwcrypto
+    # via jwcrypto
 factory-boy==3.2.1
     # via amsterdam-schema-tools
 faker==18.3.1
@@ -73,6 +72,8 @@ jinja2==3.1.2
     #   flask
 json-encoder==0.4.4
     # via amsterdam-schema-tools
+jsonlines==3.1.0
+    # via amsterdam-schema-tools
 jsonpath-rw==1.4.0
     # via amsterdam-schema-tools
 jsonpointer==2.3
@@ -104,6 +105,8 @@ ndjson==0.3.1
     # via amsterdam-schema-tools
 ordered-set==4.1.0
     # via deepdiff
+orjson==3.8.8
+    # via amsterdam-schema-tools
 packaging==18.0
     # via
     #   -r requirements.in
@@ -155,8 +158,6 @@ sentry-sdk==1.14.0
     # via -r requirements.in
 shapely==1.8.0
     # via amsterdam-schema-tools
-simple-singleton==1.5.1
-    # via amsterdam-schema-tools
 singledispatch==4.0.0
     # via json-encoder
 six==1.12.0
@@ -169,12 +170,10 @@ six==1.12.0
     #   python-dateutil
     #   rfc3339-validator
     #   wirerope
-sqlalchemy==2.0.7
+sqlalchemy==1.4.47
     # via
     #   amsterdam-schema-tools
     #   geoalchemy2
-typing-extensions==4.5.0
-    # via sqlalchemy
 uri-template==1.2.0
     # via jsonschema
 urllib3==1.26.15
