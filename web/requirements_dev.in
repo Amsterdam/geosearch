@@ -1,0 +1,7 @@
+-c requirements.txt
+pytest==5.3.5
+black==22.8.0
+isort==5.10.1
+flake8==5.0.4
+pre-commit==2.20.0
+bandit[toml]==1.7.4
