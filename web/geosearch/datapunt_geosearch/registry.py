@@ -272,19 +272,6 @@ class DatasetRegistry:
             return None
         return temporal.dimensions.get("geldigOp")
 
-    def _fetch_crs(self, dataset_table: DatasetTableSchema, geo_field: Optional[str]):
-        # TODO: Move this to schematools
-        if geo_field:
-            try:
-                field = dataset_table.get_field_by_id(to_snake_case(geo_field))
-                return field.data.get(
-                    "crs",
-                    dataset_table.data.get("crs", dataset_table.dataset.data["crs"]),
-                )
-            except SchemaObjectNotFound:
-                pass
-        return DEFAULT_CRS
-
     def init_dataservices_datasets(self, dsn=None):
         try:
             dbconn = dbconnection(app.config["DSN_DATASERVICES_DATASETS"])
@@ -317,11 +304,16 @@ class DatasetRegistry:
             temporal_dimension = None
             if row["schema_data"]:
                 try:
+                    # TODO: Remove schematools as a dependency or use a proper loader
+                    # object so that relations can be resolved. Dataset* objs are not
+                    # ready to be a public API.
                     dataset_schema = DatasetSchema.from_dict(
                         json.loads(row["schema_data"])
                     )
-                    dataset_table = dataset_schema.get_table_by_id(row["name"])
-                    crs = self._fetch_crs(dataset_table, row["geometry_field"])
+                    dataset_table = dataset_schema.get_table_by_id(
+                        row["name"], include_nested=False, include_through=False
+                    )
+                    crs = dataset_table.main_geometry_field.crs
                     temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
                 except SchemaObjectNotFound:
                     # We should be able to assume that the ams-schemas are
