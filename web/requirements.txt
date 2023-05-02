@@ -14,8 +14,10 @@ attrs==23.1.0
     #   jsonschema
     #   pg-grant
     #   pytest
-blinker==1.4
-    # via -r requirements.in
+blinker==1.6.2
+    # via
+    #   -r requirements.in
+    #   flask
 cachetools==5.3.0
     # via -r requirements.in
 certifi==2022.12.7
@@ -45,7 +47,7 @@ factory-boy==3.2.1
     # via amsterdam-schema-tools
 faker==18.6.0
     # via factory-boy
-flask==2.2.3
+flask==2.3.2
     # via
     #   -r requirements.in
     #   flask-cors
@@ -188,7 +190,7 @@ urllib3==1.26.15
     #   sentry-sdk
 webcolors==1.13
     # via jsonschema
-werkzeug==2.2.3
+werkzeug==2.3.3
     # via
     #   -r requirements.in
     #   flask
