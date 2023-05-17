@@ -420,6 +420,7 @@ class BagDataSource(DataSourceBase):
         "display",
         "type",
         "uri",
+        "gsg_type",
         "opr_type",
         "distance",
     )
