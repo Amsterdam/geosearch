@@ -76,6 +76,7 @@ def search_everywhere():
         return jsonify(resp)
 
     request_args = dict(request.args)
+
     request_args.update(
         dict(
             x=x,
@@ -181,7 +182,13 @@ def search_in_datasets():
     if not known_dataset:
         return jsonify({"error": "Unknown item type"})
 
-    resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=radius)
+    resp = ds.query(
+        float(x),
+        float(y),
+        rd=rd,
+        limit=limit,
+        radius=radius,
+    )
     return jsonify(resp)
 
 

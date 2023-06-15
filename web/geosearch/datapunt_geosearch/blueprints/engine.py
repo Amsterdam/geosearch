@@ -1,3 +1,4 @@
+from schematools.naming import to_snake_case
 import logging
 
 try:
@@ -50,6 +51,10 @@ def fetch_data(sourceClass, request_args, datasets):
 
     if request_args["limit"]:
         datasource.limit = request_args["limit"]
+
+    if field_names_in_query := request_args.get("_fields", "").split(","):
+        # We collect extra field_names that need to be in the resulting response
+        datasource.field_names_in_query = [to_snake_case(fn) for fn in field_names_in_query if fn]
 
     try:
         response = datasource.execute_queries(datasets=datasets)

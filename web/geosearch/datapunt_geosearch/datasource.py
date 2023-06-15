@@ -5,6 +5,7 @@ from typing import Dict
 import psycopg2.extras
 import requests
 from psycopg2 import sql
+from schematools.naming import toCamelCase
 
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
@@ -28,6 +29,9 @@ class DataSourceBase:
     limit = None
     # Generic Meta for all instances of this DataSource
     metadata = {}
+    temporal_bounds = None
+    dataset_field_names = None
+    crs = None
     # Instance specific data
     meta = None
     use_rd = True
@@ -35,8 +39,7 @@ class DataSourceBase:
     y = None
     fields = "*"
     extra_where = ""
-    temporal_bounds = None
-    crs = None
+    field_names_in_query = None
     # whether the db connection should switch end user context for querying
     set_user_role = False
 
@@ -57,6 +60,12 @@ class DataSourceBase:
 
         # why FGS a shallow copy?
         self.meta = self.metadata.copy()
+
+    @property
+    def extra_field_names(self):
+        return set(self.field_names_in_query or []) & set(
+            self.dataset_field_names or []
+        )
 
     @classmethod
     def check_scopes(cls, scopes=None):
@@ -137,13 +146,18 @@ class DataSourceBase:
                     for row in rows:
                         features.append(
                             {
-                                "properties": dict(
-                                    [
-                                        (prop, row[prop])
+                                "properties": {
+                                    **{
+                                        prop: row[prop]
                                         for prop in self.default_properties
                                         if prop in row
-                                    ]
-                                )
+                                    },
+                                    **{
+                                        toCamelCase(prop): row[prop]
+                                        for prop in tuple(self.extra_field_names)
+                                        if prop in row
+                                    },
+                                }
                             }
                         )
         return features
@@ -151,9 +165,11 @@ class DataSourceBase:
     def get_variable_sql(self, table: str) -> Dict[str, sql.Identifier]:
         """Get the variable sql parts for this
         Datasource as psycopg2 Identifiers and SQL"""
+
+        field_names = self.fields.split(",") + list(self.extra_field_names)
         return dict(
             fields=sql.SQL(", ").join(
-                map(sql.SQL, self.fields.split(","))
+                map(sql.SQL, field_names)
             ),  # Properly escape SQL in self.fields
             table_name=sql.Identifier(table.split(".")[1]),
             schema=sql.Identifier(table.split(".")[0]),
@@ -241,7 +257,7 @@ class DataSourceBase:
         cur.execute(stmt, {"x": self.x, "y": self.y})
         return cur.fetchall()
 
-    def query(self, x, y, rd=True, radius=None, limit=None):
+    def query(self, x, y, rd=True, radius=None, limit=None, field_names_in_query=None):
         """Query all datasets in this datasource"""
         self.use_rd = rd
         self.x = x
@@ -252,6 +268,9 @@ class DataSourceBase:
 
         if limit:
             self.limit = limit
+
+        if field_names_in_query:
+            self.field_names_in_query = field_names_in_query
 
         try:
             return {"type": "FeatureCollection", "features": self.execute_queries()}
