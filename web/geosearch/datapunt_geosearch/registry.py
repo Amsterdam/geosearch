@@ -112,6 +112,7 @@ class DatasetRegistry:
         temporal_dimension=None,
         crs=None,
         set_user_role=False,
+        dataset_field_names=None
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -207,6 +208,7 @@ class DatasetRegistry:
                 },
                 "dsn_name": dsn_name,
                 "temporal_bounds": temporal_bounds,
+                "dataset_field_names": dataset_field_names,
                 "crs": crs,
                 "set_user_role": set_user_role,
             },
@@ -302,6 +304,7 @@ class DatasetRegistry:
             # TODO: Remove all code assuming that schema_data can be inconsistent
             crs = DEFAULT_CRS
             temporal_dimension = None
+            dataset_field_names = None
             if row["schema_data"]:
                 try:
                     # TODO: Remove schematools as a dependency or use a proper loader
@@ -315,6 +318,7 @@ class DatasetRegistry:
                     )
                     crs = dataset_table.main_geometry_field.crs
                     temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
+                    dataset_field_names = [f.db_name for f in dataset_table.fields]
                 except SchemaObjectNotFound:
                     # We should be able to assume that the ams-schemas are
                     # internally consistent but there is code (tests) in this
@@ -344,6 +348,7 @@ class DatasetRegistry:
                 # Connections to the reference database must use role switching
                 # on Azure.
                 set_user_role=True,
+                dataset_field_names=dataset_field_names
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"

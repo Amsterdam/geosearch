@@ -297,12 +297,14 @@ def dataservices_fake_data(flask_test_app):
           "name" varchar(100) NOT NULL,
           "begin_geldigheid" timestamp without time zone,
           "eind_geldigheid" timestamp without time zone,
+          "volgnummer" integer,
           "geometry" geometry(POINT, 28992));
         CREATE TABLE IF NOT EXISTS "fake_secret" (
           "id" serial NOT NULL PRIMARY KEY,
           "name" varchar(100) NOT NULL,
           "begin_geldigheid" timestamp without time zone,
           "eind_geldigheid" timestamp without time zone,
+          "volgnummer" integer,
           "geometry" geometry(POINT, 28992));
         """
         )
@@ -310,13 +312,15 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        INSERT INTO "fake_fake" (id, name, geometry) VALUES (
+        INSERT INTO "fake_fake" (id, name, volgnummer, geometry) VALUES (
           1,
           'test',
+          1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
-        INSERT INTO "fake_secret" (id, name, geometry) VALUES (
+        INSERT INTO "fake_secret" (id, name, volgnummer, geometry) VALUES (
           1,
           'secret test',
+          1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
         """
         )

@@ -71,6 +71,67 @@ class SearchEverywhereTestCase(unittest.TestCase):
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
 
+    @pytest.mark.usefixtures("dataservices_fake_data")
+    def test_search_in_dataservices_requesting_extra_fields_in_response(self):
+        """Prove that extra fields that are requested for the response, are showing up."""
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        with app.test_client() as client:
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public&_fields=volgnummer"
+            )
+            json_response = json.loads(response.data)
+            self.assertEqual(
+                json_response["features"][0]["properties"]["volgnummer"], 1
+            )
+
+    @pytest.mark.usefixtures("dataservices_fake_data")
+    def test_search_in_dataservices_non_existing_extra_fields_in_response(self):
+        """Prove that non existing fields that are requested for the response,
+        are not a problem.
+        """
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        with app.test_client() as client:
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public&_fields=nonExisting"
+            )
+            json_response = json.loads(response.data)
+            self.assertEqual(json_response["type"], "FeatureCollection")
+            self.assertEqual(len(json_response["features"]), 1)
+
+    # @pytest.mark.usefixtures("dataservices_fake_data")
+    @pytest.mark.usefixtures("dataservices_db")
+    def test_search_in_dataservices_generic_non_existing_extra_fields_in_response(self):
+        """Prove that non existing fields that are requested for the generic search endpoint
+        are not a problem.
+        """
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        with app.test_client() as client:
+            response = client.get("/?x=123282.6&y=487674.8&radius=100&_fields=nonExisting")
+            json_response = json.loads(response.data)
+            self.assertEqual(json_response["type"], "FeatureCollection")
+            self.assertEqual(len(json_response["features"]), 2)
+
+    @pytest.mark.usefixtures("dataservices_fake_data")
+    def test_search_in_dataservices_requesting_camelcased_fields_in_response(self):
+        """Prove that extra fields that are camelcased are returned properly."""
+        # Force registry to reload dataservices datasources
+        registry._datasets_initialized = None
+
+        with app.test_client() as client:
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public&_fields=eindGeldigheid"
+            )
+            json_response = json.loads(response.data)
+            self.assertEqual(
+                json_response["features"][0]["properties"]["eindGeldigheid"], None
+            )
+
     @pytest.mark.usefixtures("dataservices_fake_temporal_data_creator")
     @pytest.mark.usefixtures("dataservices_fake_data")
     def test_search_in_dataservices_using_temporal_data(self):
