@@ -7,8 +7,9 @@ from typing import Dict, List, Optional, Set
 import psycopg2.extras
 from flask import current_app as app
 from schematools.exceptions import SchemaObjectNotFound
-from schematools.naming import to_snake_case
+from schematools.naming import to_snake_case, toCamelCase
 from schematools.types import DatasetSchema, DatasetTableSchema
+from schematools.loaders import get_schema_loader
 
 from datapunt_geosearch.datasource import (
     BagDataSource,
@@ -22,6 +23,11 @@ from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
 _logger = logging.getLogger(__name__)
+
+# The schema_loader depends on the value of the SCHEMA_URL env. variable
+# It that is not provided, the default schema location
+# `https://schemas.data.amsterdam.nl/datasets` is being used.
+_schema_loader = get_schema_loader()
 
 DEFAULT_CRS = "EPSG:28992"
 
@@ -112,7 +118,7 @@ class DatasetRegistry:
         temporal_dimension=None,
         crs=None,
         set_user_role=False,
-        dataset_field_names=None
+        dataset_field_names=None,
     ):
         """
         Initialize dataset class and register it in registry based on row data
@@ -298,6 +304,7 @@ class DatasetRegistry:
     LEFT JOIN datasets_dataset d
       ON dt.dataset_id = d.id
     WHERE d.enable_api = true AND dt.enable_geosearch = true
+      AND geometry_field_type is not null
         """
         datasets = dict()
         for row in dbconn.fetch_all(sql):
@@ -310,15 +317,19 @@ class DatasetRegistry:
                     # TODO: Remove schematools as a dependency or use a proper loader
                     # object so that relations can be resolved. Dataset* objs are not
                     # ready to be a public API.
+                    # For now we use a URL schema loader that is created at module load time.
                     dataset_schema = DatasetSchema.from_dict(
-                        json.loads(row["schema_data"])
+                        json.loads(row["schema_data"]),
+                        dataset_collection=_schema_loader.dataset_collection,
                     )
                     dataset_table = dataset_schema.get_table_by_id(
-                        row["name"], include_nested=False, include_through=False
+                        toCamelCase(row["name"]), include_nested=False, include_through=False
                     )
                     crs = dataset_table.main_geometry_field.crs
+
                     temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
                     dataset_field_names = [f.db_name for f in dataset_table.fields]
+
                 except SchemaObjectNotFound:
                     # We should be able to assume that the ams-schemas are
                     # internally consistent but there is code (tests) in this
@@ -329,7 +340,7 @@ class DatasetRegistry:
                     _logger.warn(
                         f"Table {row['name']} in db but not referenced by dataset"
                     )
-                    pass
+                    continue
 
             scopes = set()
             if row["dataset_authorization"]:
@@ -348,7 +359,7 @@ class DatasetRegistry:
                 # Connections to the reference database must use role switching
                 # on Azure.
                 set_user_role=True,
-                dataset_field_names=dataset_field_names
+                dataset_field_names=dataset_field_names,
             )
             if dataset is not None:
                 key = f"{row['dataset_name']}/{row['name']}"
