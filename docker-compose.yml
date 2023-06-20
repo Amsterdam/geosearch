@@ -50,3 +50,4 @@ services:
         - TEST_SETTINGS_MODULE=datapunt_geosearch.test_config
         - LOG_LEVEL=INFO
         - DATABASE_SET_ROLE=
+        - SCHEMA_URL=https://acc.schemas.data.amsterdam.nl/datasets

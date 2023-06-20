@@ -63,6 +63,14 @@ class DataSourceBase:
 
     @property
     def extra_field_names(self):
+        """ Return the extra fields in the geosearch output.
+        
+        The fieldnames that are possible because of the fields in de dataset
+        are configured in the `dataset_field_names` attribute on the class.
+        The `field_names_in_query` are from the `_fields` query parameter
+        in the request to the geosearch.
+        Those are checked against `dataset_field_names`.
+        """
         return set(self.field_names_in_query or []) & set(
             self.dataset_field_names or []
         )
@@ -167,6 +175,7 @@ class DataSourceBase:
         Datasource as psycopg2 Identifiers and SQL"""
 
         field_names = self.fields.split(",") + list(self.extra_field_names)
+
         return dict(
             fields=sql.SQL(", ").join(
                 map(sql.SQL, field_names)
