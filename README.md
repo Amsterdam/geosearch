@@ -123,4 +123,3 @@ Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om
 <http://localhost:8022/search/?x=121879&y=487262&radius=25000&item=monument>
 
 <http://localhost:8022/biz/?x=121723&y=486199>
-
