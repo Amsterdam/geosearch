@@ -13,20 +13,20 @@ RUN apt update && apt install --no-install-recommends -y \
 COPY requirements* ./
 ARG PIP_REQUIREMENTS=requirements.txt
 
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip setuptools
 RUN python -m pip install uwsgi
 RUN python -m pip install --no-cache-dir -r $PIP_REQUIREMENTS
 
 
 # Start runtime image,
 FROM python:3.9-slim-bullseye
+RUN python -m pip install --upgrade pip setuptools
 RUN apt update && apt install --no-install-recommends -y \
     libgdal28 \
     libgeos-c1v5 \
     libpq5 \
     media-types \
-    postgresql-client \
-    && python -m pip uninstall pip setuptools -y
+    postgresql-client 
 
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
