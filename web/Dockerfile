@@ -25,7 +25,8 @@ RUN apt update && apt install --no-install-recommends -y \
     libgeos-c1v5 \
     libpq5 \
     media-types \
-    postgresql-client
+    postgresql-client \
+    && python -m pip uninstall pip setuptools -y
 
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
