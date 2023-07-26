@@ -13,13 +13,13 @@ RUN apt update && apt install --no-install-recommends -y \
 COPY requirements* ./
 ARG PIP_REQUIREMENTS=requirements.txt
 
-RUN python -m pip install --upgrade pip setuptools
-RUN python -m pip install uwsgi
+RUN python -m pip install --upgrade pip setuptools uwsgi
 RUN python -m pip install --no-cache-dir -r $PIP_REQUIREMENTS
 
 
 # Start runtime image,
 FROM python:3.9-slim-bullseye
+RUN useradd -U -r datapunt
 RUN python -m pip install --upgrade pip setuptools
 RUN apt update && apt install --no-install-recommends -y \
     libgdal28 \
