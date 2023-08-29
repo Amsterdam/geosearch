@@ -18,3 +18,7 @@ PyYAML==5.4
 python-string-utils==1.0.0
 amsterdam-schema-tools==5.8.1
 cachetools==5.3.0
+# The packages below are indirect dependencies that have minimum versions specified
+# to avoid vulnerabilities
+certifi>=2023.7.22
+cryptography>=41.0.3
