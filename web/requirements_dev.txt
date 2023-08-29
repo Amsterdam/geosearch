@@ -20,15 +20,17 @@ click==8.1.3
     #   black
 distlib==0.3.6
     # via virtualenv
-exceptiongroup==1.1.1
-    # via pytest
+exceptiongroup==1.1.3
+    # via
+    #   -c requirements.txt
+    #   pytest
 filelock==3.12.0
     # via virtualenv
 flake8==5.0.4
     # via -r requirements_dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.32
+gitpython==3.1.36
     # via
     #   -r requirements_dev.in
     #   bandit
@@ -101,6 +103,7 @@ toml==0.10.2
     # via pre-commit
 tomli==2.0.1
     # via
+    #   -c requirements.txt
     #   bandit
     #   black
     #   pytest
