@@ -7,4 +7,4 @@ pre-commit==2.20.0
 bandit[toml]==1.7.5
 # The packages below are indirect dependencies that have minimum versions specified
 # to avoid vulnerabilities
-gitpython>=3.1.32
+gitpython>=3.1.35
