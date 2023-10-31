@@ -15,11 +15,11 @@ DSN_ADMIN_USER = ""  # needs an initial value, because is imported from elsewher
 if CLOUD_ENV.lower() == "azure":
     DSN_ADMIN_USER = db_connection_string.format(
         **{
-            "username": os.environ["TEST_ADMIN_USER"],
-            "password": os.environ["TEST_ADMIN_PASSWORD"],
-            "host": os.environ["TEST_ADMIN_HOST"],
-            "port": os.environ["TEST_ADMIN_PORT"],
-            "db": os.environ["TEST_ADMIN_DB"],
+            "username": os.environ.get("TEST_ADMIN_USER", "testuser"),
+            "password": os.environ.get("TEST_ADMIN_PASSWORD", "insecure"),
+            "host": os.environ.get("TEST_ADMIN_HOST", "testdb-svc"),
+            "port": os.environ.get("TEST_ADMIN_PORT", 5432),
+            "db": os.environ.get("TEST_ADMIN_DB", "dataservices"),
         }
     )
 
