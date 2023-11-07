@@ -34,7 +34,7 @@ click==8.1.3
     #   amsterdam-schema-tools
     #   flask
     #   mappyfile
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   -r requirements.in
     #   jwcrypto
@@ -44,6 +44,8 @@ deepdiff==6.3.0
     # via amsterdam-schema-tools
 deprecated==1.2.13
     # via jwcrypto
+exceptiongroup==1.1.3
+    # via pytest
 factory-boy==3.2.1
     # via amsterdam-schema-tools
 faker==18.6.0
@@ -64,6 +66,8 @@ idna==3.4
     # via
     #   jsonschema
     #   requests
+importlib-metadata==6.8.0
+    # via flask
 iniconfig==2.0.0
     # via pytest
 isoduration==20.11.0
@@ -90,6 +94,7 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
+    #   jsonschema
     #   mappyfile
 jwcrypto==1.5.0
     # via -r requirements.in
@@ -179,6 +184,8 @@ sqlalchemy==1.4.48
     # via
     #   amsterdam-schema-tools
     #   geoalchemy2
+tomli==2.0.1
+    # via pytest
 uri-template==1.2.0
     # via jsonschema
 urllib3==1.26.15
@@ -195,3 +202,5 @@ wirerope==0.4.7
     # via methodtools
 wrapt==1.15.0
     # via deprecated
+zipp==3.17.0
+    # via importlib-metadata
