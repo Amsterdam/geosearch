@@ -9,7 +9,9 @@ attrs==23.1.0
     #   -c requirements.txt
     #   pytest
 bandit[toml]==1.7.5
-    # via -r requirements_dev.in
+    # via
+    #   -r requirements_dev.in
+    #   bandit
 black==22.8.0
     # via -r requirements_dev.in
 cfgv==3.3.1
@@ -30,7 +32,7 @@ flake8==5.0.4
     # via -r requirements_dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.36
+gitpython==3.1.37
     # via
     #   -r requirements_dev.in
     #   bandit
