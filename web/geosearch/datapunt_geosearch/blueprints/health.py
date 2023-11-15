@@ -37,7 +37,6 @@ def search_list():
     # Trying to load the data sources
     try:
         bag_dsn = BagDataSource(dsn=current_app.config["DSN_BAG"])
-        nap_dsn = NapMeetboutenDataSource(dsn=current_app.config["DSN_NAP"])
     except Exception as e:
         return repr(e), 500
     # Attempting to query
