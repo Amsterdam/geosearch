@@ -19,9 +19,7 @@ class HealthTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
             self.assertEqual(int(json_response["Time since last refresh"]), 100)
-            self.assertEqual(
-                json_response["Datasets initialized"], registry._datasets_initialized
-            )
+            self.assertEqual(json_response["Datasets initialized"], registry._datasets_initialized)
             self.assertEqual(json_response["Delay"], registry.INITIALIZE_DELAY_SECONDS)
 
     def test_force_refresh(self):
@@ -34,7 +32,5 @@ class HealthTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
             self.assertLess(int(json_response["Time since last refresh"]), 5)
-            self.assertEqual(
-                json_response["Datasets initialized"], registry._datasets_initialized
-            )
+            self.assertEqual(json_response["Datasets initialized"], registry._datasets_initialized)
             self.assertEqual(json_response["Delay"], registry.INITIALIZE_DELAY_SECONDS)

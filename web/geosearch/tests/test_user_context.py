@@ -46,9 +46,7 @@ def test_anonymous_when_no_jwt(
 
     # The user context must be cleaned up when the request context is popped
     assert (
-        db.dbconnection(
-            app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True
-        )._active_user
+        db.dbconnection(app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True)._active_user
         is None
     )
 
@@ -80,9 +78,7 @@ def test_end_user_when_jwt(
 
     # The user context must be cleaned up when the request context is popped
     assert (
-        db.dbconnection(
-            app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True
-        )._active_user
+        db.dbconnection(app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True)._active_user
         is None
     )
 

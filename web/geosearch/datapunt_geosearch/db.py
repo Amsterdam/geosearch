@@ -126,9 +126,7 @@ class _DBConnection:
                 _logger.exception(
                     "External user %s has no database role %s", user_email, role_name
                 )
-                raise PermissionError(
-                    f"User {user_email} is not available in database"
-                ) from e
+                raise PermissionError(f"User {user_email} is not available in database") from e
 
     def _set_role(self, role_name, app_name):
         # By starting a transaction, any connection pooling (e.g. PgBouncer)
@@ -163,9 +161,7 @@ class _DBConnection:
                 c.execute("ROLLBACK;")
             self._active_user = None
         except Psycopg2Error as e:
-            _logger.debug(
-                "Unable to rollback end user context for: %s", self._active_user
-            )
+            _logger.debug("Unable to rollback end user context for: %s", self._active_user)
             _logger.debug("Database error %s", e)
 
     @contextlib.contextmanager

@@ -80,9 +80,7 @@ class GeoIndex(object):
                 # Replacing the / for - in the type
                 entry["type"] = entry["type"].replace("/", "-")
                 # @TODO switch to bulk insert
-                requests.post(
-                    self.elastic_url + entry["dataset"], data=json.dumps(entry)
-                )
+                requests.post(self.elastic_url + entry["dataset"], data=json.dumps(entry))
 
                 data.append(entry)
                 # @TODO switch over to raw python
