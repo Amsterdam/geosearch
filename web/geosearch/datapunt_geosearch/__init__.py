@@ -20,9 +20,7 @@ def deactivate_user_context(e):
 def create_app(import_path: str = "datapunt_geosearch.config"):
     sentry_dsn = os.getenv("SENTRY_DSN")
     if sentry_dsn:
-        sentry_sdk.init(
-            dsn=sentry_dsn, environment="geosearch", integrations=[FlaskIntegration()]
-        )
+        sentry_sdk.init(dsn=sentry_dsn, environment="geosearch", integrations=[FlaskIntegration()])
 
     app = Flask("geosearch")
     CORS(app)

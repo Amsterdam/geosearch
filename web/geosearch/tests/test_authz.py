@@ -53,9 +53,7 @@ class AuthzTestCase(unittest.TestCase):
 
     def test_dataset_table_with_authorization_not_visible(self):
         with self.client() as client:
-            response = client.get(
-                "/?x=123282.6&y=487674.8&radius=1&datasets=fake_secret"
-            )
+            response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake_secret")
             self.assertEqual(flask.g.authz_scopes, None)
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)

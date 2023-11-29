@@ -49,9 +49,7 @@ class TestDatasetRegistry(unittest.TestCase):
 
         self.assertTrue(issubclass(result, DataSourceBase))
         self.assertEqual(result.metadata["geofield"], row["geometry_field"])
-        self.assertEqual(
-            result.metadata["datasets"], {"vsd": {"test_name": "test.test_table"}}
-        )
+        self.assertEqual(result.metadata["datasets"], {"vsd": {"test_name": "test.test_table"}})
         self.assertEqual(result.metadata["fields"][0], "description as display")
         self.assertEqual(
             result.metadata["fields"][1], "cast('vsd/test_name' as varchar(50)) as type"
@@ -62,9 +60,7 @@ class TestDatasetRegistry(unittest.TestCase):
         )
         self.assertEqual(result.metadata["fields"][3], "geometry as geometrie")
         self.assertEqual(result.metadata["fields"][4], "id as id")
-        self.assertEqual(
-            test_registry.providers, {"vsd": result, "vsd/test_name": result}
-        )
+        self.assertEqual(test_registry.providers, {"vsd": result, "vsd/test_name": result})
 
     def test_init_dataset_defaults_schema_to_public(self):
         row = dict(
@@ -82,9 +78,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry = DatasetRegistry()
         result = test_registry.init_dataset(row, "TestDataset", "DSN_TEST_DATASET")
 
-        self.assertEqual(
-            result.metadata["datasets"], {"vsd": {"test_name": "public.test_table"}}
-        )
+        self.assertEqual(result.metadata["datasets"], {"vsd": {"test_name": "public.test_table"}})
 
     def test_init_dataset_defaults_operator_to_within(self):
         row = dict(
@@ -129,9 +123,7 @@ class TestDatasetRegistry(unittest.TestCase):
 
         dbconn = dbconnection(app.config["DSN_VARIOUS_SMALL_DATASETS"])
 
-        datasets = dbconn.fetch_all(
-            "SELECT * FROM cat_dataset WHERE enable_geosearch = true"
-        )
+        datasets = dbconn.fetch_all("SELECT * FROM cat_dataset WHERE enable_geosearch = true")
 
         self.assertEqual(len(registry.init_dataset.mock_calls), len(datasets))
         for row in datasets:
@@ -153,9 +145,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry._datasets_initialized = time.time()
         test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
-        self.assertEqual(
-            test_registry.filter_datasources(names=["magic/test1"]), {TestDataSource}
-        )
+        self.assertEqual(test_registry.filter_datasources(names=["magic/test1"]), {TestDataSource})
 
     def test_filter_datasources_with_scopes_no_scope_provided(self):
         class TestDataSource(DataSourceBase):
@@ -198,9 +188,7 @@ class TestDatasetRegistry(unittest.TestCase):
         test_registry.register_datasource("DSN_TEST_DATASET", TestDataSource)
 
         self.assertEqual(
-            test_registry.filter_datasources(
-                names=["magic/test1"], scopes=["TEST/WRITE"]
-            ),
+            test_registry.filter_datasources(names=["magic/test1"], scopes=["TEST/WRITE"]),
             {TestDataSource},
         )
 

@@ -58,9 +58,7 @@ class TestMonumentenDataset(unittest.TestCase):
         radius = 200
 
         ds = datasource.MonumentenDataSource(dsn=app.config["DSN_MONUMENTEN"])
-        results = ds.query(
-            x, y, rd=False, radius=radius, monumenttype="isnot_pand_bouwblok"
-        )
+        results = ds.query(x, y, rd=False, radius=radius, monumenttype="isnot_pand_bouwblok")
 
         self.assertEqual(len(results["features"]), 1)
 

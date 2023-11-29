@@ -210,9 +210,7 @@ def role_configuration(flask_test_app):
 
 @pytest.fixture(scope="session")
 def dataservices_db(flask_test_app):
-    dataservices_db_connection = dbconnection(
-        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
-    )
+    dataservices_db_connection = dbconnection(flask_test_app.config["DSN_DATASERVICES_DATASETS"])
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             f"""
@@ -284,9 +282,7 @@ def dataservices_db(flask_test_app):
 
 @pytest.fixture
 def dataservices_fake_data(flask_test_app):
-    dataservices_db_connection = dbconnection(
-        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
-    )
+    dataservices_db_connection = dbconnection(flask_test_app.config["DSN_DATASERVICES_DATASETS"])
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
@@ -343,9 +339,7 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
     NB. This fixture needs to be used in conjunction with `dataservices_fake_data`
     when a full teardown (DROP tables) is needed.
     """
-    dataservices_db_connection = dbconnection(
-        flask_test_app.config["DSN_DATASERVICES_DATASETS"]
-    )
+    dataservices_db_connection = dbconnection(flask_test_app.config["DSN_DATASERVICES_DATASETS"])
 
     @contextmanager
     def _creator(self, begin_geldigheid, eind_geldigheid):

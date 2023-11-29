@@ -4,7 +4,7 @@ import time
 
 from flask import Blueprint, Response, current_app
 
-from datapunt_geosearch.datasource import BagDataSource, NapMeetboutenDataSource
+from datapunt_geosearch.datasource import BagDataSource
 from datapunt_geosearch.registry import registry
 
 health = Blueprint("health", __name__)
@@ -46,9 +46,7 @@ def search_list():
         return repr(e), 500
 
     if results["type"] == "Error":
-        return Response(
-            results["message"], content_type="text/plain; charset=utf-8", status=500
-        )
+        return Response(results["message"], content_type="text/plain; charset=utf-8", status=500)
 
     if not len(results["features"]):
         response_text.append("No results from bag dataset")

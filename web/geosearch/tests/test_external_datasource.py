@@ -162,9 +162,7 @@ class TestExternalDataSource(unittest.TestCase):
 
         request_params = dict(x=129569.4, y=479968.42)
 
-        with unittest.mock.patch(
-            "datapunt_geosearch.datasource._logger"
-        ) as logger_mock:
+        with unittest.mock.patch("datapunt_geosearch.datasource._logger") as logger_mock:
             with unittest.mock.patch("requests.get") as requests_mock:
                 requests_mock.side_effect = HTTPError("meh.")
 
@@ -191,9 +189,7 @@ class TestExternalDataSource(unittest.TestCase):
                 datasets=dict(test=dict(test="test/geosearch/")),
                 field_mapping=dict(
                     display=lambda _, item: f"Test {item['id']}",
-                    uri=lambda base_url, item: urljoin(
-                        base_url, item["_links"]["self"]["href"]
-                    ),
+                    uri=lambda base_url, item: urljoin(base_url, item["_links"]["self"]["href"]),
                 ),
             )
         )
@@ -229,9 +225,7 @@ class TestExternalDataSource(unittest.TestCase):
             )
         )
 
-        with unittest.mock.patch(
-            "datapunt_geosearch.datasource._logger"
-        ) as logger_mock:
+        with unittest.mock.patch("datapunt_geosearch.datasource._logger") as logger_mock:
             result = test_datasource.format_result(
                 dataset_name="test/test",
                 result=[
