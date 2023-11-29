@@ -63,17 +63,15 @@ class DataSourceBase:
 
     @property
     def extra_field_names(self):
-        """ Return the extra fields in the geosearch output.
-        
+        """Return the extra fields in the geosearch output.
+
         The fieldnames that are possible because of the fields in de dataset
         are configured in the `dataset_field_names` attribute on the class.
         The `field_names_in_query` are from the `_fields` query parameter
         in the request to the geosearch.
         Those are checked against `dataset_field_names`.
         """
-        return set(self.field_names_in_query or []) & set(
-            self.dataset_field_names or []
-        )
+        return set(self.field_names_in_query or []) & set(self.dataset_field_names or [])
 
     @classmethod
     def check_scopes(cls, scopes=None):
@@ -139,13 +137,9 @@ class DataSourceBase:
                         continue
 
                     if self.meta["operator"] == "contains":
-                        rows = self.execute_polygon_query(
-                            cur, table, self.temporal_bounds
-                        )
+                        rows = self.execute_polygon_query(cur, table, self.temporal_bounds)
                     else:
-                        rows = self.execute_point_query(
-                            cur, table, self.temporal_bounds
-                        )
+                        rows = self.execute_point_query(cur, table, self.temporal_bounds)
 
                     if not len(rows):
                         _logger.debug("no results for table: %s", table)
@@ -227,9 +221,7 @@ class DataSourceBase:
             ),
             **self.get_variable_sql(table),
         )
-        cur.execute(
-            stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit}
-        )
+        cur.execute(stmt, {"x": self.x, "y": self.y, "radius": self.radius, "limit": self.limit})
         return cur.fetchall()
 
     def execute_polygon_query(self, cur, table, temporal_bounds=None):
@@ -356,9 +348,7 @@ class ExternalDataSource(DataSourceBase):
             request_params["radius"] = self.radius
         for dataset in self.meta["datasets"]:
             for dataset_indent, subset_url in self.meta["datasets"][dataset].items():
-                if len(datasets) and not (
-                    dataset in datasets or dataset_indent in datasets
-                ):
+                if len(datasets) and not (dataset in datasets or dataset_indent in datasets):
                     continue
 
                 features += self.fetch_data(
@@ -368,9 +358,7 @@ class ExternalDataSource(DataSourceBase):
                 )
         return features
 
-    def fetch_data(
-        self, dataset_name: str, subset_url: str, request_params: dict = None
-    ):
+    def fetch_data(self, dataset_name: str, subset_url: str, request_params: dict = None):
         """
         Fetch data from self.meta["base_url"] + subset url and format it
         before returning.
@@ -501,9 +489,7 @@ class BominslagMilieuDataSource(MunitieMilieuDataSource):
     metadata = {
         "geofield": "geometrie",
         "operator": "within",
-        "datasets": {
-            "munitie": {"bominslag": "public.geo_bommenkaart_bominslag_point"}
-        },
+        "datasets": {"munitie": {"bominslag": "public.geo_bommenkaart_bominslag_point"}},
     }
 
 

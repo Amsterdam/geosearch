@@ -25,15 +25,11 @@ class SearchEverywhereTestCase(unittest.TestCase):
 
     def test_search_limited_by_subset_results_in_correct_filter(self):
         with app.test_client() as client:
-            response = client.get(
-                "/?x=123282.6&y=487674.8&radius=10&datasets=gebieden/buurt"
-            )
+            response = client.get("/?x=123282.6&y=487674.8&radius=10&datasets=gebieden/buurt")
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
-            self.assertEqual(
-                json_response["features"][0]["properties"]["type"], "gebieden/buurt"
-            )
+            self.assertEqual(json_response["features"][0]["properties"]["type"], "gebieden/buurt")
 
     def test_search_limited_by_dataset_results_in_correct_filter(self):
         with app.test_client() as client:
@@ -54,9 +50,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
-            self.assertIn(
-                "path/fake", json_response["features"][0]["properties"]["uri"]
-            )
+            self.assertIn("path/fake", json_response["features"][0]["properties"]["uri"])
 
     @pytest.mark.usefixtures("dataservices_fake_data")
     def test_search_in_dataservices_with_dataset_table__results_in_correct_result(self):
@@ -64,9 +58,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
         registry._datasets_initialized = None
 
         with app.test_client() as client:
-            response = client.get(
-                "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public"
-            )
+            response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public")
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
@@ -82,9 +74,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
                 "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public&_fields=volgnummer"
             )
             json_response = json.loads(response.data)
-            self.assertEqual(
-                json_response["features"][0]["properties"]["volgnummer"], 1
-            )
+            self.assertEqual(json_response["features"][0]["properties"]["volgnummer"], 1)
 
     @pytest.mark.usefixtures("dataservices_fake_data")
     def test_search_in_dataservices_non_existing_extra_fields_in_response(self):
@@ -128,9 +118,7 @@ class SearchEverywhereTestCase(unittest.TestCase):
                 "/?x=123282.6&y=487674.8&radius=1&datasets=fake/fake_public&_fields=eindGeldigheid"
             )
             json_response = json.loads(response.data)
-            self.assertEqual(
-                json_response["features"][0]["properties"]["eindGeldigheid"], None
-            )
+            self.assertEqual(json_response["features"][0]["properties"]["eindGeldigheid"], None)
 
     @pytest.mark.usefixtures("dataservices_fake_temporal_data_creator")
     @pytest.mark.usefixtures("dataservices_fake_data")
@@ -160,12 +148,8 @@ class SearchEverywhereTestCase(unittest.TestCase):
             with self.data_creator(*extra_temporal_records):  # type: ignore
 
                 with app.test_client() as client:
-                    response = client.get(
-                        "/?x=123282.6&y=487674.8&radius=1&datasets=fake"
-                    )
+                    response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake")
                     json_response = json.loads(response.data)
                     self.assertEqual(json_response["type"], "FeatureCollection")
                     self.assertEqual(len(json_response["features"]), count)
-                    self.assertIn(
-                        "path/fake", json_response["features"][0]["properties"]["uri"]
-                    )
+                    self.assertIn("path/fake", json_response["features"][0]["properties"]["uri"])

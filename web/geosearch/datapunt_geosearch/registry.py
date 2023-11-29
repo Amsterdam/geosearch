@@ -7,9 +7,9 @@ from typing import Dict, List, Optional, Set
 import psycopg2.extras
 from flask import current_app as app
 from schematools.exceptions import SchemaObjectNotFound
+from schematools.loaders import get_schema_loader
 from schematools.naming import to_snake_case, toCamelCase
 from schematools.types import DatasetSchema, DatasetTableSchema
-from schematools.loaders import get_schema_loader
 
 from datapunt_geosearch.datasource import (
     BagDataSource,
@@ -54,10 +54,7 @@ class DatasetRegistry:
             self.providers[dataset] = datasource_class
             for table in datasource_class.metadata["datasets"][dataset]:
                 key = f"{dataset}/{table}"
-                if (
-                    table in self.providers
-                    and self.providers[table] != datasource_class
-                ):
+                if table in self.providers and self.providers[table] != datasource_class:
                     _logger.debug(
                         "Provider for {} already defined {} and will be overwritten by {}.".format(  # noqa: E501
                             table, self.providers[table], datasource_class
@@ -337,9 +334,7 @@ class DatasetRegistry:
                     # Datasources for internally inconsistent schemas (i.e. presence of
                     # tables that are not referenced by the dataset)
                     # this is a workaround.
-                    _logger.warn(
-                        f"Table {row['name']} in db but not referenced by dataset"
-                    )
+                    _logger.warn(f"Table {row['name']} in db but not referenced by dataset")
                     continue
 
             scopes = set()

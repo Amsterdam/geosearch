@@ -130,9 +130,7 @@ def get_index_data(sources, conn):
                         geofield = m.group(1)
             else:
                 fields = "*"
-            with ds.dbconn.cursor(
-                cursor_factory=psycopg2.extras.RealDictCursor
-            ) as read_cur:
+            with ds.dbconn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as read_cur:
                 for dataset_name, datasets in ds.meta["datasets"].items():
                     for dataset_ident, table in datasets.items():
                         print(f"Processing dataset: {dataset_ident}")
@@ -140,13 +138,8 @@ def get_index_data(sources, conn):
                         read_cur.execute(query)
                         for record in read_cur:
                             count[dataset_ident] += 1
-                            if (
-                                count[dataset_ident] > 0
-                                and (count[dataset_ident] % 1000) == 0
-                            ):
-                                print(
-                                    f"Process {count[dataset_ident]} in {dataset_ident}"
-                                )
+                            if count[dataset_ident] > 0 and (count[dataset_ident] % 1000) == 0:
+                                print(f"Process {count[dataset_ident]} in {dataset_ident}")
                             uri = record.pop("uri")  # uri can be recreated
                             if "id" not in record:
                                 m = re.search(r"/([0-9\-a-fA-F]+)/$", uri)
@@ -156,13 +149,9 @@ def get_index_data(sources, conn):
                             id1 = str(id1)
                             display = record.pop("display")
                             wkb_geometry = record.pop(geofield)
-                            record.pop(
-                                "type", None
-                            )  # type can be recreated on  the fly
+                            record.pop("type", None)  # type can be recreated on  the fly
                             json_data = (
-                                None
-                                if len(record) == 0
-                                else json.dumps(record, default=str)
+                                None if len(record) == 0 else json.dumps(record, default=str)
                             )
 
                             write_cursor.execute(
