@@ -81,3 +81,6 @@ venv/
 docker-compose.override.y*ml
 
 .vscode
+
+# objectstore creds
+.os-creds.json
