@@ -1,4 +1,4 @@
--c requirements.txt
+-r requirements.in
 pytest==7.2.0
 black==22.8.0
 isort==5.10.1
