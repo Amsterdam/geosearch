@@ -1,6 +1,18 @@
 [tool.isort]
 profile = "black"
 src_paths = ["web/geosearch/datapunt_geosearch", "web/geosearch/tests"]
+line_length = 99
 
 [tool.bandit]
 exclude_dirs = ["web/geosearch/create_import_index.py", "web/geosearch/tests"]
+
+[tool.black]
+line-length = 99
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | dist
+)/
+'''
+

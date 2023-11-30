@@ -14,9 +14,7 @@ from datapunt_geosearch.base_config import (  # noqa: F401
 )
 
 # db entries are overridden
-DSN_BAG = db_connection_string.format(
-    **get_db_settings("bag_v11") | {"db": "test_bag_v11"}
-)
+DSN_BAG = db_connection_string.format(**get_db_settings("bag_v11") | {"db": "test_bag_v11"})
 DSN_NAP = db_connection_string.format(**get_db_settings("nap") | {"db": "test_nap"})
 DSN_MILIEU = db_connection_string.format(
     **get_db_settings("milieuthemas") | {"db": "test_milieuthemas"}

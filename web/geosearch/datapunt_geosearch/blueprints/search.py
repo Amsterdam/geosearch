@@ -88,9 +88,7 @@ def search_everywhere():
 
     return Response(
         stream_with_context(
-            generate_async(
-                request_args=request_args, authz_scopes=get_current_authz_scopes()
-            )
+            generate_async(request_args=request_args, authz_scopes=get_current_authz_scopes())
         ),
         content_type="application/json",
     )
@@ -202,9 +200,7 @@ def search_geo_nap():
     # If no error is found, query
     if not resp:
         ds = NapMeetboutenDataSource(dsn=app.config["DSN_NAP"])
-        resp = ds.query(
-            float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius")
-        )
+        resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius"))
 
     return jsonify(resp)
 
@@ -254,9 +250,7 @@ def search_geo_bominslag():
     # If no error is found, query
     if not resp:
         ds = BominslagMilieuDataSource(dsn=app.config["DSN_MILIEU"])
-        resp = ds.query(
-            float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius")
-        )
+        resp = ds.query(float(x), float(y), rd=rd, limit=limit, radius=request.args.get("radius"))
 
     return jsonify(resp)
 

@@ -26,9 +26,7 @@ class CatalogusEndpointTestCase(unittest.TestCase):
     @unittest.mock.patch("datapunt_geosearch.authz.logger")
     def test_incorrect_bearer_results_in_error(self, logger_mock):
         with self.client() as client:
-            response = client.get(
-                "/catalogus/", headers={"Authorization": "Bearer hash"}
-            )
+            response = client.get("/catalogus/", headers={"Authorization": "Bearer hash"})
             self.assertEqual(response.status_code, 401)
             self.assertIn("401 Unauthorized", response.data.decode("utf-8"))
             self.assertEqual(
@@ -57,9 +55,7 @@ class CatalogusEndpointTestCase(unittest.TestCase):
     def test_dataset_table_with_authorization_not_visible_with_no_scope(self):
         token = self.create_authz_token(subject="test@test.nl", scopes=["CA/W", "TEST"])
         with self.client() as client:
-            response = client.get(
-                "/catalogus/", headers={"Authorization": f"Bearer {token}"}
-            )
+            response = client.get("/catalogus/", headers={"Authorization": f"Bearer {token}"})
             self.assertEqual(flask.g.authz_scopes, {"TEST", "CA/W"})
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
@@ -70,9 +66,7 @@ class CatalogusEndpointTestCase(unittest.TestCase):
             subject="test@test.nl", scopes=["CA/W", "TEST", "FAKE/SECRET"]
         )
         with self.client() as client:
-            response = client.get(
-                "/catalogus/", headers={"Authorization": f"Bearer {token}"}
-            )
+            response = client.get("/catalogus/", headers={"Authorization": f"Bearer {token}"})
             self.assertEqual(flask.g.authz_scopes, {"CA/W", "TEST", "FAKE/SECRET"})
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)

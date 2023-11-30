@@ -79,9 +79,7 @@ def get_token_from_request(request):
     """
     authorization_header = request.headers.get("Authorization", None)
     if authorization_header is not None:
-        match = re.fullmatch(
-            r"bearer ([-\w.=]+)", authorization_header, flags=re.IGNORECASE
-        )
+        match = re.fullmatch(r"bearer ([-\w.=]+)", authorization_header, flags=re.IGNORECASE)
         if match:
             return match[1]
     return None
@@ -125,15 +123,11 @@ def load_jwks_from_url(keyset, jwks_url):
         response = requests.get(jwks_url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        raise ValueError(
-            "Failed to get JWKS from url: {}, error: {}".format(jwks_url, e)
-        )
+        raise ValueError("Failed to get JWKS from url: {}, error: {}".format(jwks_url, e))
     try:
         keyset.import_keyset(response.text)
     except JWException as e:
-        raise ValueError(
-            "Failed to get JWKS from url: {}, error: {}".format(jwks_url, e)
-        )
+        raise ValueError("Failed to get JWKS from url: {}, error: {}".format(jwks_url, e))
     else:
         logger.info("Loaded JWKS from JWKS_URL setting {}".format(jwks_url))
 
