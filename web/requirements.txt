@@ -101,8 +101,9 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
+    #   jsonschema
     #   mappyfile
-jwcrypto==1.5.0
+jwcrypto==1.5.1
     # via -r requirements.in
 lark-parser==0.12.0
     # via mappyfile
@@ -151,7 +152,9 @@ psycopg2-binary==2.9.5
 pycparser==2.21
     # via cffi
 pyjwt[crypto]==2.8.0
-    # via msal
+    # via
+    #   msal
+    #   pyjwt
 pyparsing==2.4.6
     # via
     #   -r requirements.in
