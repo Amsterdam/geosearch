@@ -83,7 +83,7 @@ itsdangerous==2.1.2
     # via
     #   -r requirements.in
     #   flask
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   -r requirements.in
     #   amsterdam-schema-tools
@@ -101,6 +101,7 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
+    #   jsonschema
     #   mappyfile
 jwcrypto==1.5.0
     # via -r requirements.in
@@ -151,7 +152,9 @@ psycopg2-binary==2.9.5
 pycparser==2.21
     # via cffi
 pyjwt[crypto]==2.8.0
-    # via msal
+    # via
+    #   msal
+    #   pyjwt
 pyparsing==2.4.6
     # via
     #   -r requirements.in
