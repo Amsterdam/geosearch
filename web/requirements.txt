@@ -103,7 +103,7 @@ jsonschema[format]==4.17.3
     #   amsterdam-schema-tools
     #   jsonschema
     #   mappyfile
-jwcrypto==1.5.0
+jwcrypto==1.5.1
     # via -r requirements.in
 lark-parser==0.12.0
     # via mappyfile

@@ -89,7 +89,7 @@ geoalchemy2==0.14.2
     # via amsterdam-schema-tools
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.37
+gitpython==3.1.41
     # via
     #   -r requirements_dev.in
     #   bandit
@@ -136,7 +136,7 @@ jsonschema[format]==4.20.0
     #   mappyfile
 jsonschema-specifications==2023.11.1
     # via jsonschema
-jwcrypto==1.5.0
+jwcrypto==1.5.1
     # via -r requirements.in
 lark==1.1.8
     # via mappyfile
