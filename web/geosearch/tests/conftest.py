@@ -40,6 +40,7 @@ FAKE_SCHEMA = """
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "additionalProperties": false,
+        "identifier": ["identificatie", "volgnummer"],
         "required": [
           "schema",
           "id"
@@ -50,7 +51,10 @@ FAKE_SCHEMA = """
             "$ref": "https://schemas.data.amsterdam.nl/schema@v1.1.1#/definitions/schema"
           },
           "id": {
-            "type": "integer"
+            "type": "string"
+          },
+          "identificatie": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -92,6 +96,7 @@ FAKE_SCHEMA = """
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "additionalProperties": false,
+        "identifier": ["identificatie", "volgnummer"],
         "required": [
           "schema",
           "id"
@@ -102,7 +107,10 @@ FAKE_SCHEMA = """
             "$ref": "https://schemas.data.amsterdam.nl/schema@v1.1.1#/definitions/schema"
           },
           "id": {
-            "type": "integer"
+            "type": "string"
+          },
+          "identificatie": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -289,14 +297,16 @@ def dataservices_fake_data(flask_test_app):
         DROP TABLE IF EXISTS "fake_fake";
         DROP TABLE IF EXISTS "fake_secret";
         CREATE TABLE IF NOT EXISTS "fake_fake" (
-          "id" serial NOT NULL PRIMARY KEY,
+          "id" varchar(16) NOT NULL,
+          "identificatie" varchar(16) NOT NULL,
           "name" varchar(100) NOT NULL,
           "begin_geldigheid" timestamp without time zone,
           "eind_geldigheid" timestamp without time zone,
           "volgnummer" integer,
           "geometry" geometry(POINT, 28992));
         CREATE TABLE IF NOT EXISTS "fake_secret" (
-          "id" serial NOT NULL PRIMARY KEY,
+          "id" varchar(16) NOT NULL,
+          "identificatie" varchar(16) NOT NULL,
           "name" varchar(100) NOT NULL,
           "begin_geldigheid" timestamp without time zone,
           "eind_geldigheid" timestamp without time zone,
@@ -308,13 +318,15 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        INSERT INTO "fake_fake" (id, name, volgnummer, geometry) VALUES (
-          1,
+        INSERT INTO "fake_fake" (id, identificatie, name, volgnummer, geometry) VALUES (
+          '1.1',
+          '1',
           'test',
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
-        INSERT INTO "fake_secret" (id, name, volgnummer, geometry) VALUES (
-          1,
+        INSERT INTO "fake_secret" (id, identificatie, name, volgnummer, geometry) VALUES (
+          '1.1',
+          '1',
           'secret test',
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
@@ -344,12 +356,15 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
     @contextmanager
     def _creator(self, begin_geldigheid, eind_geldigheid):
         id_counter = 10
+        used_ids = set()
         with dataservices_db_connection.cursor() as cursor:
             cursor.execute(
                 f"""
-            INSERT INTO "fake_fake" (id, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
+            INSERT INTO "fake_fake" (id, identificatie, volgnummer, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
                 (
-                  {id_counter},
+                  '{id_counter}.1',
+                  '{id_counter}',
+                  1,
                   'test-2',
                   {begin_geldigheid},
                   {eind_geldigheid},
@@ -357,12 +372,14 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
                 );
             """
             )
+            used_ids.add(f"{id_counter}.1")
             id_counter += 1
 
         yield
 
         with dataservices_db_connection.cursor() as cursor:
-            cursor.execute('DELETE FROM "fake_fake" WHERE id >= 10;')
+            used_ids_str = ", ".join(f"'{used_id}'" for used_id in used_ids)
+            cursor.execute(f'DELETE FROM "fake_fake" WHERE id IN ({used_ids_str})')
 
     request.cls.data_creator = _creator
 

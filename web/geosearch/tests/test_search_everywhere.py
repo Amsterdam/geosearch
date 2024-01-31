@@ -153,3 +153,6 @@ class SearchEverywhereTestCase(unittest.TestCase):
                     self.assertEqual(json_response["type"], "FeatureCollection")
                     self.assertEqual(len(json_response["features"]), count)
                     self.assertIn("path/fake", json_response["features"][0]["properties"]["uri"])
+                    # Check that `identificatie` is used, and not the raw `id` field
+                    for feature in json_response["features"]:
+                        self.assertFalse("." in feature["properties"]["id"])

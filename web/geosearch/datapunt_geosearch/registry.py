@@ -277,6 +277,28 @@ class DatasetRegistry:
             return None
         return temporal.dimensions.get("geldigOp")
 
+    def _replace_id_field_for_temporal(self, row, dataset_table):
+        """For temporal datasets, we do not return the raw `id`, but only the base field.
+
+        Usually, for temporal tables, the raw id is `identificatie`.`volgnummer`.
+        Geosearch user are only interested in the `identificatie`, so we return that
+        as the `id_field`.
+        """
+        temporal = dataset_table.temporal
+        if temporal is not None:
+            new_row = row.copy()  # be immutable
+            identifier_base_field_name = set(dataset_table.identifier) - {temporal.identifier}
+            try:
+                new_row["id_field"] = next(iter(identifier_base_field_name))
+            except StopIteration:
+                raise RuntimeError(
+                    "Table `{dataset_table.db_table}` is temporal"
+                    "but does have a single `identifier`,"
+                    "this is not possible."
+                )
+            return new_row
+        return row
+
     def init_dataservices_datasets(self, dsn=None):
         try:
             dbconn = dbconnection(app.config["DSN_DATASERVICES_DATASETS"])
@@ -326,6 +348,8 @@ class DatasetRegistry:
 
                     temporal_dimension = self._fetch_temporal_dimensions(dataset_table)
                     dataset_field_names = [f.db_name for f in dataset_table.fields]
+
+                    row = self._replace_id_field_for_temporal(row, dataset_table)
 
                 except SchemaObjectNotFound:
                     # We should be able to assume that the ams-schemas are
