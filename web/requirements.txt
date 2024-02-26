@@ -130,7 +130,7 @@ numpy==1.24.3
     # via shapely
 ordered-set==4.1.0
     # via deepdiff
-orjson==3.8.11
+orjson==3.9.15
     # via amsterdam-schema-tools
 packaging==19.0
     # via
