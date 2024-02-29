@@ -313,7 +313,7 @@ class DatasetRegistry:
         dt.db_table as table_name,
         dt.geometry_field_type as geometry_type,
         dt.geometry_field,
-        'id' as id_field,
+        dt.id_field as id_field,
         d.name as dataset_name,
         d.path as dataset_path,
         d.schema_data,
