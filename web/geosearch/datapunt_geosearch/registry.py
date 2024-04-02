@@ -11,14 +11,9 @@ from schematools.loaders import get_schema_loader
 from schematools.naming import to_snake_case, toCamelCase
 from schematools.types import DatasetSchema, DatasetTableSchema
 
-from datapunt_geosearch.datasource import (
-    BagDataSource,
-    BominslagMilieuDataSource,
-    DataSourceBase,
-    MonumentenDataSource,
-    MunitieMilieuDataSource,
-    NapMeetboutenDataSource,
-)
+# BagDataSource,; BominslagMilieuDataSource,; MonumentenDataSource,
+# ; MunitieMilieuDataSource,; NapMeetboutenDataSource,
+from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
 
@@ -228,7 +223,7 @@ class DatasetRegistry:
             self._datasets_initialized is None
             or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY_SECONDS
         ):
-            self.init_vsd_datasets()
+            # self.init_vsd_datasets()
             self.init_dataservices_datasets()
             self._datasets_initialized = time.time()
 
@@ -390,8 +385,9 @@ class DatasetRegistry:
 # Initialize the registry with the statically defined Datasources
 registry = DatasetRegistry()
 
-registry.register_datasource("DSN_BAG", BagDataSource)
-registry.register_datasource("DSN_NAP", NapMeetboutenDataSource)
-registry.register_datasource("DSN_MUNITIE", MunitieMilieuDataSource)
-registry.register_datasource("DSN_MUNITIE", BominslagMilieuDataSource)
-registry.register_datasource("DSN_MONUMENTEN", MonumentenDataSource)
+# JJM Disable all the old datasources.
+# registry.register_datasource("DSN_BAG", BagDataSource)
+# registry.register_datasource("DSN_NAP", NapMeetboutenDataSource)
+# registry.register_datasource("DSN_MUNITIE", MunitieMilieuDataSource)
+# registry.register_datasource("DSN_MUNITIE", BominslagMilieuDataSource)
+# registry.register_datasource("DSN_MONUMENTEN", MonumentenDataSource)
