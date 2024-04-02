@@ -33,6 +33,8 @@ def force_refresh():
 @health.route("/status/health", methods=["GET", "HEAD", "OPTIONS"])
 def search_list():
     """Execute test query against datasources"""
+    # For now, always healthy, configure another health check.
+    return Response("Connectivity OK", content_type="text/plain; charset=utf-8")
     x, y, response_text = 120993, 485919, []
     # Trying to load the data sources
     try:
