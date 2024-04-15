@@ -86,8 +86,6 @@ so it is possible that our tests are running on older versions of the schemas.
 
     `docker-compose exec web pytest -v`
 
-**Note**: There have been some issues with connecting to CloudVPS from local docker-containers
-over the VET network. This can be circumvented by switching off the VET VPN when running these steps.
 
 ## A note on formatting and git blame
 
@@ -128,24 +126,24 @@ ST_GeoHash(geometrie_wgs84)`geometrie_wgs84
 
 ## Api Endpoints
 
-De volgende endpoints zijn beschikbaar voor geosearch:
+Alleen datasets die zijn opgenomen in de referentiedatabase kunnen doorzocht worden vanuit Geosearch.
 
-- `/nap/` zoek voor NAP data - Locatie en radius verplicht
-- `/monumenten/` zoek voor monumenten- Locatie en radius verplicht
-- `/munitie/` zoek voor munitie gebieden data - Alleen locatie nodig
-- `/bominslag/` zoek voor bominslag data - Locatie en radius verplicht
-- `/bag/` Zoek voor BAG, BRK en gebieden data - Alleen locatie nodig
-- `/search/` Zoek in alle datasets voor een specifieke item - locatie en item typ nodig. radius is optioneel.
+Voorbeeld van een zoekopdracht:
 
-Alle endpoint accepteren of lat/lon (voor WGS84) of x/y voor RD. Als het gaat om gebied zoeken is een radius niet noodzakelijk. Anders moet ook een zoek radius gegeven worden.
+    https://api.data.amsterdam.nl/geosearch/?datasets=bag%2Fopenbareruimtes&lat=52.38507894664783&lon=4.876663684844972&radius=5&_fields=naam,typeOmschrijving
 
-### Voorbeelden Api endpoints
-<http://localhost:8022/monumenten/?lat=52.372239620672204&lon=4.900848228657843&radius=25000>
+Zoekparameters zijn:
 
-<http://localhost:8022/monumenten/?x=121879&y=487262&radius=25000>
+datasets:
+    Komma-gescheiden lijst van datasets. Zie `https://schemas.data.amsterdam.nl/datasets/` voor een lijst met alle mogelijke datasets.
+    Uiteraard moet de dataset geo-informatie bevatten om doorzoekbaar te zijn. Naast de dataset kan ook de datasettable gespecificeerd worden.
+    De specificatie van de datasets wordt dan `datasets=<dataset-id>%2F<datset-table-id>, ...`
 
-<http://localhost:8022/search/?lat=52.372239620672204&lon=4.900848228657843&radius=25000&item=monument>
+x,y of lat, lon:
+    Coordinatenpaar. x,y: voor coordinaten in RD stelsel en lat, lon: voor WGS84.
 
-<http://localhost:8022/search/?x=121879&y=487262&radius=25000&item=monument>
+radius:
+    Radius van de cirkel rond de opgegeven coordinaat.
 
-<http://localhost:8022/biz/?x=121723&y=486199>
+_fields:
+    Komma-gescheiden lijst van evt. extra velden die in het resultaat getoond moeten worden (zie ook weer de amsterdam schema definities voor de velden van de dataset-tabel).
