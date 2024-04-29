@@ -3,7 +3,17 @@ from logging.config import dictConfig
 from pathlib import Path
 from typing import Dict
 
+from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry import trace
+
 from datapunt_geosearch.authz import get_keyset
+
+# Configure OpenTelemetry to use Azure Monitor with the
+# APPLICATIONINSIGHTS_CONNECTION_STRING environment variable.
+APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
+if APPLICATIONINSIGHTS_CONNECTION_STRING is not None:
+    configure_azure_monitor()
+
 
 DATABASE_SET_ROLE = os.getenv("DATABASE_SET_ROLE", False)
 CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")

@@ -26,8 +26,8 @@ Now update the `requirements.txt` and `requirements_dev.txt` from the `*.in` fil
 
 1) `echo "cython<3" > /tmp/constraint.txt`
 2) `cd web`
-3) `PIP_CONSTRAINT=/tmp/constraint.txt pip-compile -o requirements_dev.txt requirements_dev.in`
-4) `PIP_CONSTRAINT=/tmp/constraint.txt pip-compile -o requirements.txt requirements.in`
+3) `PIP_CONSTRAINT=/tmp/constraint.txt pip-compile --resolver=legacy -o requirements_dev.txt requirements_dev.in`
+4) `PIP_CONSTRAINT=/tmp/constraint.txt pip-compile --resolver=legacy -o requirements.txt requirements.in`
 
 ## Virtual env setup for local development
 
