@@ -1,5 +1,6 @@
-from schematools.naming import to_snake_case
 import logging
+
+from schematools.naming import to_snake_case
 
 try:
     import orjson as json
@@ -14,10 +15,7 @@ _logger = logging.getLogger(__name__)
 
 
 def generate_async(request_args, authz_scopes=None):
-    if request_args.get("datasets"):
-        datasets = request_args.get("datasets").split(",")
-    else:
-        datasets = app.config["DEFAULT_SEARCH_DATASETS"]
+    datasets = request_args.get("datasets").split(",")
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
     for ds in registry.filter_datasources(names=datasets, scopes=authz_scopes):

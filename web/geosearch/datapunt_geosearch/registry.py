@@ -11,8 +11,6 @@ from schematools.loaders import get_schema_loader
 from schematools.naming import to_snake_case, toCamelCase
 from schematools.types import DatasetSchema, DatasetTableSchema
 
-# BagDataSource,; BominslagMilieuDataSource,; MonumentenDataSource,
-# ; MunitieMilieuDataSource,; NapMeetboutenDataSource,
 from datapunt_geosearch.datasource import DataSourceBase
 from datapunt_geosearch.db import dbconnection
 from datapunt_geosearch.exceptions import DataSourceException
@@ -223,48 +221,8 @@ class DatasetRegistry:
             self._datasets_initialized is None
             or time.time() - self._datasets_initialized > self.INITIALIZE_DELAY_SECONDS
         ):
-            # self.init_vsd_datasets()
             self.init_dataservices_datasets()
             self._datasets_initialized = time.time()
-
-    def init_vsd_datasets(self, dsn=None):
-        """
-        Initialize datasets for all Various Small Datasets.
-        Returns dict with datasets created.
-        """
-        if dsn is None:
-            dsn = app.config["DSN_VARIOUS_SMALL_DATASETS"]
-        try:
-            dbconn = dbconnection(dsn)
-        except psycopg2.Error as e:
-            _logger.error("Error creating connection: %s" % e)
-            raise DataSourceException("error connecting to datasource") from e
-
-        sql = """
-    SELECT
-        name,
-        name_field,
-        schema,
-        table_name,
-        geometry_type,
-        geometry_field,
-        pk_field as id_field,
-        'vsd' as dataset_name
-    FROM cat_dataset
-    WHERE enable_geosearch = true
-        """
-        datasets = dict()
-        for row in dbconn.fetch_all(sql):
-            dataset = self.init_dataset(
-                row=row,
-                class_name=row["name"].upper() + "GenAPIDataSource",
-                dsn_name="DSN_VARIOUS_SMALL_DATASETS",
-                base_url=f"{app.config['DATAPUNT_API_URL']}",
-            )
-            if dataset is not None:
-                datasets[row["name"]] = dataset
-
-        return datasets
 
     def _fetch_temporal_dimensions(self, dataset_table: DatasetTableSchema):
         temporal = dataset_table.temporal
@@ -384,10 +342,3 @@ class DatasetRegistry:
 
 # Initialize the registry with the statically defined Datasources
 registry = DatasetRegistry()
-
-# JJM Disable all the old datasources.
-# registry.register_datasource("DSN_BAG", BagDataSource)
-# registry.register_datasource("DSN_NAP", NapMeetboutenDataSource)
-# registry.register_datasource("DSN_MUNITIE", MunitieMilieuDataSource)
-# registry.register_datasource("DSN_MUNITIE", BominslagMilieuDataSource)
-# registry.register_datasource("DSN_MONUMENTEN", MonumentenDataSource)

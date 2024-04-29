@@ -69,16 +69,6 @@ def get_db_settings(db_key: str) -> Dict[str, str]:
 
 DATAPUNT_API_URL = os.getenv("DATAPUNT_API_URL", "https://api.data.amsterdam.nl/")
 
-DEFAULT_SEARCH_DATASETS = [
-    "monumenten",
-    "openbareruimte",
-    "pand",
-    "stadsdeel",
-    "peilmerk",
-    "meetbout",
-    "uitgevoerdonderzoek",
-    "bominslag",
-]
 
 JWKS_TEST_KEY = """
     {
