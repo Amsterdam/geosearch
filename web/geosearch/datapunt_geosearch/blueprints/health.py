@@ -2,7 +2,7 @@
 import json
 import time
 
-from flask import Blueprint, Response
+from flask import Blueprint, Response, current_app
 
 from datapunt_geosearch.registry import registry
 
@@ -32,24 +32,27 @@ def force_refresh():
 @health.route("/status/health", methods=["GET", "HEAD", "OPTIONS"])
 def search_list():
     """Execute test query against datasources"""
-    # For now, always healthy, configure another health check.
+
+    # Use one of the ref db. datasources
+    gebieden_buurten_ds_cls = registry.get_by_name("gebieden/buurten")
+    x, y, response_text = 120993, 485919, []
+    # Trying to load the data sources
+    try:
+        gebieden_buurten_dsn = gebieden_buurten_ds_cls(
+            dsn=current_app.config["DSN_DATASERVICES_DATASETS"]
+        )
+    except Exception as e:
+        return repr(e), 500
+    # Attempting to query
+    try:
+        results = gebieden_buurten_dsn.query(x, y)
+    except Exception as e:
+        return repr(e), 500
+
+    if results["type"] == "Error":
+        return Response(results["message"], content_type="text/plain; charset=utf-8", status=500)
+
+    if not len(results["features"]):
+        response_text.append("No results from bag dataset")
+
     return Response("Connectivity OK", content_type="text/plain; charset=utf-8")
-    # x, y, response_text = 120993, 485919, []
-    # # Trying to load the data sources
-    # try:
-    #     bag_dsn = BagDataSource(dsn=current_app.config["DSN_BAG"])
-    # except Exception as e:
-    #     return repr(e), 500
-    # # Attempting to query
-    # try:
-    #     results = bag_dsn.query(x, y)
-    # except Exception as e:
-    #     return repr(e), 500
-
-    # if results["type"] == "Error":
-    #     return Response(results["message"], content_type="text/plain; charset=utf-8", status=500)
-
-    # if not len(results["features"]):
-    #     response_text.append("No results from bag dataset")
-
-    # return Response("Connectivity OK", content_type="text/plain; charset=utf-8")
