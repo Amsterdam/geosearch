@@ -1,8 +1,10 @@
 import logging
 
 from datapunt_geosearch.base_config import DATAPUNT_API_URL  # noqa
-from datapunt_geosearch.base_config import (  # noqa: F401
+from datapunt_geosearch.base_config import JW_KEYSET  # noqa
+from datapunt_geosearch.base_config import (  # noqa, this is imported from config.py and essential; noqa: F401
     DATABASE_SET_ROLE,
+    JWKS,
     db_connection_string,
     get_db_settings,
 )
