@@ -101,7 +101,7 @@ class _DBConnection:
             )
             return
 
-        user_email = g.token_subject
+        user_email = g.get("email")
         if not user_email:
             _logger.debug("No end-user email, switching to anonymous role")
             self._set_role(ANONYMOUS_ROLE, ANONYMOUS_APP_NAME)
