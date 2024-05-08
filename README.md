@@ -40,6 +40,17 @@ NB. See above about the needed PIP_CONSTRAINT.
 The local geosearch application can be started with `python web/geosearch/wsgi.py` 
 (with an active venv).
 
+To run the geosearch application against the Azure postgreSQL instance
+define the following environment variables:
+
+    export DATASERVICES_PW_LOCATION
+    export DATASERVICES_DB_DATABASE_OVERRIDE
+    export DATASERVICES_DB_HOST_OVERRIDE
+    export DATASERVICES_DB_USER_OVERRIDE
+
+The DATASERVICES_PW_LOCATION should point to a local file that contains
+a valid postgreSQL user token.
+
 
 ## Container setup
 
