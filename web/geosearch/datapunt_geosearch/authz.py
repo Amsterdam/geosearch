@@ -71,6 +71,7 @@ def check_authentication(request):
         if claims:
             g.authz_scopes = claims["scopes"]
             g.token_subject = claims["sub"]
+            g.email = claims["email"]
 
 
 def get_token_from_request(request):
@@ -92,12 +93,17 @@ def get_claims(jwt):
     claims = json.loads(jwt.claims)
     if "scopes" in claims:
         # Authz token structure
-        return {"sub": claims.get("sub"), "scopes": set(claims["scopes"])}
+        return {
+            "sub": claims.get("sub"), 
+            "scopes": set(claims["scopes"]),
+            "email": claims.get("sub"),
+            }
     elif claims.get("realm_access"):
         # Keycloak token structure
         return {
             "sub": claims.get("sub"),
             "scopes": {convert_scope(r) for r in claims["realm_access"]["roles"]},
+            "email": claims.get("email"),
         }
     return None
 
