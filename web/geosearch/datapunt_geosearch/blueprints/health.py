@@ -1,5 +1,6 @@
 # Packages
 import json
+import logging
 import time
 
 from flask import Blueprint, Response, current_app
@@ -7,6 +8,8 @@ from flask import Blueprint, Response, current_app
 from datapunt_geosearch.registry import registry
 
 health = Blueprint("health", __name__)
+
+logger = logging.getLogger(__name__)
 
 
 @health.route("/status", methods=["GET", "HEAD", "OPTIONS"])
@@ -33,6 +36,7 @@ def force_refresh():
 def search_list():
     """Execute test query against datasources"""
 
+    logger.warning("Accessing health endpoint. New and shiny.")
     # Use one of the ref db. datasources
     gebieden_buurten_ds_cls = registry.get_by_name("gebieden/buurten")
     x, y, response_text = 120993, 485919, []

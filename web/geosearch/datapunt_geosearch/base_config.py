@@ -1,19 +1,9 @@
+import logging
 import os
-from logging.config import dictConfig
 from pathlib import Path
 from typing import Dict
 
-from azure.monitor.opentelemetry import configure_azure_monitor
-from opentelemetry import trace
-
 from datapunt_geosearch.authz import get_keyset
-
-# Configure OpenTelemetry to use Azure Monitor with the
-# APPLICATIONINSIGHTS_CONNECTION_STRING environment variable.
-APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
-if APPLICATIONINSIGHTS_CONNECTION_STRING is not None:
-    configure_azure_monitor()
-
 
 DATABASE_SET_ROLE = os.getenv("DATABASE_SET_ROLE", False)
 CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")
@@ -101,22 +91,3 @@ JWKS_SIGNING_ALGORITHMS = [
 ]
 
 JW_KEYSET = get_keyset(jwks=JWKS, jwks_url=JWKS_URL)
-
-dictConfig(
-    {
-        "version": 1,
-        "formatters": {
-            "default": {
-                "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-            }
-        },
-        "handlers": {
-            "wsgi": {
-                "class": "logging.StreamHandler",
-                "stream": "ext://flask.logging.wsgi_errors_stream",
-                "formatter": "default",
-            }
-        },
-        "root": {"level": os.getenv("LOG_LEVEL", "INFO"), "handlers": ["wsgi"]},
-    }
-)
