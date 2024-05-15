@@ -114,19 +114,14 @@ class _DBConnection:
         _logger.debug("%s: Activating end-user context for %s", user_email)
 
         role_name = USER_ROLE.format(user_email=user_email)
-        try:
-            # BBN2: Exact account for specific access.
-            self._set_role(role_name, user_email)
-        except InvalidParameterValue as e:
-            # The role didn't exist.
-            if is_internal(user_email):
-                # BBN1: Internal employee, no specific account
-                self._set_role(INTERNAL_ROLE, user_email)
-            else:
-                _logger.exception(
-                    "External user %s has no database role %s", user_email, role_name
-                )
-                raise PermissionError(f"User {user_email} is not available in database") from e
+        if is_internal(user_email):
+            # BBN1: Internal employee, no specific account
+            self._set_role(INTERNAL_ROLE, user_email)
+        else:
+            _logger.exception(
+                "External user %s has no database role %s", user_email, role_name
+            )
+            raise PermissionError(f"User {user_email} is not available in database")
 
     def _set_role(self, role_name, app_name):
         # By starting a transaction, any connection pooling (e.g. PgBouncer)
