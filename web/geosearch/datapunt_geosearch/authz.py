@@ -12,7 +12,6 @@ from jwcrypto.jwt import JWT, JWTExpired, JWTMissingKey
 
 logger = logging.getLogger(__name__)
 
-
 def get_current_authz_scopes():
     """
     Return current authz scopes.
@@ -72,6 +71,13 @@ def check_authentication(request):
             g.authz_scopes = claims["scopes"]
             g.token_subject = claims["sub"]
             g.email = claims["email"]
+            logger.info(
+                "%s %s requested by subject %s (email: %s)",
+                request.method,
+                request.url,
+                g.token_subject,
+                g.email,
+            )
 
 
 def get_token_from_request(request):

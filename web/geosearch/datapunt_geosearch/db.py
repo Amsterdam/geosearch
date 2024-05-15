@@ -139,7 +139,7 @@ class _DBConnection:
                     raise
 
                 self._active_user = role_name
-                _logger.info(
+                _logger.debug(
                     "Activated end-user database role '%s' for '%s'",
                     role_name,
                     app_name,
