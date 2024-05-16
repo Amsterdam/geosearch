@@ -10,7 +10,8 @@ from jwcrypto.common import JWException
 from jwcrypto.jwk import JWKSet
 from jwcrypto.jwt import JWT, JWTExpired, JWTMissingKey
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("auth")
+logger.setLevel(logging.INFO)
 
 def get_current_authz_scopes():
     """
