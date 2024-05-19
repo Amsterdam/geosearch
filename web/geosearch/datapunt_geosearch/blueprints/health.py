@@ -36,7 +36,7 @@ def force_refresh():
 def search_list():
     """Execute test query against datasources"""
 
-    logger.warning("Accessing health endpoint. New and shiny.")
+    logger.debug("Accessing health endpoint. New and shiny.")
     # Use one of the ref db. datasources
     gebieden_buurten_ds_cls = registry.get_by_name("gebieden/buurten")
     x, y, response_text = 120993, 485919, []
