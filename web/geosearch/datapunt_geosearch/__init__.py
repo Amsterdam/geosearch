@@ -22,14 +22,16 @@ def response_hook(span: Span, status: str, response_headers: List):
 
 
 def create_app(import_path: str = "datapunt_geosearch.config"):
-
     import flask
     from flask_cors import CORS
     from opentelemetry.instrumentation.flask import FlaskInstrumentor
+    from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
 
     app = flask.Flask("geosearch")
     CORS(app)
+    
     FlaskInstrumentor().instrument_app(app, excluded_urls='/status/health', response_hook=response_hook)
+    Psycopg2Instrumentor().instrument(enable_commenter=True, commenter_options={"opentelemetry_values": True})
 
     app.config.from_object(import_path)
     app.register_blueprint(search.search)
