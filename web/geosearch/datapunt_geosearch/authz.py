@@ -72,7 +72,7 @@ def check_authentication(request):
             g.authz_scopes = claims["scopes"]
             g.token_subject = claims["sub"]
             g.email = claims["email"]
-            logger.info(
+            logger.debug(
                 "%s %s requested by subject %s (email: %s)",
                 request.method,
                 request.url,
