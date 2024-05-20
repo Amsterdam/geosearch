@@ -7,15 +7,6 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 from datapunt_geosearch.blueprints import health, search
 from datapunt_geosearch.db import connection_cache
 
-# Configure OpenTelemetry to use Azure Monitor with the
-# APPLICATIONINSIGHTS_CONNECTION_STRING environment variable.
-APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
-if APPLICATIONINSIGHTS_CONNECTION_STRING is not None:
-    configure_azure_monitor(logger_name="root")
-    logger = logging.getLogger("root")
-    logger.warning("OpenTelemetry has been enabled")
-
-
 def deactivate_user_context(e):
     """Rollback the end user context on any db connections using it."""
     for conn in connection_cache.values():
