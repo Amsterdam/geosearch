@@ -1,10 +1,7 @@
 -r requirements.in
 pytest==7.2.0
-black==22.8.0
+black==24.3.0
 isort==5.10.1
 flake8==5.0.4
 pre-commit==2.20.0
 bandit[toml]==1.7.5
-# The packages below are indirect dependencies that have minimum versions specified
-# to avoid vulnerabilities
-gitpython>=3.1.35
