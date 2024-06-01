@@ -155,6 +155,7 @@ class _DBConnection:
             with self._conn.cursor() as c:
                 c.execute("ROLLBACK;")
             self._active_user = None
+            g.email = None
         except Psycopg2Error as e:
             _logger.debug("Unable to rollback end user context for: %s", self._active_user)
             _logger.debug("Database error %s", e)
