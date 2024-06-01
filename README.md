@@ -55,45 +55,22 @@ a valid postgreSQL user token.
 ## Container setup
 
 Local development can be done using docker. 
-We use snapshots of the online databases for development and testing.
-Note that these snapshots are not automatically updated when the database schema changes, 
-so it is possible that our tests are running on older versions of the schemas.
+The application requires the `datasets_` tables
+created by dso-api. 
 
-1) Set the `OS_TENANT_ID` and `OS_AUTH_TOKEN` env vars so we can connect to the object store. (Can be retrieved from openstack)    
+1) Start containers:
 
-    In case of cloudVPS, `OS_AUTH_TOKEN` can be retrieved from the keystone endpoint of the objectstore using:
+    `docker-compose up database -d`
 
-    ```bash
-        export OS_AUTH_TOKEN=$(./get-os-token.sh)
-    ```
 
-    where OS_CREDS points to a json formatted file containing the objectstore credentials. this file has the following format:
-
-    ```json
-        {
-            "auth": {
-                "passwordCredentials": {
-                    "username": "",
-                    "password": ""
-                },
-                "tenantName": ""
-        }
-    }
-    ```
-
-2) Start database container:
-
-    `docker-compose up database`
-
-3) Setup the databases for local dev and testing:
-
-    `docker-compose exec database init-dbs.sh`
-
-4) Start the app
+2) Start the app
 
     `docker-compose up web`
 
-5) Take the testsuite for a spin:
+3) Query the app
+   `http://localhost:8022/?datasets=bag/gebieden&lat=52.3533513854879&lon=4.83714013585293&_fields=type&radius=100`
+
+4) Take the testsuite for a spin:
 
     `docker-compose exec web pytest -v`
 
