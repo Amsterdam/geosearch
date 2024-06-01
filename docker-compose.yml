@@ -1,27 +1,42 @@
 version: '3.0'
 services:
   database:
-    image: amsterdam/postgres11
+    image: postgis/postgis:14-3.2
+    restart: always
+    user: postgres
+    shm_size: 128mb
+    networks:
+      - geosearch
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 2s
+      timeout: 60s
+      retries: 5
+      start_period: 1s  
     ports:
        - "5432:5432"
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: insecure
+      POSTGRES_DB: dataservices
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: insecure
-      OS_TENANT_ID: ${OS_TENANT_ID}
-      OS_AUTH_TOKEN: ${OS_AUTH_TOKEN}
     volumes:
-       - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
-       - "./db-scripts/download-db.sh:/bin/download-db.sh"
-       - "./db-scripts/init-dbs.sh:/bin/init-dbs.sh"
-    extra_hosts:
-      admin.data.amsterdam.nl: 10.243.16.4
+       - "./db-scripts/init-dbs.sh:/docker-entrypoint-initdb.d/init-user-db.sh"
+  
   web:
-      build: ./web
+      build:
+        context: ./web
+        dockerfile: Dockerfile.dev
+      links:
+      - database
+      depends_on:
+        database:
+          condition: service_healthy
       ports:
         - "8022:8000"
       volumes:
         - "./web/geosearch:/app"
+      networks:
+      - geosearch
       environment:
         - UWSGI_HTTP=0.0.0.0:8000
         - UWSGI_STATS=0.0.0.0:9191
@@ -29,25 +44,20 @@ services:
         - UWSGI_CALLABLE=app
         - UWSGI_MASTER=4
         - UWSGI_PY_AUTO_RELOAD=1
-        - BAG_V11_DB_USER_OVERRIDE=insecure
-        - NAP_DB_USER_OVERRIDE=insecure
-        - MILIEUTHEMAS_DB_USER_OVERRIDE=insecure
-        - MONUMENTEN_DB_USER_OVERRIDE=insecure
-        - VARIOUS_SMALL_DATASETS_DB_USER_OVERRIDE=insecure
-        - DATASERVICES_DB_USER_OVERRIDE=insecure
-        - BAG_V11_DB_PASSWORD_OVERRIDE=insecure
-        - NAP_DB_PASSWORD_OVERRIDE=insecure
-        - MILIEUTHEMAS_DB_PASSWORD_OVERRIDE=insecure
-        - MONUMENTEN_DB_PASSWORD_OVERRIDE=insecure
-        - VARIOUS_SMALL_DATASETS_DB_PASSWORD_OVERRIDE=insecure
         - DATASERVICES_DB_PASSWORD_OVERRIDE=insecure
-        - BAG_V11_DB_HOST_OVERRIDE=database
-        - NAP_DB_HOST_OVERRIDE=database
-        - MILIEUTHEMAS_DB_HOST_OVERRIDE=database
-        - MONUMENTEN_DB_HOST_OVERRIDE=database
-        - VARIOUS_SMALL_DATASETS_DB_HOST_OVERRIDE=database
+        - DATASERVICES_DB_USER_OVERRIDE=postgres
         - DATASERVICES_DB_HOST_OVERRIDE=database
+        - DATASERVICES_DB_PORT_OVERRIDE=5432
+        - DATASERVICES_DB_DATABASE_OVERRIDE=dataservices
+        - KEYCLOAK_JWKS_URL=https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs
         - TEST_SETTINGS_MODULE=datapunt_geosearch.test_config
-        - LOG_LEVEL=INFO
-        - DATABASE_SET_ROLE=
+        - LOG_LEVEL=DEBUG
+        - DATABASE_SET_ROLE=True
+        - CLOUD_ENV=azure
         - SCHEMA_URL=https://acc.schemas.data.amsterdam.nl/datasets
+        # - APPLICATIONINSIGHTS_CONNECTION_STRING=
+
+networks:
+  geosearch:
+    external: true
+    name: geosearch
