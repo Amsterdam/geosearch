@@ -10,18 +10,6 @@ CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")
 
 db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
 
-DSN_ADMIN_USER = ""  # needs an initial value, because is imported from elsewhere
-# On Azure we need a superuser to configure end user context in tests
-if CLOUD_ENV.lower() == "azure":
-    DSN_ADMIN_USER = db_connection_string.format(
-        **{
-            "username": os.environ.get("TEST_ADMIN_USER", "testuser"),
-            "password": os.environ.get("TEST_ADMIN_PASSWORD", "insecure"),
-            "host": os.environ.get("TEST_ADMIN_HOST", "testdb-svc"),
-            "port": os.environ.get("TEST_ADMIN_PORT", 5432),
-            "db": os.environ.get("TEST_ADMIN_DB", "dataservices"),
-        }
-    )
 
 
 def get_db_settings(db_key: str) -> Dict[str, str]:
