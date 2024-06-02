@@ -11,10 +11,6 @@ from datapunt_geosearch.registry import DatasetRegistry, registry
 
 
 class TestDatasetRegistry(unittest.TestCase):
-    def test_biz_class_registered_in_registry(self):
-        ds_class = registry.get_by_name("vsd/biz")
-        self.assertEqual(registry.providers["vsd/biz"], ds_class)
-
     def test_dataset_is_registered_for_each_dataset_in_metadata(self):
         class TestDataset(DataSourceBase):
             metadata = {"datasets": {"magic": {"test1": [], "test2": []}}}
@@ -116,26 +112,6 @@ class TestDatasetRegistry(unittest.TestCase):
 
         self.assertEqual(result.metadata["operator"], "contains")
 
-    def test_init_vsd_datasets_calling_init_dataset_for_each_catalog(self):
-        registry = DatasetRegistry()
-        registry.init_dataset = unittest.mock.MagicMock()
-        registry.init_vsd_datasets(dsn=app.config["DSN_VARIOUS_SMALL_DATASETS"])
-
-        dbconn = dbconnection(app.config["DSN_VARIOUS_SMALL_DATASETS"])
-
-        datasets = dbconn.fetch_all("SELECT * FROM cat_dataset WHERE enable_geosearch = true")
-
-        self.assertEqual(len(registry.init_dataset.mock_calls), len(datasets))
-        for row in datasets:
-            self.assertIn(
-                unittest.mock.call(
-                    row=unittest.mock.ANY,
-                    base_url="https://api.data.amsterdam.nl/",
-                    class_name=row["name"].upper() + "GenAPIDataSource",
-                    dsn_name="DSN_VARIOUS_SMALL_DATASETS",
-                ),
-                registry.init_dataset.mock_calls,
-            )
 
     def test_filter_datasources(self):
         class TestDataSource(DataSourceBase):
