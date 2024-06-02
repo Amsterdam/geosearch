@@ -17,12 +17,12 @@ class TestFieldType50Karakters(unittest.TestCase):
         # table_name could be anything, fietsplaatjes was choosen as mediator
         test_row = dict(
             schema="public",
-            table_name="overlastgebieden",
+            table_name="bag_gebieden",
             name="0123456789-0123456789-123",
-            name_field="ogc_fid",
+            name_field="name",
             geometry_type="POINT",
-            geometry_field="wkb_geometry",
-            id_field="ogc_fid",
+            geometry_field="geometry",
+            id_field="id",
             operator="contains",
             dataset_name="0123456789-0123456789-12",
         )
@@ -32,7 +32,7 @@ class TestFieldType50Karakters(unittest.TestCase):
         context_data = registry.init_dataset(
             row=test_row,
             class_name="TestDataset",
-            dsn_name=app.config["DSN_VARIOUS_SMALL_DATASETS"],
+            dsn_name=app.config["DSN_DATASERVICES_DATASETS"],
         )
 
         # make connection and set vars
@@ -40,7 +40,7 @@ class TestFieldType50Karakters(unittest.TestCase):
         dataset.meta = context_data.metadata
         dataset.x = 123207
         dataset.y = 486624
-        dataset.radius = 500
+        dataset.radius = 5000
 
         query_result = dataset.execute_queries()
 
