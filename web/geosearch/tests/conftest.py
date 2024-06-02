@@ -23,7 +23,7 @@ FAKE_SCHEMA = """
   "publisher": "Datateam Beheer en Openbare Ruimte",
   "tables": [
     {
-      "id": "fake_public",
+      "id": "public",
       "type": "table",
       "auth": "OPENBAAR",
       "version": "1.0.0",
@@ -79,7 +79,7 @@ FAKE_SCHEMA = """
       }
     },
     {
-      "id": "fake_secret",
+      "id": "secret",
       "type": "table",
       "auth": "FAKE/SECRET",
       "version": "1.0.0",
@@ -175,21 +175,25 @@ def role_configuration(flask_test_app):
     # properly mimick the real situation. In this case we are just testing
     # whether role switching occurs at all, not whether privileges are also switched.
     dataservices_user = flask_test_app.config["DATASERVICES_USER"]
-    with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
+    db_connection = dbconnection(flask_test_app.config["DSN_DATASERVICES_DATASETS"])
+    with db_connection.cursor() as cursor:
         cursor.execute(
             sql.SQL(
                 """
-        CREATE ROLE "test@test.nl_role" WITH LOGIN;
+        CREATE ROLE "test@amsterdam.nl_role" WITH LOGIN;
         CREATE ROLE "anonymous_role" WITH LOGIN;
         CREATE ROLE "medewerker_role" WITH LOGIN;
-        GRANT "test@test.nl_role" TO {appuser};
+        GRANT "test@amsterdam.nl_role" TO {appuser};
         GRANT "anonymous_role" TO {appuser};
         GRANT "medewerker_role" TO {appuser};
-        GRANT SELECT ON TABLE fake_fake TO "test@test.nl_role";
-        GRANT SELECT ON TABLE fake_fake TO "anonymous_role";
-        GRANT SELECT ON TABLE fake_fake TO "medewerker_role";
-        GRANT SELECT ON TABLE datasets_dataset TO "test@test.nl_role";
-        GRANT SELECT ON TABLE datasets_datasettable TO "test@test.nl_role";
+        GRANT "anonymous_role" TO "medewerker_role";
+        GRANT SELECT ON TABLE fake_public TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE fake_public TO "anonymous_role";
+        GRANT SELECT ON TABLE bag_gebieden TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE bag_gebieden TO "anonymous_role";
+        GRANT SELECT ON TABLE fake_secret TO "medewerker_role";
+        GRANT SELECT ON TABLE datasets_dataset TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE datasets_datasettable TO "test@amsterdam.nl_role";
         GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "anonymous_role";
       """
@@ -198,17 +202,17 @@ def role_configuration(flask_test_app):
 
     yield
 
-    with dbconnection(flask_test_app.config["DSN_ADMIN_USER"]).cursor() as cursor:
+    with db_connection.cursor() as cursor:
         cursor.execute(
             sql.SQL(
                 """
-        REASSIGN OWNED BY "test@test.nl_role" TO {adminuser};
+        REASSIGN OWNED BY "test@amsterdam.nl_role" TO {adminuser};
         REASSIGN OWNED BY "anonymous_role" TO {adminuser};
         REASSIGN OWNED BY "medewerker_role" TO {adminuser};
-        DROP OWNED BY "test@test.nl_role";
+        DROP OWNED BY "test@amsterdam.nl_role";
         DROP OWNED BY "anonymous_role";
         DROP OWNED BY "medewerker_role";
-        DROP ROLE "test@test.nl_role";
+        DROP ROLE "test@amsterdam.nl_role";
         DROP ROLE "anonymous_role";
         DROP ROLE "medewerker_role";
               """
@@ -242,28 +246,14 @@ def dataservices_db(flask_test_app):
               "display_field" varchar(50) NULL,
               "geometry_field" varchar(50) NULL,
               "geometry_field_type" varchar(50) NULL,
-              "dataset_id" integer NOT NULL
+              "dataset_id" integer NOT NULL,
+              "id_field" varchar(50) NOT NULL
             );
 
             INSERT INTO "datasets_dataset"
-             (id, name, path, ordering, enable_api, schema_data) VALUES (
-              1,
-              'fake',
-              'path/fake',
-              1,
-              True,
-              '{FAKE_SCHEMA}'
-            );
-            INSERT INTO "datasets_datasettable" (
-              id,
-              name,
-              enable_geosearch,
-              db_table,
-              display_field,
-              geometry_field,
-              geometry_field_type,
-              dataset_id
-            ) VALUES (1, 'fake_public', True, 'fake_fake', 'name', 'geometry', 'POINT', 1);
+             (id, name, path, ordering, enable_api, schema_data) VALUES 
+             (1, 'fake', 'path/fake', 1, True, '{FAKE_SCHEMA}' ),
+             (2, 'bag', 'path/bag', 1, True, '{FAKE_SCHEMA.replace('fake', 'bag').replace('public', 'gebieden')}' );
             INSERT INTO "datasets_datasettable" (
               id,
               name,
@@ -273,8 +263,14 @@ def dataservices_db(flask_test_app):
               geometry_field,
               geometry_field_type,
               dataset_id,
-              auth
-            ) VALUES (2, 'fake_secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET');
+              auth,
+              id_field
+            ) VALUES 
+              (1, 'public', True, 'fake_public', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
+              (2, 'extra', True, 'fake_extra', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
+              (3, 'secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
+              (4, 'gebieden', True, 'bag_gebieden', 'name', 'geometry', 'POINT', 2, 'OPENBAAR', 'id');
+
             """
         )
     yield
@@ -294,9 +290,10 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        DROP TABLE IF EXISTS "fake_fake";
+        DROP TABLE IF EXISTS "fake_public";
         DROP TABLE IF EXISTS "fake_secret";
-        CREATE TABLE IF NOT EXISTS "fake_fake" (
+        DROP TABLE IF EXISTS "bag_gebieden";
+        CREATE TABLE IF NOT EXISTS "fake_public" (
           "id" varchar(16) NOT NULL,
           "identificatie" varchar(16) NOT NULL,
           "name" varchar(100) NOT NULL,
@@ -304,21 +301,15 @@ def dataservices_fake_data(flask_test_app):
           "eind_geldigheid" timestamp without time zone,
           "volgnummer" integer,
           "geometry" geometry(POINT, 28992));
-        CREATE TABLE IF NOT EXISTS "fake_secret" (
-          "id" varchar(16) NOT NULL,
-          "identificatie" varchar(16) NOT NULL,
-          "name" varchar(100) NOT NULL,
-          "begin_geldigheid" timestamp without time zone,
-          "eind_geldigheid" timestamp without time zone,
-          "volgnummer" integer,
-          "geometry" geometry(POINT, 28992));
+        CREATE TABLE IF NOT EXISTS "fake_secret" (LIKE fake_public INCLUDING ALL);
+        CREATE TABLE IF NOT EXISTS "bag_gebieden" (LIKE fake_public INCLUDING ALL);
         """
         )
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        INSERT INTO "fake_fake" (id, identificatie, name, volgnummer, geometry) VALUES (
+        INSERT INTO "fake_public" (id, identificatie, name, volgnummer, geometry) VALUES (
           '1.1',
           '1',
           'test',
@@ -330,6 +321,15 @@ def dataservices_fake_data(flask_test_app):
           'secret test',
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
+        -- Gebieden are offset <10m from points in the other tables.
+        INSERT INTO "bag_gebieden" (id, identificatie, name, volgnummer, geometry) VALUES 
+          ('1.1', '1', 'gebied 1', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
+          ('2.1', '1', 'gebied 2', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
+          ('3.1', '1', 'gebied 3', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
+          ('4.1', '1', 'gebied 4', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
+          ('5.1', '1', 'gebied 5', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
+          ('6.1', '1', 'gebied 6', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992));
+
         """
         )
 
@@ -338,7 +338,7 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        DROP TABLE fake_fake CASCADE;
+        DROP TABLE fake_public CASCADE;
         DROP TABLE fake_secret CASCADE;
         """
         )
@@ -360,7 +360,7 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
         with dataservices_db_connection.cursor() as cursor:
             cursor.execute(
                 f"""
-            INSERT INTO "fake_fake" (id, identificatie, volgnummer, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
+            INSERT INTO "fake_public" (id, identificatie, volgnummer, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
                 (
                   '{id_counter}.1',
                   '{id_counter}',
@@ -379,7 +379,7 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
 
         with dataservices_db_connection.cursor() as cursor:
             used_ids_str = ", ".join(f"'{used_id}'" for used_id in used_ids)
-            cursor.execute(f'DELETE FROM "fake_fake" WHERE id IN ({used_ids_str})')
+            cursor.execute(f'DELETE FROM "fake_public" WHERE id IN ({used_ids_str})')
 
     request.cls.data_creator = _creator
 
@@ -397,7 +397,7 @@ def create_authz_token(request, flask_test_app):
 
         token = JWT(
             header=header,
-            claims={"iat": now, "exp": now + 600, "scopes": scopes, "sub": subject},
+            claims={"iat": now, "exp": now + 600, "realm_access": {"roles": scopes}, "sub": subject,"email": subject},
         )
         token.make_signed_token(key)
         return token.serialize()
