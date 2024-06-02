@@ -59,5 +59,5 @@ services:
 
 networks:
   geosearch:
-    external: true
+    external: false
     name: geosearch
