@@ -1,10 +1,19 @@
 import logging
 
-from datapunt_geosearch.base_config import db_connection_string, get_db_settings  # noqa: F401
-
-DSN_DATASERVICES_DATASETS = db_connection_string.format(
-    **get_db_settings("dataservices") | {"db": "test_dataservices"}
+from datapunt_geosearch.base_config import (  # noqa, this is imported from config.py and essential; noqa: F401
+    DATABASE_SET_ROLE,
+    JWKS,
+    db_connection_string,
+    get_db_settings,
+    DATAPUNT_API_URL,
+    JW_KEYSET
 )
+
+dataservices_settings = get_db_settings("dataservices")
+DSN_DATASERVICES_DATASETS = db_connection_string.format(
+    **dataservices_settings | {"db": "test_dataservices"}
+)
+DATASERVICES_USER = dataservices_settings["username"]
 TESTING = True
 ENV = "test"
 
@@ -14,4 +23,3 @@ logging.debug(
     DSN_DATASERVICES_DATASETS,
 )
 
-DATABASE_SET_ROLE = False
