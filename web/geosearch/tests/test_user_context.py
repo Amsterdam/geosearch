@@ -16,7 +16,7 @@ only_run_on_azure = pytest.mark.skipif(
 def test_user_not_set_by_default(test_client, dataservices_db, dataservices_fake_data):
     """Prove that usercontext not set when not configured"""
     with test_client() as client:
-        client.get("/?datasets=fake/fake_public&x=0&y=0")
+        client.get("/?datasets=fake/public&x=0&y=0")
         assert (
             db.dbconnection(
                 app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True
@@ -61,19 +61,19 @@ def test_end_user_when_jwt(
     create_authz_token,
 ):
     with test_client() as client:
-        jwt = create_authz_token(None, "test@test.nl", [])
+        jwt = create_authz_token(None, "test@amsterdam.nl", [])
         response = client.get(
             "/?x=123282.6&y=487674.8&radius=1&datasets=fake",
             headers={"Authorization": f"Bearer {jwt}"},
         )
         json_response = json.loads(response.data)
         assert len(json_response["features"]) == 1
-        assert g.token_subject == "test@test.nl"
+        assert g.token_subject == "test@amsterdam.nl"
         assert (
             db.dbconnection(
                 app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True
             )._active_user
-            == "test@test.nl_role"
+            == "medewerker_role"
         )
 
     # The user context must be cleaned up when the request context is popped
