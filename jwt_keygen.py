@@ -52,7 +52,7 @@ def generate_jwt(scopes, exp):
     claims = {
         "iat": now,
         "scopes": scopes,
-        "sub": "test@test.nl",
+        "sub": "test@amsterdam.nl",
     }
     if exp is not None:
         claims["exp"] = now + exp
