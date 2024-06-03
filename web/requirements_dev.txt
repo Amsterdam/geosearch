@@ -28,7 +28,7 @@ azure-core-tracing-opentelemetry==1.0.0b11
     # via azure-monitor-opentelemetry
 azure-identity==1.13.0
     # via -r requirements.in
-azure-monitor-opentelemetry==1.4.2
+azure-monitor-opentelemetry==1.5.0
     # via -r requirements.in
 azure-monitor-opentelemetry-exporter==1.0.0b26
     # via azure-monitor-opentelemetry
@@ -85,7 +85,7 @@ filelock==3.14.0
     # via virtualenv
 fixedint==0.1.6
     # via azure-monitor-opentelemetry-exporter
-flake8==5.0.4
+flake8==6.1.0
     # via -r requirements_dev.in
 flask==2.3.2
     # via
@@ -297,13 +297,13 @@ psutil==5.9.8
     # via azure-monitor-opentelemetry-exporter
 psycopg2==2.9.9
     # via amsterdam-schema-tools
-psycopg2-binary==2.9.5
+psycopg2-binary==2.9.9
     # via -r requirements.in
-pycodestyle==2.9.1
+pycodestyle==2.11.1
     # via flake8
 pycparser==2.22
     # via cffi
-pyflakes==2.5.0
+pyflakes==3.1.0
     # via flake8
 pygments==2.18.0
     # via rich
