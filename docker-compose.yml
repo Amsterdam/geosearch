@@ -56,6 +56,7 @@ services:
         - CLOUD_ENV=azure
         - SCHEMA_URL=https://acc.schemas.data.amsterdam.nl/datasets
         # - APPLICATIONINSIGHTS_CONNECTION_STRING=
+        - TELEMETRY_TO_CONSOLE=True
 
 networks:
   geosearch:
