@@ -2,11 +2,11 @@ import logging
 
 from datapunt_geosearch.base_config import (  # noqa, this is imported from config.py and essential; noqa: F401
     DATABASE_SET_ROLE,
+    DATAPUNT_API_URL,
+    JW_KEYSET,
     JWKS,
     db_connection_string,
     get_db_settings,
-    DATAPUNT_API_URL,
-    JW_KEYSET
 )
 
 dataservices_settings = get_db_settings("dataservices")
@@ -22,4 +22,3 @@ logging.debug(
         Dataservices: %s\n\n",
     DSN_DATASERVICES_DATASETS,
 )
-

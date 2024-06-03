@@ -7,7 +7,6 @@ from cachetools import LRUCache, cached
 from flask import current_app as app
 from flask import g
 from psycopg2 import Error as Psycopg2Error
-from psycopg2.errors import InvalidParameterValue
 
 _logger = logging.getLogger(__name__)
 
@@ -118,9 +117,7 @@ class _DBConnection:
             # BBN1: Internal employee, no specific account
             self._set_role(INTERNAL_ROLE, user_email)
         else:
-            _logger.exception(
-                "External user %s has no database role %s", user_email, role_name
-            )
+            _logger.exception("External user %s has no database role %s", user_email, role_name)
             raise PermissionError(f"User {user_email} is not available in database")
 
     def _set_role(self, role_name, app_name):

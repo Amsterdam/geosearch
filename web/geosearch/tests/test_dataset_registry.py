@@ -2,12 +2,9 @@ import time
 import unittest
 import unittest.mock
 
-from flask import current_app as app
-
 from datapunt_geosearch import datasource
 from datapunt_geosearch.datasource import DataSourceBase
-from datapunt_geosearch.db import dbconnection
-from datapunt_geosearch.registry import DatasetRegistry, registry
+from datapunt_geosearch.registry import DatasetRegistry
 
 
 class TestDatasetRegistry(unittest.TestCase):
@@ -111,7 +108,6 @@ class TestDatasetRegistry(unittest.TestCase):
         result = test_registry.init_dataset(row, "TestDataset", "DSN_TEST_DATASET")
 
         self.assertEqual(result.metadata["operator"], "contains")
-
 
     def test_filter_datasources(self):
         class TestDataSource(DataSourceBase):

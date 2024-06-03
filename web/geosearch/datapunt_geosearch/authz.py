@@ -13,6 +13,7 @@ from jwcrypto.jwt import JWT, JWTExpired, JWTMissingKey
 logger = logging.getLogger("auth")
 logger.setLevel(logging.INFO)
 
+
 def get_current_authz_scopes():
     """
     Return current authz scopes.
@@ -101,10 +102,10 @@ def get_claims(jwt):
     if "scopes" in claims:
         # Authz token structure
         return {
-            "sub": claims.get("sub"), 
+            "sub": claims.get("sub"),
             "scopes": set(claims["scopes"]),
             "email": claims.get("sub"),
-            }
+        }
     elif claims.get("realm_access"):
         # Keycloak token structure
         return {

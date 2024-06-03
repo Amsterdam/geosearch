@@ -8,20 +8,24 @@ from flask import current_app as app
 
 
 @pytest.mark.usefixtures(
-    "dataservices_db", "create_authz_token","dataservices_fake_data", "test_client",
-    "role_configuration"
+    "dataservices_db",
+    "create_authz_token",
+    "dataservices_fake_data",
+    "test_client",
+    "role_configuration",
 )
 class AuthzTestCase(unittest.TestCase):
     def test_unauthenticated_request_returns_only_public_data(self):
         with self.client() as client:
-            response = client.get("/?x=123282.6&y=487674.8&radius=100&datasets=fake/public,fake/secret")
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=100&datasets=fake/public,fake/secret"
+            )
             self.assertEqual(flask.g.authz_scopes, None)
             self.assertEqual(response.status_code, 200)
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
             self.assertEqual(json_response["features"][0]["properties"]["type"], "fake/public")
-
 
     @unittest.mock.patch("datapunt_geosearch.authz.logger")
     def test_incorrect_bearer_results_in_error(self, logger_mock):
@@ -42,7 +46,9 @@ class AuthzTestCase(unittest.TestCase):
             )
 
     def test_correct_bearer_accepted_and_scopes_assigned(self):
-        token = self.create_authz_token(subject="test@amsterdam.nl", scopes=["CA/W", "FAKE/SECRET"])
+        token = self.create_authz_token(
+            subject="test@amsterdam.nl", scopes=["CA/W", "FAKE/SECRET"]
+        )
         with self.client() as client:
             response = client.get(
                 "/?x=123282.6&y=487674.8&radius=100&datasets=fake/public,fake/secret",

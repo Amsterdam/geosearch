@@ -20,20 +20,14 @@ test_jwk.json in the root folder of this repository.
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "scopes", nargs="*", help="Scopes added to the JWT as private claims"
-)
-parser.add_argument(
-    "--exp", default=None, type=int, help="Number of seconds to expiration"
-)
+parser.add_argument("scopes", nargs="*", help="Scopes added to the JWT as private claims")
+parser.add_argument("--exp", default=None, type=int, help="Number of seconds to expiration")
 
 JWK_PATH = pathlib.Path(__file__).parent / "test_jwk.json"
 
 
 def generate_jwk():
-    return JWK.generate(
-        kty="EC", crv="P-256", kid=str(uuid.uuid4()), key_ops=["verify", "sign"]
-    )
+    return JWK.generate(kty="EC", crv="P-256", kid=str(uuid.uuid4()), key_ops=["verify", "sign"])
 
 
 def generate_jwt(scopes, exp):
