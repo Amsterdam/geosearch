@@ -11,6 +11,11 @@ only_run_on_azure = pytest.mark.skipif(
     CLOUD_ENV.lower() != "azure", reason="End user context is only applicable on Azure"
 )
 
+def _get_application_name():
+    cursor = db.dbconnection(app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True
+        )._conn.cursor()
+    cursor.execute("select current_setting('application_name')")
+    return cursor.fetchone()[0]
 
 @only_run_on_azure
 def test_user_not_set_by_default(test_client, dataservices_db, dataservices_fake_data):
@@ -23,6 +28,7 @@ def test_user_not_set_by_default(test_client, dataservices_db, dataservices_fake
             )._active_user
             is None
         )
+        assert(_get_application_name() == "")
 
 
 @only_run_on_azure
@@ -43,6 +49,7 @@ def test_anonymous_when_no_jwt(
             )._active_user
             == db.ANONYMOUS_ROLE
         )
+        assert(_get_application_name() == db.ANONYMOUS_APP_NAME)
 
     # The user context must be cleaned up when the request context is popped
     assert (
@@ -75,12 +82,14 @@ def test_end_user_when_jwt(
             )._active_user
             == "medewerker_role"
         )
+        assert(_get_application_name() == "test@amsterdam.nl")
 
     # The user context must be cleaned up when the request context is popped
     assert (
         db.dbconnection(app.config["DSN_DATASERVICES_DATASETS"], set_user_role=True)._active_user
         is None
     )
+    assert(_get_application_name() == "")
 
 
 @only_run_on_azure
@@ -107,3 +116,4 @@ def test_employee_when_internal_jwt_but_role_does_not_exist(
             )._active_user
             == "medewerker_role"
         )
+        assert(_get_application_name() == "test@amsterdam.nl")
