@@ -2,6 +2,16 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict
+import logging
+import os
+
+from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry import trace, metrics
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, ConsoleMetricExporter
 
 from datapunt_geosearch.authz import get_keyset
 
@@ -10,7 +20,37 @@ CLOUD_ENV = os.getenv("CLOUD_ENV", "CLOUDVPS")
 
 db_connection_string = "postgresql://{username}:{password}@{host}:{port}/{db}"
 
+# Configure OpenTelemetry to use Azure Monitor with the
+# APPLICATIONINSIGHTS_CONNECTION_STRING environment variable.
+APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
+TELEMETRY_TO_CONSOLE = os.getenv("TELEMETRY_TO_CONSOLE", False)
+if APPLICATIONINSIGHTS_CONNECTION_STRING is not None:
+    configure_azure_monitor(logger_name="root", instrumentation_options = {
+        "azure_sdk": {"enabled": False},
+        "django": {"enabled": False},
+        "fastapi": {"enabled": False},
+        "flask": {"enabled": False}, # Configure flask manually
+        "psycopg2": {"enabled": False}, # Configure psycopg2 manually
+        "requests": {"enabled": True},
+        "urllib": {"enabled": False},
+        "urllib3": {"enabled": True},
+    }, resource=Resource.create({SERVICE_NAME: "Geosearch"}))
+    logger = logging.getLogger("root")
+    logger.info("OpenTelemetry has been enabled")
+elif TELEMETRY_TO_CONSOLE:
+    # Setup opentelemetry for exporting to console
+    resource = Resource(attributes={
+        SERVICE_NAME: "Geosearch"
+    })
 
+    traceProvider = TracerProvider(resource=resource)
+    processor = BatchSpanProcessor(ConsoleSpanExporter())
+    traceProvider.add_span_processor(processor)
+    trace.set_tracer_provider(traceProvider)
+
+    reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+    meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+    metrics.set_meter_provider(meterProvider)
 
 def get_db_settings(db_key: str) -> Dict[str, str]:
     """
