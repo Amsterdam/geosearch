@@ -15,7 +15,7 @@ _logger = logging.getLogger(__name__)
 
 
 def generate_async(request_args, authz_scopes=None):
-    datasets = request_args.get("datasets" , "").split(",")
+    datasets = request_args.get("datasets", "").split(",")
 
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['

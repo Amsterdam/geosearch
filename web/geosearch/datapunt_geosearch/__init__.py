@@ -1,13 +1,11 @@
-# Packages
-import logging
-import os
-
-from opentelemetry.trace import Span
-from flask import g
 from typing import List
+
+from flask import g
+from opentelemetry.trace import Span
 
 from datapunt_geosearch.blueprints import health, search
 from datapunt_geosearch.db import connection_cache
+
 
 def deactivate_user_context(e):
     """Rollback the end user context on any db connections using it."""
@@ -29,9 +27,13 @@ def create_app(import_path: str = "datapunt_geosearch.config"):
 
     app = flask.Flask("geosearch")
     CORS(app)
-    
-    FlaskInstrumentor().instrument_app(app, excluded_urls='/status/health', response_hook=response_hook)
-    Psycopg2Instrumentor().instrument(enable_commenter=True, commenter_options={"opentelemetry_values": True})
+
+    FlaskInstrumentor().instrument_app(
+        app, excluded_urls="/status/health", response_hook=response_hook
+    )
+    Psycopg2Instrumentor().instrument(
+        enable_commenter=True, commenter_options={"opentelemetry_values": True}
+    )
 
     app.config.from_object(import_path)
     app.register_blueprint(search.search)

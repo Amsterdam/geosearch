@@ -251,7 +251,7 @@ def dataservices_db(flask_test_app):
             );
 
             INSERT INTO "datasets_dataset"
-             (id, name, path, ordering, enable_api, schema_data) VALUES 
+             (id, name, path, ordering, enable_api, schema_data) VALUES
              (1, 'fake', 'path/fake', 1, True, '{FAKE_SCHEMA}' ),
              (2, 'bag', 'path/bag', 1, True, '{FAKE_SCHEMA.replace('fake', 'bag').replace('public', 'gebieden')}' );
             INSERT INTO "datasets_datasettable" (
@@ -265,7 +265,7 @@ def dataservices_db(flask_test_app):
               dataset_id,
               auth,
               id_field
-            ) VALUES 
+            ) VALUES
               (1, 'public', True, 'fake_public', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
               (2, 'extra', True, 'fake_extra', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
               (3, 'secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
@@ -322,7 +322,7 @@ def dataservices_fake_data(flask_test_app):
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
         -- Gebieden are offset <10m from points in the other tables.
-        INSERT INTO "bag_gebieden" (id, identificatie, name, volgnummer, geometry) VALUES 
+        INSERT INTO "bag_gebieden" (id, identificatie, name, volgnummer, geometry) VALUES
           ('1.1', '1', 'gebied 1', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
           ('2.1', '1', 'gebied 2', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
           ('3.1', '1', 'gebied 3', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
@@ -397,7 +397,13 @@ def create_authz_token(request, flask_test_app):
 
         token = JWT(
             header=header,
-            claims={"iat": now, "exp": now + 600, "realm_access": {"roles": scopes}, "sub": subject,"email": subject},
+            claims={
+                "iat": now,
+                "exp": now + 600,
+                "realm_access": {"roles": scopes},
+                "sub": subject,
+                "email": subject,
+            },
         )
         token.make_signed_token(key)
         return token.serialize()

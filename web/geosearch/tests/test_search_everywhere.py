@@ -23,7 +23,6 @@ class SearchEverywhereTestCase(unittest.TestCase):
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
 
-
     def test_search_limited_by_dataset_results_in_correct_filter(self):
         with app.test_client() as client:
             response = client.get("/?x=123282.6&y=487684.8&radius=1&datasets=bag")
@@ -95,7 +94,9 @@ class SearchEverywhereTestCase(unittest.TestCase):
         registry._datasets_initialized = None
 
         with app.test_client() as client:
-            response = client.get("/?x=123282.6&y=487674.8&radius=100&_fields=nonExisting&datasets=fake")
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=100&_fields=nonExisting&datasets=fake"
+            )
             json_response = json.loads(response.data)
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 1)
