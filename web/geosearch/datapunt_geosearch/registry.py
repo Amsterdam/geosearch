@@ -158,7 +158,7 @@ class DatasetRegistry:
                 row["id_field"],
             ]
         ):
-            _logger.warn(f"Incorrect dataset: {class_name}")
+            _logger.warning(f"Incorrect dataset: {class_name}")
             return None
         name = field_name_transformation(row["name"])
         name_field = field_name_transformation(row["name_field"])
@@ -311,7 +311,7 @@ class DatasetRegistry:
                     # Datasources for internally inconsistent schemas (i.e. presence of
                     # tables that are not referenced by the dataset)
                     # this is a workaround.
-                    _logger.warn(f"Table {row['name']} in db but not referenced by dataset")
+                    _logger.warning(f"Table {row['name']} in db but not referenced by dataset")
                     continue
 
             scopes = set()
