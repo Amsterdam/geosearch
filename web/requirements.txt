@@ -27,7 +27,7 @@ azure-core-tracing-opentelemetry==1.0.0b11
     # via azure-monitor-opentelemetry
 azure-identity==1.13.0
     # via -r requirements.in
-azure-monitor-opentelemetry==1.4.2
+azure-monitor-opentelemetry==1.5.0
     # via -r requirements.in
 azure-monitor-opentelemetry-exporter==1.0.0b26
     # via azure-monitor-opentelemetry
@@ -249,7 +249,7 @@ psutil==5.9.8
     # via azure-monitor-opentelemetry-exporter
 psycopg2==2.9.6
     # via amsterdam-schema-tools
-psycopg2-binary==2.9.5
+psycopg2-binary==2.9.9
     # via -r requirements.in
 pycparser==2.21
     # via cffi
