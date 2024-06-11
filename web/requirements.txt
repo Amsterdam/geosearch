@@ -118,7 +118,6 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
-    #   jsonschema
     #   mappyfile
 jwcrypto==1.5.6
     # via -r requirements.in
@@ -137,7 +136,7 @@ more-ds==0.0.6
     # via amsterdam-schema-tools
 more-itertools==10.2.0
     # via amsterdam-schema-tools
-msal==1.25.0
+msal==1.28.0
     # via
     #   azure-identity
     #   msal-extensions

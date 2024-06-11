@@ -33,9 +33,7 @@ azure-monitor-opentelemetry==1.5.0
 azure-monitor-opentelemetry-exporter==1.0.0b26
     # via azure-monitor-opentelemetry
 bandit[toml]==1.7.5
-    # via
-    #   -r requirements_dev.in
-    #   bandit
+    # via -r requirements_dev.in
 black==24.3.0
     # via -r requirements_dev.in
 blinker==1.6.2
@@ -142,7 +140,6 @@ jsonref==1.1.0
 jsonschema[format]==4.22.0
     # via
     #   amsterdam-schema-tools
-    #   jsonschema
     #   mappyfile
 jsonschema-specifications==2023.12.1
     # via jsonschema
