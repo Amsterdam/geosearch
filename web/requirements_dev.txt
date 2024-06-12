@@ -26,7 +26,7 @@ azure-core==1.30.1
     #   msrest
 azure-core-tracing-opentelemetry==1.0.0b11
     # via azure-monitor-opentelemetry
-azure-identity==1.13.0
+azure-identity==1.16.1
     # via -r requirements.in
 azure-monitor-opentelemetry==1.5.0
     # via -r requirements.in
@@ -363,7 +363,6 @@ six==1.12.0
     # via
     #   -r requirements.in
     #   azure-core
-    #   azure-identity
     #   isodate
     #   jsonpath-rw
     #   python-dateutil
