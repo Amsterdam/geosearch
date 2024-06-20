@@ -6,6 +6,8 @@
 #
 amsterdam-schema-tools==5.26.0
     # via -r requirements.in
+argparse==1.4.0
+    # via uwsgi-readiness-check
 arrow==1.2.3
     # via isoduration
 asgiref==3.8.1
@@ -118,6 +120,7 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
+    #   jsonschema
     #   mappyfile
 jwcrypto==1.5.6
     # via -r requirements.in
@@ -284,6 +287,7 @@ requests==2.32.3
     #   msal
     #   msrest
     #   requests-oauthlib
+    #   uwsgi-readiness-check
 requests-oauthlib==2.0.0
     # via msrest
 rfc3339-validator==0.1.4
@@ -321,6 +325,8 @@ urllib3==1.26.19
     # via
     #   requests
     #   sentry-sdk
+uwsgi-readiness-check==0.2.0
+    # via -r requirements.in
 webcolors==1.13
     # via jsonschema
 werkzeug==3.0.3
