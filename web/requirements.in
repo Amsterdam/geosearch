@@ -24,3 +24,4 @@ azure-monitor-opentelemetry==1.5.0
 # to avoid vulnerabilities
 idna>=3.7
 uwsgi-readiness-check==0.2.0
+uwsgitop==0.12.0
