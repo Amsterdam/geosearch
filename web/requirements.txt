@@ -81,6 +81,8 @@ fqdn==1.5.1
     # via jsonschema
 geoalchemy2==0.13.2
     # via amsterdam-schema-tools
+greenlet==3.0.3
+    # via sqlalchemy
 idna==3.7
     # via
     #   -r requirements.in
@@ -116,7 +118,6 @@ jsonref==0.2
 jsonschema[format]==4.17.3
     # via
     #   amsterdam-schema-tools
-    #   jsonschema
     #   mappyfile
 jwcrypto==1.5.6
     # via -r requirements.in
@@ -336,7 +337,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-urllib3
-zipp==3.19.0
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
