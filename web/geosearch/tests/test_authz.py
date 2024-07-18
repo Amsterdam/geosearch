@@ -75,7 +75,6 @@ class AuthzTestCase(unittest.TestCase):
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 2)
 
-
     def test_dataset_table_with_authorization_not_visible(self):
         with self.client() as client:
             response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake_secret")
