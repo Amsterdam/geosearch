@@ -49,7 +49,7 @@ services:
         - DATASERVICES_DB_HOST_OVERRIDE=database
         - DATASERVICES_DB_PORT_OVERRIDE=5432
         - DATASERVICES_DB_DATABASE_OVERRIDE=dataservices
-        - KEYCLOAK_JWKS_URL=https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs
+        # - KEYCLOAK_JWKS_URL=https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs
         - TEST_SETTINGS_MODULE=datapunt_geosearch.test_config
         - LOG_LEVEL=DEBUG
         - DATABASE_SET_ROLE=True

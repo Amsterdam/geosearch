@@ -18,7 +18,7 @@ ANONYMOUS_APP_NAME = "geosearch-openbaar"
 
 def is_internal(user_email: str) -> bool:
     """Tell whether a user is an internal user."""
-    return user_email.endswith("@amsterdam.nl") or user_email.endswith("@ggd.amsterdam.nl") 
+    return user_email.endswith("@amsterdam.nl") or user_email.endswith("@ggd.amsterdam.nl")
 
 
 def retry_on_psycopg2_error(func):
