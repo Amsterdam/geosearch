@@ -356,7 +356,7 @@ rpds-py==0.18.1
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==1.14.0
+sentry-sdk==2.8.0
     # via -r requirements.in
 shapely==2.0.4
     # via amsterdam-schema-tools

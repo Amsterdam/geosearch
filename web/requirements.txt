@@ -291,7 +291,7 @@ rfc3339-validator==0.1.4
     # via jsonschema
 rfc3987==1.3.8
     # via jsonschema
-sentry-sdk==1.14.0
+sentry-sdk==2.8.0
     # via -r requirements.in
 shapely==2.0.1
     # via amsterdam-schema-tools
