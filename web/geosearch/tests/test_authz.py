@@ -60,6 +60,22 @@ class AuthzTestCase(unittest.TestCase):
             self.assertEqual(json_response["type"], "FeatureCollection")
             self.assertEqual(len(json_response["features"]), 2)
 
+    def test_ggd_email_accepted_and_scopes_assigned(self):
+        token = self.create_authz_token(
+            subject="test@ggd.amsterdam.nl", scopes=["CA/W", "FAKE/SECRET"]
+        )
+        with self.client() as client:
+            response = client.get(
+                "/?x=123282.6&y=487674.8&radius=100&datasets=fake/public,fake/secret",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            self.assertEqual(flask.g.authz_scopes, {"CA/W", "FAKE/SECRET"})
+            self.assertEqual(response.status_code, 200)
+            json_response = json.loads(response.data)
+            self.assertEqual(json_response["type"], "FeatureCollection")
+            self.assertEqual(len(json_response["features"]), 2)
+
+
     def test_dataset_table_with_authorization_not_visible(self):
         with self.client() as client:
             response = client.get("/?x=123282.6&y=487674.8&radius=1&datasets=fake_secret")
