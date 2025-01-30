@@ -6,7 +6,7 @@ name: CI
 on:
   push:
     branches:
-      - "stefan/geosearch-new-pipeline-trigger" 
+      - "master" 
   workflow_dispatch:
 
 jobs:
