@@ -61,7 +61,7 @@ click==8.1.7
     #   black
     #   flask
     #   mappyfile
-cryptography==43.0.1
+cryptography==44.0.1
     # via
     #   azure-identity
     #   jwcrypto
