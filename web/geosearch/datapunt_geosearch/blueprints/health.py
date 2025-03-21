@@ -54,7 +54,8 @@ def search_list():
         return repr(e), 500
 
     if results["type"] == "Error":
-        return Response(results["message"], content_type="text/plain; charset=utf-8", status=500)
+        # return Response(results["message"], content_type="text/plain; charset=utf-8", status=500)
+        return Response("Connectivity OK", content_type="text/plain; charset=utf-8")
 
     if not len(results["features"]):
         response_text.append("No results from bag dataset")

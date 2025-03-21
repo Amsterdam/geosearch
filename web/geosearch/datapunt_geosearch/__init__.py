@@ -3,7 +3,7 @@ from typing import List
 from flask import g
 from opentelemetry.trace import Span
 
-# from datapunt_geosearch.blueprints import health, search
+from datapunt_geosearch.blueprints import health, search
 from datapunt_geosearch.db import connection_cache
 
 
@@ -28,16 +28,16 @@ def create_app(import_path: str = "datapunt_geosearch.config"):
     app = flask.Flask("geosearch")
     CORS(app)
 
-    # FlaskInstrumentor().instrument_app(
-    #     app, excluded_urls="/status/health", response_hook=response_hook
-    # )
+    FlaskInstrumentor().instrument_app(
+        app, excluded_urls="/status/health", response_hook=response_hook
+    )
     Psycopg2Instrumentor().instrument(
         enable_commenter=True, commenter_options={"opentelemetry_values": True}
     )
 
     app.config.from_object(import_path)
     app.register_blueprint(search.search)
-    # app.register_blueprint(health.health)
+    app.register_blueprint(health.health)
 
     app.teardown_request(deactivate_user_context)
 
