@@ -75,7 +75,7 @@ flask==2.3.2
     # via
     #   -r requirements.in
     #   flask-cors
-flask-cors==4.0.2
+flask-cors==6.0.0
     # via -r requirements.in
 fqdn==1.5.1
     # via jsonschema
@@ -329,6 +329,7 @@ werkzeug==3.0.6
     # via
     #   -r requirements.in
     #   flask
+    #   flask-cors
 wirerope==0.4.7
     # via methodtools
 wrapt==1.16.0
