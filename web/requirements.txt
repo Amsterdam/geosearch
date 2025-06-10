@@ -276,7 +276,7 @@ pyyaml==6.0.1
     # via -r requirements.in
 remote-pdb==2.1.0
     # via amsterdam-schema-tools
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements.in
     #   amsterdam-schema-tools
