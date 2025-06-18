@@ -292,7 +292,6 @@ class DatasetRegistry:
                     # For now we use a URL schema loader that is created at module load time.
                     dataset_schema = DatasetSchema.from_dict(
                         json.loads(row["schema_data"]),
-                        dataset_collection=_schema_loader.dataset_collection,
                     )
                     dataset_table = dataset_schema.get_table_by_id(
                         toCamelCase(row["name"]), include_nested=False, include_through=False
