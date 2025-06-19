@@ -17,7 +17,7 @@ class TestFieldType50Karakters(unittest.TestCase):
         # table_name could be anything, fietsplaatjes was choosen as mediator
         test_row = dict(
             schema="public",
-            table_name="bag_gebieden",
+            table_name="bag_gebieden_v1",
             name="0123456789-0123456789-123",
             name_field="name",
             geometry_type="POINT",

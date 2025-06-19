@@ -21,7 +21,13 @@ FAKE_SCHEMA = """
   "owner": "Gemeente Amsterdam",
   "creator": "bronhouder onbekend",
   "publisher": "Datateam Beheer en Openbare Ruimte",
-  "tables": [
+  "defaultVersion": "v1",
+  "versions": {
+    "v1": {
+      "status": "beschikbaar",
+      "lifecycleStatus": "stable",
+      "version": "1.0.0",
+      "tables": [
     {
       "id": "public",
       "type": "table",
@@ -135,6 +141,7 @@ FAKE_SCHEMA = """
       }
     }
   ]
+  }}
 }
 """
 
@@ -187,11 +194,11 @@ def role_configuration(flask_test_app):
         GRANT "anonymous_role" TO {appuser};
         GRANT "medewerker_role" TO {appuser};
         GRANT "anonymous_role" TO "medewerker_role";
-        GRANT SELECT ON TABLE fake_public TO "test@amsterdam.nl_role";
-        GRANT SELECT ON TABLE fake_public TO "anonymous_role";
-        GRANT SELECT ON TABLE bag_gebieden TO "test@amsterdam.nl_role";
-        GRANT SELECT ON TABLE bag_gebieden TO "anonymous_role";
-        GRANT SELECT ON TABLE fake_secret TO "medewerker_role";
+        GRANT SELECT ON TABLE fake_public_v1 TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE fake_public_v1 TO "anonymous_role";
+        GRANT SELECT ON TABLE bag_gebieden_v1 TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE bag_gebieden_v1 TO "anonymous_role";
+        GRANT SELECT ON TABLE fake_secret_v1 TO "medewerker_role";
         GRANT SELECT ON TABLE datasets_dataset TO "test@amsterdam.nl_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "test@amsterdam.nl_role";
         GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
@@ -266,10 +273,10 @@ def dataservices_db(flask_test_app):
               auth,
               id_field
             ) VALUES
-              (1, 'public', True, 'fake_public', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
-              (2, 'extra', True, 'fake_extra', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
-              (3, 'secret', True, 'fake_secret', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
-              (4, 'gebieden', True, 'bag_gebieden', 'name', 'geometry', 'POINT', 2, 'OPENBAAR', 'id');
+              (1, 'public', True, 'fake_public_v1', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
+              (2, 'extra', True, 'fake_extra_v1', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
+              (3, 'secret', True, 'fake_secret_v1', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
+              (4, 'gebieden', True, 'bag_gebieden_v1', 'name', 'geometry', 'POINT', 2, 'OPENBAAR', 'id');
 
             """
         )
@@ -290,10 +297,10 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        DROP TABLE IF EXISTS "fake_public";
-        DROP TABLE IF EXISTS "fake_secret";
-        DROP TABLE IF EXISTS "bag_gebieden";
-        CREATE TABLE IF NOT EXISTS "fake_public" (
+        DROP TABLE IF EXISTS "fake_public_v1";
+        DROP TABLE IF EXISTS "fake_secret_v1";
+        DROP TABLE IF EXISTS "bag_gebieden_v1";
+        CREATE TABLE IF NOT EXISTS "fake_public_v1" (
           "id" varchar(16) NOT NULL,
           "identificatie" varchar(16) NOT NULL,
           "name" varchar(100) NOT NULL,
@@ -301,28 +308,28 @@ def dataservices_fake_data(flask_test_app):
           "eind_geldigheid" timestamp without time zone,
           "volgnummer" integer,
           "geometry" geometry(POINT, 28992));
-        CREATE TABLE IF NOT EXISTS "fake_secret" (LIKE fake_public INCLUDING ALL);
-        CREATE TABLE IF NOT EXISTS "bag_gebieden" (LIKE fake_public INCLUDING ALL);
+        CREATE TABLE IF NOT EXISTS "fake_secret_v1" (LIKE fake_public_v1 INCLUDING ALL);
+        CREATE TABLE IF NOT EXISTS "bag_gebieden_v1" (LIKE fake_public_v1 INCLUDING ALL);
         """
         )
 
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        INSERT INTO "fake_public" (id, identificatie, name, volgnummer, geometry) VALUES (
+        INSERT INTO "fake_public_v1" (id, identificatie, name, volgnummer, geometry) VALUES (
           '1.1',
           '1',
           'test',
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
-        INSERT INTO "fake_secret" (id, identificatie, name, volgnummer, geometry) VALUES (
+        INSERT INTO "fake_secret_v1" (id, identificatie, name, volgnummer, geometry) VALUES (
           '1.1',
           '1',
           'secret test',
           1,
           ST_GeomFromText('POINT(123282.6 487674.8)', 28992));
         -- Gebieden are offset <10m from points in the other tables.
-        INSERT INTO "bag_gebieden" (id, identificatie, name, volgnummer, geometry) VALUES
+        INSERT INTO "bag_gebieden_v1" (id, identificatie, name, volgnummer, geometry) VALUES
           ('1.1', '1', 'gebied 1', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
           ('2.1', '1', 'gebied 2', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
           ('3.1', '1', 'gebied 3', 1, ST_GeomFromText('POINT(123282.6 487684.8)', 28992)),
@@ -338,8 +345,8 @@ def dataservices_fake_data(flask_test_app):
     with dataservices_db_connection.cursor() as cursor:
         cursor.execute(
             """
-        DROP TABLE fake_public CASCADE;
-        DROP TABLE fake_secret CASCADE;
+        DROP TABLE fake_public_v1 CASCADE;
+        DROP TABLE fake_secret_v1 CASCADE;
         """
         )
 
@@ -360,7 +367,7 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
         with dataservices_db_connection.cursor() as cursor:
             cursor.execute(
                 f"""
-            INSERT INTO "fake_public" (id, identificatie, volgnummer, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
+            INSERT INTO "fake_public_v1" (id, identificatie, volgnummer, name, begin_geldigheid, eind_geldigheid, geometry) VALUES
                 (
                   '{id_counter}.1',
                   '{id_counter}',
@@ -379,7 +386,7 @@ def dataservices_fake_temporal_data_creator(request, flask_test_app):
 
         with dataservices_db_connection.cursor() as cursor:
             used_ids_str = ", ".join(f"'{used_id}'" for used_id in used_ids)
-            cursor.execute(f'DELETE FROM "fake_public" WHERE id IN ({used_ids_str})')
+            cursor.execute(f'DELETE FROM "fake_public_v1" WHERE id IN ({used_ids_str})')
 
     request.cls.data_creator = _creator
 
