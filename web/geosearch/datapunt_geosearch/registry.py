@@ -272,10 +272,16 @@ class DatasetRegistry:
         d.schema_data,
         d.auth as dataset_authorization,
         dt.auth as datasettable_authorization
-    FROM datasets_datasettable dt
-    LEFT JOIN datasets_dataset d
-      ON dt.dataset_id = d.id
-    WHERE d.enable_api = true AND dt.enable_geosearch = true
+    FROM datasets_dataset d
+    LEFT JOIN datasets_datasetversion dv
+      ON d.id = dv.dataset_id
+    LEFT JOIN datasets_datasettable_dataset_versions dtv
+      ON dv.id = dtv.datasetversion_id
+    LEFT JOIN datasets_datasettable dt
+      ON dt.id = dtv.datasettable_id
+    WHERE d.default_version = dv.version
+      AND d.enable_api = true AND dt.enable_geosearch = true
+      AND d.default_version = dv.version
       AND geometry_field_type is not null
         """
         datasets = dict()
