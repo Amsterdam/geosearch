@@ -201,8 +201,12 @@ def role_configuration(flask_test_app):
         GRANT SELECT ON TABLE fake_secret_v1 TO "medewerker_role";
         GRANT SELECT ON TABLE datasets_dataset TO "test@amsterdam.nl_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE datasets_datasetversion TO "test@amsterdam.nl_role";
+        GRANT SELECT ON TABLE datasets_datasettable_dataset_versions TO "test@amsterdam.nl_role";
         GRANT SELECT ON TABLE datasets_dataset TO "anonymous_role";
         GRANT SELECT ON TABLE datasets_datasettable TO "anonymous_role";
+        GRANT SELECT ON TABLE datasets_datasetversion TO "anonymous_role";
+        GRANT SELECT ON TABLE datasets_datasettable_dataset_versions TO "anonymous_role";
       """
             ).format(appuser=sql.Identifier(dataservices_user))
         )
@@ -241,6 +245,7 @@ def dataservices_db(flask_test_app):
               "ordering" integer NOT NULL,
               "enable_api" boolean NOT NULL,
               "schema_data" varchar NULL,
+              "default_version" varchar NOT NULL,
               "auth" varchar(150) NULL
             );
             DROP TABLE IF EXISTS "datasets_datasettable" CASCADE;
@@ -256,11 +261,24 @@ def dataservices_db(flask_test_app):
               "dataset_id" integer NOT NULL,
               "id_field" varchar(50) NOT NULL
             );
+            DROP TABLE IF EXISTS "datasets_datasetversion" CASCADE;
+            CREATE TABLE "datasets_datasetversion" (
+              "id" serial NOT NULL PRIMARY KEY,
+              "version" varchar(3) NOT NULL,
+              "lifecycle_status" varchar NOT NULL,
+              "dataset_id" integer NOT NULL
+            );
+            DROP TABLE IF EXISTS "datasets_datasettable_dataset_versions" CASCADE;
+            CREATE TABLE "datasets_datasettable_dataset_versions" (
+              "id" serial NOT NULL PRIMARY KEY,
+              "datasettable_id" integer NOT NULL,
+              "datasetversion_id" integer NOT NULL
+            );
 
             INSERT INTO "datasets_dataset"
-             (id, name, path, ordering, enable_api, schema_data) VALUES
-             (1, 'fake', 'path/fake', 1, True, '{FAKE_SCHEMA}' ),
-             (2, 'bag', 'path/bag', 1, True, '{FAKE_SCHEMA.replace('fake', 'bag').replace('public', 'gebieden')}' );
+             (id, name, path, ordering, enable_api, schema_data, default_version) VALUES
+             (1, 'fake', 'path/fake', 1, True, '{FAKE_SCHEMA}', 'v1' ),
+             (2, 'bag', 'path/bag', 1, True, '{FAKE_SCHEMA.replace('fake', 'bag').replace('public', 'gebieden')}', 'v1' );
             INSERT INTO "datasets_datasettable" (
               id,
               name,
@@ -273,11 +291,20 @@ def dataservices_db(flask_test_app):
               auth,
               id_field
             ) VALUES
-              (1, 'public', True, 'fake_public_v1', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
+              (1, 'secret', True, 'fake_secret_v1', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
               (2, 'extra', True, 'fake_extra_v1', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
-              (3, 'secret', True, 'fake_secret_v1', 'name', 'geometry', 'POINT', 1, 'FAKE/SECRET', 'id'),
+              (3, 'public', True, 'fake_public_v1', 'name', 'geometry', 'POINT', 1, NULL, 'id'),
               (4, 'gebieden', True, 'bag_gebieden_v1', 'name', 'geometry', 'POINT', 2, 'OPENBAAR', 'id');
-
+            INSERT INTO "datasets_datasetversion"
+              (id, version, lifecycle_status, dataset_id) VALUES
+              (1, 'v1', 'S', 1 ),
+              (2, 'v1', 'S', 2 );
+            INSERT INTO "datasets_datasettable_dataset_versions"
+              (id, datasettable_id, datasetversion_id) VALUES
+              (1, 1, 1 ),
+              (2, 2, 1 ),
+              (3, 3, 1 ),
+              (4, 4, 2 );
             """
         )
     yield
@@ -286,6 +313,8 @@ def dataservices_db(flask_test_app):
         cursor.execute(
             """
         DROP TABLE "datasets_datasettable" CASCADE;
+        DROP TABLE "datasets_datasettable_dataset_versions" CASCADE;
+        DROP TABLE "datasets_datasetversion" CASCADE;
         DROP TABLE "datasets_dataset" CASCADE;
         """
         )
