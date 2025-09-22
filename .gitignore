@@ -73,6 +73,7 @@ target/
 # virtualenv
 .venv/
 venv/
+.python-version
 
 # Apple
 .DS_Store
