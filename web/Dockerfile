@@ -1,4 +1,4 @@
-FROM python:3.12-bookworm
+FROM python:3.13-bookworm
 MAINTAINER datapunt@amsterdam.nl
 
 ENV PYTHONUNBUFFERED 1
