@@ -134,7 +134,7 @@ def load_jwks_from_url(keyset, jwks_url):
     Load JWKeys from URL.
     """
     try:
-        response = requests.get(jwks_url)
+        response = requests.get(jwks_url, timeout=5)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         raise ValueError("Failed to get JWKS from url: {}, error: {}".format(jwks_url, e))
