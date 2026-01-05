@@ -464,9 +464,9 @@ isoduration==20.11.0 \
     --hash=sha256:ac2f9015137935279eac671f94f89eb00584f940f5dc49462a0c4ee692ba1bd9 \
     --hash=sha256:b2904c2a4228c3d44f409c8ae8e2370eb21a26f7ac2ec5446df141dde3452042
     # via jsonschema
-isort==5.10.1 \
-    --hash=sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7 \
-    --hash=sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951
+isort==7.0.0 \
+    --hash=sha256:1bcabac8bc3c36c7fb7b98a76c8abb18e0f841a3ba81decac7691008592499c1 \
+    --hash=sha256:5513527951aadb3ac4292a41a16cbc50dd1642432f5e8c20057d414bdafb4187
     # via -r requirements_dev.in
 itsdangerous==2.2.0 \
     --hash=sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef \
