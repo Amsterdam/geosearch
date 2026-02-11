@@ -42,9 +42,9 @@ azure-core-tracing-opentelemetry==1.0.0b12 \
     --hash=sha256:38fd42709f1cc4bbc4f2797008b1c30a6a01617e49910c05daa3a0d0c65053ac \
     --hash=sha256:bb454142440bae11fd9d68c7c1d67ae38a1756ce808c5e4d736730a7b4b04144
     # via azure-monitor-opentelemetry
-azure-identity==1.25.1 \
-    --hash=sha256:87ca8328883de6036443e1c37b40e8dc8fb74898240f61071e09d2e369361456 \
-    --hash=sha256:e9edd720af03dff020223cd269fa3a61e8f345ea75443858273bcb44844ab651
+azure-identity==1.25.2 \
+    --hash=sha256:030dbaa720266c796221c6cdbd1999b408c079032c919fef725fcc348a540fe9 \
+    --hash=sha256:1b40060553d01a72ba0d708b9a46d0f61f56312e215d8896d836653ffdc6753d
     # via
     #   -r requirements.in
     #   azure-monitor-opentelemetry-exporter
@@ -342,9 +342,9 @@ fixedint==0.1.6 \
     --hash=sha256:703005d090499d41ce7ce2ee7eae8f7a5589a81acdc6b79f1728a56495f2c799 \
     --hash=sha256:b8cf9f913735d2904deadda7a6daa9f57100599da1de57a7448ea1be75ae8c9c
     # via azure-monitor-opentelemetry-exporter
-flask==3.0.3 \
-    --hash=sha256:34e815dfaa43340d1d15a5c3a02b8476004037eb4840b34910c6e21679d288f3 \
-    --hash=sha256:ceb27b0af3823ea2737928a4d99d125a06175b8512c445cbd9a9ce200ef76842
+flask==3.1.2 \
+    --hash=sha256:bf656c15c80190ed628ad08cdfd3aaa35beb087855e2f494910aa3774cc4fd87 \
+    --hash=sha256:ca1d8112ec8a6158cc29ea4858963350011b5c846a414cdb7a954aa9e967d03c
     # via
     #   -r requirements.in
     #   flask-cors
@@ -581,6 +581,7 @@ markupsafe==3.0.3 \
     --hash=sha256:fed51ac40f757d41b7c48425901843666a6677e3e8eb0abcff09e4ba6e664f50
     # via
     #   -r requirements.in
+    #   flask
     #   jinja2
     #   werkzeug
 more-ds==0.0.6 \
@@ -1036,9 +1037,9 @@ pyjwt[crypto]==2.10.1 \
     # via
     #   msal
     #   pyjwt
-pyparsing==3.3.1 \
-    --hash=sha256:023b5e7e5520ad96642e2c6db4cb683d3970bd640cdf7115049a6e9c3682df82 \
-    --hash=sha256:47fad0f17ac1e2cad3de3b458570fbc9b03560aa029ed5e16ee5554da9a2251c
+pyparsing==3.3.2 \
+    --hash=sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d \
+    --hash=sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc
     # via -r requirements.in
 pytest==7.2.0 \
     --hash=sha256:892f933d339f068883b6fd5a459f03d85bfcb355e4981e146d2c7616c21fef71 \
@@ -1286,9 +1287,9 @@ rpds-py==0.25.1 \
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.48.0 \
-    --hash=sha256:5213190977ff7fdff8a58b722fb807f8d5524a80488626ebeda1b5676c0c1473 \
-    --hash=sha256:6b12ac256769d41825d9b7518444e57fa35b5642df4c7c5e322af4d2c8721172
+sentry-sdk==2.52.0 \
+    --hash=sha256:931c8f86169fc6f2752cb5c4e6480f0d516112e78750c312e081ababecbaf2ed \
+    --hash=sha256:fa0bec872cfec0302970b2996825723d67390cdd5f0229fb9efed93bd5384899
     # via -r requirements.in
 shapely==2.1.1 \
     --hash=sha256:04e4c12a45a1d70aeb266618d8cf81a2de9c4df511b63e105b90bfdfb52146de \
