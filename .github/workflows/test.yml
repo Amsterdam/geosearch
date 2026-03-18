@@ -7,10 +7,12 @@ on:
   push:
     branches:
     - features/**
+    - feature/**
   pull_request:
     branches:
     - main
     - master
+    - feature/**
 
 jobs:
   docker:
