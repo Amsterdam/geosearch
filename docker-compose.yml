@@ -1,13 +1,36 @@
 services:
+  database:
+    image: postgis/postgis:14-3.2
+    restart: always
+    user: postgres
+    shm_size: 128mb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-U", "$${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 20s
+    ports:
+      - "5415:5432"
+    environment:
+      POSTGRES_DB: dataservices
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: insecure
+    command: [ "postgres", "-c", "log_statement=all" ]
   web:
     build:
       context: .
     ports:
       - "8097:8000"
+    links:
+      - database
+    depends_on:
+      database:
+        condition: service_healthy
     environment:
-      UWSGI_STATIC_MAP: "/beheeromgeving/static=/static"
+      UWSGI_STATIC_MAP: "/geosearch/static=/static"
       SECRET_KEY: insecure
-      DATABASE_URL: "${DATABASE_URL:-postgresql://postgres:insecure@database/beheeromgeving}"
+      DATABASE_URL: "${DATABASE_URL:-postgresql://postgres:insecure@database/dataservices}"
       CORS_ALLOW_ALL_ORIGINS: "${CORS_ALLOW_ALL_ORIGINS:-true}"
       DJANGO_LOG_LEVEL: "${DJANGO_LOG_LEVEL:-INFO}"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
@@ -20,7 +43,6 @@ services:
       CLOUD_ENV: "${CLOUD_ENV:-local}"
       DJANGO_DEBUG: 1
       INITIALIZE_DB: "${INITIALIZE_DB:-true}"
-      FEATURE_FLAG_USE_AUTH: "${FEATURE_FLAG_USE_AUTH:-true}"
     command: >
       /bin/bash -c "uv run uvicorn geosearch.asgi:application --host 0.0.0.0 --reload"
     develop:
