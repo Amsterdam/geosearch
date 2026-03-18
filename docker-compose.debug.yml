@@ -1,0 +1,6 @@
+services:
+  web:
+    ports:
+      - "8097:8000"
+      - "5678:5678"
+    command: ["/bin/bash", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 uvicorn geosearch.asgi:application --host 0.0.0.0 --reload"]
