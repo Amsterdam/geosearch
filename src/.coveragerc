@@ -1,0 +1,17 @@
+[run]
+branch = True
+source =
+    geosearch
+omit =
+    */migrations/*.py
+    settings.py
+    asgi.py
+plugins =
+    django_coverage_plugin
+
+[report]
+fail_under = 95
+exclude_also =
+    if "debug_toolbar" in settings.INSTALLED_APPS:
+    if settings.DEBUG:
+    raise NotImplementedError
