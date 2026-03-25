@@ -41,7 +41,8 @@ retest:                                ## Run the failed tests again.
 ##
 
 format:                                ## Fix code-formatting of all files.
-	uv run ruff check --fix-only .
+	uv run ruff check --fix .
+	uv run ruff format .
 
 lint:                                  ## Report linting errors for all files
 	uv run ruff check .

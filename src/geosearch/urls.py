@@ -2,10 +2,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
-from .views import health
+from .views import catalogus, health_check, pulse
 
 urlpatterns = [
-    path("pulse", health),
+    path("pulse", pulse),
+    path("health-check", health_check),
+    path("geosearch/catalogus/", catalogus),
 ]
 
 if settings.DEBUG:

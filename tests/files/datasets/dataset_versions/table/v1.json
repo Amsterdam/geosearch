@@ -1,0 +1,39 @@
+{
+  "id": "table",
+  "type": "table",
+  "version": "1.0.0",
+  "status": "stable",
+  "title": "Table",
+  "description": "Simple table for Geosearch tests",
+  "identifier": "id",
+  "mainGeometry": "geometrie",
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema",
+      "id"
+    ],
+    "display": "id",
+    "properties": {
+      "schema": {
+        "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+      },
+      "id": {
+        "type": "integer",
+        "title": "ID",
+        "description": "Unieke aanduiding van record"
+      },
+      "naam": {
+        "type": "string",
+        "title": "Naam",
+        "description": "Naam van het object"
+      },
+      "geometrie": {
+        "$ref": "https://geojson.org/schema/Point.json",
+        "description": "Geometrie van het object"
+      }
+    }
+  }
+}

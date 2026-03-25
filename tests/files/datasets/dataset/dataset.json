@@ -1,0 +1,30 @@
+{
+  "type": "dataset",
+  "id": "dataset",
+  "title": "Dataset",
+  "publisher": "Nobody",
+  "crs": "EPSG:28992",
+  "defaultVersion": "v1",
+  "versions": {
+    "v1": {
+      "status": "stable",
+      "version": "1.0.0",
+      "enableAPI": true,
+      "enableGeosearch": true,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v1"
+        },
+        {
+          "id": "table_scope",
+          "$ref": "table_scope/v1"
+        },
+        {
+          "id": "field_scope",
+          "$ref": "field_scope/v1"
+        }
+      ]
+    }
+  }
+}

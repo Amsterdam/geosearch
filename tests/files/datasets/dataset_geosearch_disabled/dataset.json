@@ -1,0 +1,22 @@
+{
+  "type": "dataset",
+  "id": "dataset_geosearch_disabled",
+  "title": "Dataset",
+  "publisher": "Nobody",
+  "crs": "EPSG:28992",
+  "defaultVersion": "v1",
+  "versions": {
+    "v1": {
+      "status": "stable",
+      "version": "1.0.0",
+      "enableAPI": true,
+      "enableGeosearch": false,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v1"
+        }
+      ]
+    }
+  }
+}

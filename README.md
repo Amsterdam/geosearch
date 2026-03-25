@@ -69,3 +69,13 @@ have (especially packages in your virtualenv).
 
 Start the debugger through the Run and Debug menu. The debugger is called "Python Debugger:
 Remote Attach". You can now add breakpoints.
+
+## Available endpoints
+
+The following endpoints are available:
+
+| Endpoint                | Description                                                                        |
+|-------------------------|------------------------------------------------------------------------------------|
+| `/pulse`                | Simple health check to verify the application is running                           |
+| `/health-check`         | Health check which verifies connection to the database                             |
+| `/geosearch/catalogus/` | Used to receive a list of versioned dataset/tables which can be used for Geosearch. |

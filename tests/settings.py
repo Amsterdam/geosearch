@@ -39,3 +39,5 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+DATAPUNT_AUTHZ["CHECK_CLAIMS"] = {"aud": "audience", "iss": "issuer"}
