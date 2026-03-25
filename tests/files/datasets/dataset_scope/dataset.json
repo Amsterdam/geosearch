@@ -1,0 +1,26 @@
+{
+  "type": "dataset",
+  "id": "dataset_scope",
+  "title": "Dataset",
+  "publisher": "Nobody",
+  "crs": "EPSG:28992",
+  "defaultVersion": "v1",
+  "auth": "FP/MDW",
+  "reasonsNonPublic": [
+    "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
+  ],
+  "versions": {
+    "v1": {
+      "status": "stable",
+      "version": "1.0.0",
+      "enableAPI": true,
+      "enableGeosearch": true,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v1"
+        }
+      ]
+    }
+  }
+}

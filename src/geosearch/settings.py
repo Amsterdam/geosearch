@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "geosearch",
+    # Own apps
+    "schematools.contrib.django",
 ]
 
 APPEND_SLASH = False
@@ -47,6 +50,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "authorization_django.authorization_middleware",
 ]
 
 if DEBUG:
@@ -105,7 +109,7 @@ if _USE_SECRET_STORE or CLOUD_ENV.startswith("azure"):
 
     DATABASES: dict[str, Any] = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
             "NAME": env.str("PGDATABASE"),
             "USER": env.str("PGUSER"),
             "PASSWORD": pgpassword,
@@ -124,7 +128,7 @@ else:
         "default": env.db_url(
             "DATABASE_URL",
             default="postgres://postgres:insecure@localhost:5415/dataservices",
-            engine="django.db.backends.postgresql",
+            engine="django.contrib.gis.db.backends.postgis",
         ),
     }
     DATABASES["default"].setdefault("OPTIONS", {})
@@ -313,8 +317,22 @@ if CLOUD_ENV.startswith("azure"):
                 ]
         print("Audit logging has been enabled")
 
+SCHEMA_URL = env.str("SCHEMA_URL", "https://schemas.data.amsterdam.nl/datasets/")
+PROFILES_URL = env.str("PROFILES_URL", "https://schemas.data.amsterdam.nl/profiles/")
+SCHEMA_DEFS_URL = env.str("SCHEMA_DEFS_URL", "https://schemas.data.amsterdam.nl/schema")
 
 # -- Third party app settings
+
+DATAPUNT_AUTHZ = {
+    # To verify JWT tokens, either the PUB_JWKS or a OAUTH_JWKS_URL needs to be set.
+    "JWKS": os.getenv("PUB_JWKS"),
+    "JWKS_URL": os.getenv("OAUTH_JWKS_URL"),
+    "JWKS_URLS": env.list("OAUTH_JWKS_URLS", default=[]),  # To support both keyclock and Entra ID
+    "CHECK_CLAIMS": env.dict("OAUTH_CHECK_CLAIMS", default={}),
+    # "ALWAYS_OK": True if DEBUG else False,
+    "ALWAYS_OK": False,
+    "MIN_INTERVAL_KEYSET_UPDATE": 30 * 60,  # 30 minutes
+}
 
 HEALTH_CHECKS = {
     "app": lambda request: True,

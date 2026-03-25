@@ -1,0 +1,46 @@
+{
+  "type": "dataset",
+  "id": "dataset_versions",
+  "title": "Dataset Versions",
+  "publisher": "Nobody",
+  "crs": "EPSG:28992",
+  "defaultVersion": "v1",
+  "versions": {
+    "v1": {
+      "status": "stable",
+      "version": "1.0.0",
+      "enableAPI": true,
+      "enableGeosearch": true,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v1"
+        }
+      ]
+    },
+    "v2": {
+      "status": "under_development",
+      "version": "2.0.0",
+      "enableAPI": true,
+      "enableGeosearch": true,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v2"
+        }
+      ]
+    },
+    "v3": {
+      "status": "under_development",
+      "version": "3.0.0",
+      "enableAPI": true,
+      "enableGeosearch": false,
+      "tables": [
+        {
+          "id": "table",
+          "$ref": "table/v2"
+        }
+      ]
+    }
+  }
+}

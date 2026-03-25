@@ -1,0 +1,51 @@
+{
+  "id": "field_scope",
+  "type": "table",
+  "version": "1.0.0",
+  "status": "stable",
+  "title": "Field Scope",
+  "description": "Simple table with scope on a field for Geosearch tests",
+  "identifier": "id",
+  "mainGeometry": "geometrie",
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema",
+      "id"
+    ],
+    "display": "id",
+    "properties": {
+      "schema": {
+        "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+      },
+      "id": {
+        "type": "integer",
+        "title": "ID",
+        "description": "Unieke aanduiding van record"
+      },
+      "naam": {
+        "type": "string",
+        "title": "Naam",
+        "description": "Naam van het object"
+      },
+      "extra_veld": {
+        "type": "string",
+        "title": "Extra veld",
+        "description": "Extra veld met scopes",
+        "auth": [
+          "FP/MDW",
+          "EXTRA/SCOPE"
+        ],
+        "reasonsNonPublic": [
+          "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
+        ]
+      },
+      "geometrie": {
+        "$ref": "https://geojson.org/schema/Point.json",
+        "description": "Geometrie van het object"
+      }
+    }
+  }
+}
