@@ -13,7 +13,7 @@ sentry-sdk==2.57.0
 six==1.17.0
 Werkzeug==3.1.8
 jwcrypto==1.5.6
-pytest==7.2.0
+pytest==9.0.3
 PyYAML==6.0.3
 python-string-utils==1.0.0
 amsterdam-schema-tools==8.0.0rc7
