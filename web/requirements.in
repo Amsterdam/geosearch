@@ -16,7 +16,7 @@ jwcrypto==1.5.7
 pytest==9.0.3
 PyYAML==6.0.3
 python-string-utils==1.0.0
-amsterdam-schema-tools==8.0.0rc7
+amsterdam-schema-tools==9.4.3
 cachetools==7.0.6
 azure-identity==1.25.3
 azure-monitor-opentelemetry==1.6.10
