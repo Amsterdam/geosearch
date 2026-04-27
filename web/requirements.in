@@ -4,8 +4,8 @@ Flask-Cors==6.0.2
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
-packaging==26.1
-psycopg2-binary==2.9.11
+packaging==26.2
+psycopg2-binary==2.9.12
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.33.1
@@ -22,6 +22,6 @@ azure-identity==1.25.3
 azure-monitor-opentelemetry==1.6.10
 # The packages below are indirect dependencies that have minimum versions specified
 # to avoid vulnerabilities
-idna>=3.7
+idna>=3.13
 uwsgi-readiness-check==0.2.0
 uwsgitop==0.12.0
