@@ -9,7 +9,7 @@ psycopg2-binary==2.9.12
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.33.1
-sentry-sdk==2.58.0
+sentry-sdk==2.59.0
 six==1.17.0
 Werkzeug==3.1.8
 jwcrypto==1.5.7
@@ -17,7 +17,7 @@ pytest==9.0.3
 PyYAML==6.0.3
 python-string-utils==1.0.0
 amsterdam-schema-tools==8.0.0rc7
-cachetools==7.0.6
+cachetools==7.1.1
 azure-identity==1.25.3
 azure-monitor-opentelemetry==1.6.10
 # The packages below are indirect dependencies that have minimum versions specified
