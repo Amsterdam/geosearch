@@ -507,9 +507,9 @@ identify==2.6.18 \
     --hash=sha256:873ac56a5e3fd63e7438a7ecbc4d91aca692eb3fefa4534db2b7913f3fc352fd \
     --hash=sha256:8db9d3c8ea9079db92cafb0ebf97abdc09d52e97f4dcf773a2e694048b7cd737
     # via pre-commit
-idna==3.16 \
-    --hash=sha256:cc246e3a3f89580c3a951b5ad298ca4638078b2cdd4f115654332b5c26daded5 \
-    --hash=sha256:d7a6da03db833450fca25d2358ac9ff06cd624577a4aea3a596d5c0f77b8e03d
+idna==3.18 \
+    --hash=sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2 \
+    --hash=sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848
     # via
     #   -r requirements.in
     #   jsonschema
@@ -1449,9 +1449,9 @@ rpds-py==0.30.0 \
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.60.0 \
-    --hash=sha256:0bd25e54e78ca02d0be512529fa644bbbf9e8470d7b26371294012d4ca93c978 \
-    --hash=sha256:28a536c03291c8bcb363cf35c611b32738ec118ff64d8d6383b096448ac4c803
+sentry-sdk==2.61.1 \
+    --hash=sha256:9c6adccb3feefa9ba032c8d295ca477575c2f11896046a2b0ad686c47c4af555 \
+    --hash=sha256:fa36eaf4b8ad708f718500d4bdcc1532637526a22beb874d88cbc0a46458b5ae
     # via -r requirements.in
 shapely==2.1.2 \
     --hash=sha256:0036ac886e0923417932c2e6369b6c52e38e0ff5d9120b90eef5cd9a5fc5cae9 \
