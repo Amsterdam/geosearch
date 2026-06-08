@@ -1,6 +1,6 @@
 blinker==1.9.0
 Flask==3.0.3
-Flask-Cors==6.0.2
+Flask-Cors==6.0.4
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
@@ -9,7 +9,7 @@ psycopg2-binary==2.9.12
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.34.2
-sentry-sdk==2.61.1
+sentry-sdk==2.62.0
 six==1.17.0
 Werkzeug==3.1.8
 jwcrypto==1.5.7
