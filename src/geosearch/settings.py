@@ -317,6 +317,7 @@ if CLOUD_ENV.startswith("azure"):
                 ]
         print("Audit logging has been enabled")
 
+DSO_API_BASE_URL = env.str("DSO_API_BASE_URL", "https://api.data.amsterdam.nl/v1/")
 SCHEMA_URL = env.str("SCHEMA_URL", "https://schemas.data.amsterdam.nl/datasets/")
 PROFILES_URL = env.str("PROFILES_URL", "https://schemas.data.amsterdam.nl/profiles/")
 SCHEMA_DEFS_URL = env.str("SCHEMA_DEFS_URL", "https://schemas.data.amsterdam.nl/schema")

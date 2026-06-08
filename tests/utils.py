@@ -1,3 +1,4 @@
+import json
 import time
 
 from authorization_django.jwks import JWKSWrapper
@@ -25,3 +26,14 @@ def build_jwt_token(
     )
     token.make_signed_token(key)
     return token.serialize()
+
+
+async def read_stream(response) -> dict:
+    chunks = []
+    async for c in response.streaming_content:
+        # Django may yield str or bytes
+        if isinstance(c, bytes):
+            chunks.append(c.decode("utf-8"))
+        else:
+            chunks.append(str(c))
+    return json.loads("".join(chunks))

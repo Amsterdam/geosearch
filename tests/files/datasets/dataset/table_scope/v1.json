@@ -5,8 +5,6 @@
   "status": "stable",
   "title": "Table Scope",
   "description": "Simple table with scope for Geosearch tests",
-  "identifier": "id",
-  "mainGeometry": "geometrie",
   "auth": "FP/MDW",
   "reasonsNonPublic": [
     "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
@@ -14,7 +12,9 @@
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
+    "identifier": "id",
     "additionalProperties": false,
+    "mainGeometry": "geometrie",
     "required": [
       "schema",
       "id"
@@ -22,7 +22,7 @@
     "display": "id",
     "properties": {
       "schema": {
-        "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+        "$ref": "https://schemas.data.amsterdam.nl/schema@v4.2.0#/definitions/schema"
       },
       "id": {
         "type": "integer",

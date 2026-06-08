@@ -2,13 +2,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
-from .views import catalogus, health_check, pulse
+from .views import catalogus, geosearch, health_check, pulse
 
 urlpatterns = [
     path("pulse", pulse),
     path("health-check", health_check),
     path("geosearch/catalogus/", catalogus),
+    path("geosearch/", geosearch),
 ]
+
+# get_registry().initialize()
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
