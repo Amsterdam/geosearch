@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from django.db import OperationalError
 
-from tests.utils import build_jwt_token
+from tests.utils import build_jwt_token, read_stream
 
 
 def test_pulse(api_client):
@@ -150,3 +150,235 @@ def test_catalogus_with_versions(api_client, dataset_versions):
             "dataset_versions/v2/table",
         ]
     }
+
+
+@pytest.mark.asyncio
+async def test_search_without_coordinates(async_api_client):
+    """
+    Test that the geosearch endpoint returns an error if no coordinates are provided.
+    """
+    response = await async_api_client.get("/geosearch/")
+    assert response.status_code == 400
+    assert response.json() == {
+        "non_field_errors": [
+            "No coordinates provided. Please provide both x/y or lat/lon coordinates.",
+        ]
+    }
+
+
+@pytest.mark.django_db()
+@pytest.mark.asyncio
+async def test_search_without_datasets(async_api_client, dataset_search):
+    """
+    Test that the geosearch endpoint returns an empty array if no datasets are provided.
+    """
+    response = await async_api_client.get("/geosearch/?x=1&y=1")
+    data = await read_stream(response)
+
+    assert data == {"type": "FeatureCollection", "features": []}
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_within_radius(async_api_client, dataset_search, dataset_search_filled):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&x=123282&y=487674&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/point"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_within_radius_with_lat_lon(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&lat=52.37602&lon=4.92142&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/point"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_within_radius_with_existing_field(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&x=123282&y=487674&radius=1&_fields=naam"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/point"
+    assert data["features"][0]["properties"]["naam"] == "Point 1"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_within_radius_with_non_existing_field(
+    async_api_client, dataset_search
+):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&x=123282&y=487674&radius=1&_fields=nonexistent"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/point"
+    # The non-existing field should not be included in the properties
+    assert "nonexistent" not in data["features"][0]["properties"]
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_multiple_tables_within_radius(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search&x=123282&y=487674&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect four valid features to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 4
+    assert all(
+        t["properties"]["type"]
+        in [
+            "dataset_search/point",
+            "dataset_search/polygon",
+            "dataset_search/multipolygon",
+            "dataset_search/temporal",
+        ]
+        for t in data["features"]
+    )
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_within_radius_limit(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&x=123282&y=487674&radius=10&limit=1"
+    )
+    data = await read_stream(response)
+
+    # We expect one of the two valid points to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/point"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_outside_radius(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/point&x=123262&y=487674&radius=10"
+    )
+    data = await read_stream(response)
+
+    # We expect no valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_polygon_within_radius(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/polygon&x=123287&y=487679&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/polygon"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_polygon_outside_radius(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/polygon&x=123262&y=487674&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect no valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_multipolygon_within_radius(async_api_client, dataset_search):
+    """
+    Prove that a point within the multipolygon returns a result
+    """
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/multipolygon&x=123287&y=487679&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/multipolygon"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_multipolygon_outside_large_radius(async_api_client, dataset_search):
+    """
+    Prove that a point outside the multipolygon, but with a large radius returns a result
+    """
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/multipolygon&x=123277&y=487669&radius=20"
+    )
+    data = await read_stream(response)
+
+    # We expect no valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/multipolygon"
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_multipolygon_outside_radius(async_api_client, dataset_search):
+    """
+    Prove that a point outside the multipolygon and with a small radius doesn't return a result
+    """
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/multipolygon&x=123277&y=487669&radius=1"
+    )
+    data = await read_stream(response)
+
+    # We expect no valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.asyncio
+async def test_search_point_temporal(async_api_client, dataset_search):
+    response = await async_api_client.get(
+        "/geosearch/?datasets=dataset_search/temporal&x=123282&y=487674&radius=1&_fields=volgnummer,naam"
+    )
+    data = await read_stream(response)
+
+    # We expect one valid record to be returned
+    assert response.status_code == 200
+    assert len(data["features"]) == 1
+    assert data["features"][0]["properties"]["type"] == "dataset_search/temporal"
+    assert data["features"][0]["properties"]["naam"] == "Temporal 1.2"
+    assert data["features"][0]["properties"]["volgnummer"] == 2
+    # Make sure identificatie is used and not the raw id field
+    assert "." not in data["features"][0]["properties"]["id"]

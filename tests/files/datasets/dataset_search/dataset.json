@@ -1,6 +1,6 @@
 {
   "type": "dataset",
-  "id": "dataset",
+  "id": "dataset_search",
   "title": "Dataset",
   "publisher": "Nobody",
   "crs": "EPSG:28992",
@@ -13,20 +13,20 @@
       "enableGeosearch": true,
       "tables": [
         {
-          "id": "table",
-          "$ref": "table/v1"
+          "id": "multipolygon",
+          "$ref": "multipolygon/v1"
         },
         {
-          "id": "tableWithoutGeometry",
-          "$ref": "table_without_geometry/v1"
+          "id": "point",
+          "$ref": "point/v1"
         },
         {
-          "id": "table_scope",
-          "$ref": "table_scope/v1"
+          "id": "polygon",
+          "$ref": "polygon/v1"
         },
         {
-          "id": "field_scope",
-          "$ref": "field_scope/v1"
+          "id": "temporal",
+          "$ref": "temporal/v1"
         }
       ]
     }

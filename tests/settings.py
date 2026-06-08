@@ -41,3 +41,5 @@ STORAGES = {
 }
 
 DATAPUNT_AUTHZ["CHECK_CLAIMS"] = {"aud": "audience", "iss": "issuer"}
+
+AMSTERDAM_SCHEMA = {"geosearch_disabled_datasets": []}
