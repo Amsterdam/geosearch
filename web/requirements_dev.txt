@@ -436,9 +436,9 @@ flask==3.0.3 \
     # via
     #   -r requirements.in
     #   flask-cors
-flask-cors==6.0.2 \
-    --hash=sha256:6e118f3698249ae33e429760db98ce032a8bf9913638d085ca0f4c5534ad2423 \
-    --hash=sha256:e57544d415dfd7da89a9564e1e3a9e515042df76e12130641ca6f3f2f03b699a
+flask-cors==6.0.4 \
+    --hash=sha256:adb537b3923788b327187dd375ddb09be4ed0b5595cab016bac2ed30a0de7b79 \
+    --hash=sha256:cf3db91a0874aecde0a276565bf4adf4a458edcfd42e668fb0a260549f129317
     # via -r requirements.in
 fqdn==1.5.1 \
     --hash=sha256:105ed3677e767fb5ca086a0c1f4bb66ebc3c100be518f0e0d755d9eae164d89f \
@@ -1449,9 +1449,9 @@ rpds-py==0.30.0 \
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.61.1 \
-    --hash=sha256:9c6adccb3feefa9ba032c8d295ca477575c2f11896046a2b0ad686c47c4af555 \
-    --hash=sha256:fa36eaf4b8ad708f718500d4bdcc1532637526a22beb874d88cbc0a46458b5ae
+sentry-sdk==2.62.0 \
+    --hash=sha256:27f61d13a86c3c1648dec666dd5a64f79772dd6a84b446f11866601ecab24f6f \
+    --hash=sha256:3c870b9f50d9fd15b58c817dbde1c7cfaa9fe3f05df0a4c6edd5571cb82f5491
     # via -r requirements.in
 shapely==2.1.2 \
     --hash=sha256:0036ac886e0923417932c2e6369b6c52e38e0ff5d9120b90eef5cd9a5fc5cae9 \
