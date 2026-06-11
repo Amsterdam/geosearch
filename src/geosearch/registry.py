@@ -84,10 +84,11 @@ class DatasetRegistry:
     def get_tables_by_path(self, path: str = "") -> dict[str, DynamicModel]:
         if "/" not in path:
             # The whole dataset was requested, return all default tables for the dataset
+            prefix = f"{path}/" if path else ""
             return {
                 key: table
                 for key, table in self._tables.items()
-                if key.startswith(path) and not key.count("/") > 1
+                if key.startswith(prefix) and not key.count("/") > 1
             }
         return {path: self.get_table_by_path(path)}
 

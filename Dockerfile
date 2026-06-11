@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:0.10-python3.14-trixie-slim AS builder
+FROM ghcr.io/astral-sh/uv:0.11-python3.14-trixie-slim AS builder
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
@@ -17,13 +17,14 @@ COPY /tests /app/tests
 RUN uv sync --frozen --all-groups
 
 # Start runtime image,
-FROM ghcr.io/astral-sh/uv:0.10-python3.14-trixie-slim
+FROM ghcr.io/astral-sh/uv:0.11-python3.14-trixie-slim
 
 # Create user catalogus with the same UID as github actions runner.
 RUN groupadd --system --gid 999  geosearch  && useradd --system --gid 999 \
     --uid 1001 --create-home geosearch
 RUN apt update && apt install --no-install-recommends -y \
     curl \
+    libgdal-dev \
     libpq5
 
 WORKDIR /app

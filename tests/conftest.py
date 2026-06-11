@@ -91,8 +91,6 @@ def dataset_registry():
 
     yield registry
 
-    _registry = None
-
 
 def _create_tables_if_missing(dynamic_models):
     """Create the database tables for dynamic models"""
