@@ -15,21 +15,33 @@ class GeosearchInputSerializer(serializers.Serializer):
     use_rd = serializers.HiddenField(default=False)
 
     def validate(self, data: dict) -> dict:
-        if not data.get("x") and not data.get("y") and not data.get("lat") and not data.get("lon"):
+        has_x = data.get("x") is not None
+        has_y = data.get("y") is not None
+        has_lat = data.get("lat") is not None
+        has_lon = data.get("lon") is not None
+
+        has_rd = has_x or has_y
+        has_wgs = has_lat or has_lon
+
+        if not has_rd and not has_wgs:
             raise serializers.ValidationError(
                 "No coordinates provided. Please provide both x/y or lat/lon coordinates."
             )
 
-        if data.get("x") and data.get("y") and data.get("lat") and data.get("lon"):
+        if has_rd and has_wgs:
             raise serializers.ValidationError("Either x/y or lat/lon must be provided, not both")
 
-        if data.get("x") and data.get("y"):
-            data["use_rd"] = True
+        if has_rd and not (has_x and has_y):
+            raise serializers.ValidationError("Both x and y must be provided together")
 
+        if has_wgs and not (has_lat and has_lon):
+            raise serializers.ValidationError("Both lat and lon must be provided together")
+
+        data["use_rd"] = has_rd
         return data
 
     def validate_datasets(self, value: str) -> list[str]:
-        return value.split(",")
+        return [v.strip() for v in value.split(",") if v.strip()]
 
     def validate__fields(self, value: str) -> list[str]:
-        return value.split(",")
+        return [v.strip() for v in value.split(",") if v.strip()]

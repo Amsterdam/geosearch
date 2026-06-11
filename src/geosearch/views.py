@@ -33,8 +33,8 @@ async def health_check(request):
 
 
 @api_view(["GET"])
-def catalogus(request):
-    registry = get_registry()
+async def catalogus(request):
+    registry = await sync_to_async(get_registry)()
     all_routes = registry.get_table_paths(scopes=frozenset(request.get_token_scopes))
 
     return JsonResponse(

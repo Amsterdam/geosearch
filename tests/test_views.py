@@ -60,14 +60,15 @@ def test_invalid_token(api_client):
 
 
 @pytest.mark.django_db
-def test_catalogus(api_client, dataset):
+@pytest.mark.asyncio
+async def test_catalogus(async_api_client, dataset, dataset_registry):
     """
     Test that the catalogus endpoint returns the expected datasets, without a token.
 
     We expect dataset/table without a scope and dataset/field_scope with a scope since field
     scopes are not evaluated.
     """
-    response = api_client.get("/geosearch/catalogus/")
+    response = await async_api_client.get("/geosearch/catalogus/")
     assert response.status_code == 200
     assert response.json() == {
         "datasets": [
@@ -80,14 +81,15 @@ def test_catalogus(api_client, dataset):
 
 
 @pytest.mark.django_db
-def test_catalogus_table_scope(api_client, dataset):
+@pytest.mark.asyncio
+async def test_catalogus_table_scope(async_api_client, dataset, dataset_registry):
     """
     Test that the catalogus endpoint returns the expected datasets, with a token.
 
     Since a token is provided we also expect the dataset/table_scope to be returned.
     """
     token = build_jwt_token(["FP/MDW"])
-    response = api_client.get(
+    response = await async_api_client.get(
         "/geosearch/catalogus/", headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
@@ -104,32 +106,41 @@ def test_catalogus_table_scope(api_client, dataset):
 
 
 @pytest.mark.django_db
-def test_catalogus_geosearch_disabled(api_client, dataset_geosearch_disabled):
+@pytest.mark.asyncio
+async def test_catalogus_geosearch_disabled(
+    async_api_client, dataset_geosearch_disabled, dataset_registry
+):
     """Test that the catalogus endpoint doesn't return datasets with geosearch disabled."""
-    response = api_client.get("/geosearch/catalogus/")
+    response = await async_api_client.get("/geosearch/catalogus/")
     assert response.status_code == 200
     assert response.json() == {"datasets": []}
 
 
 @pytest.mark.django_db
-def test_catalogus_dataset_scopes_without_token(api_client, dataset_scope):
+@pytest.mark.asyncio
+async def test_catalogus_dataset_scopes_without_token(
+    async_api_client, dataset_scope, dataset_registry
+):
     """
     Test that the catalogus endpoint doesn't return datasets with dataset scopes
     when no token is provided.
     """
-    response = api_client.get("/geosearch/catalogus/")
+    response = await async_api_client.get("/geosearch/catalogus/")
     assert response.status_code == 200
     assert response.json() == {"datasets": []}
 
 
 @pytest.mark.django_db
-def test_catalogus_dataset_scopes_with_token(api_client, dataset_scope):
+@pytest.mark.asyncio
+async def test_catalogus_dataset_scopes_with_token(
+    async_api_client, dataset_scope, dataset_registry
+):
     """
     Test that the catalogus endpoint returns datasets with dataset scopes when a token
     with the right scope is provided.
     """
     token = build_jwt_token(["FP/MDW"])
-    response = api_client.get(
+    response = await async_api_client.get(
         "/geosearch/catalogus/", headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
@@ -137,11 +148,12 @@ def test_catalogus_dataset_scopes_with_token(api_client, dataset_scope):
 
 
 @pytest.mark.django_db
-def test_catalogus_with_versions(api_client, dataset_versions):
+@pytest.mark.asyncio
+async def test_catalogus_with_versions(async_api_client, dataset_versions, dataset_registry):
     """
     Test that the catalogus endpoint returns the versioned datasets.
     """
-    response = api_client.get("/geosearch/catalogus/")
+    response = await async_api_client.get("/geosearch/catalogus/")
     assert response.status_code == 200
     assert response.json() == {
         "datasets": [
@@ -344,7 +356,7 @@ async def test_search_multipolygon_outside_large_radius(async_api_client, datase
     )
     data = await read_stream(response)
 
-    # We expect no valid record to be returned
+    # We expect one valid record to be returned
     assert response.status_code == 200
     assert len(data["features"]) == 1
     assert data["features"][0]["properties"]["type"] == "dataset_search/multipolygon"

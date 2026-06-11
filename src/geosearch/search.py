@@ -78,7 +78,7 @@ class GeosearchTableQuery:
 
         # Add required fields to each record for easy extraction
         annotations: dict[str, Any] = {
-            "display": F(self.table_schema.display_field.db_name),
+            "display": F(self.display_field.db_name),
             "uri": Concat(Value(settings.DSO_API_BASE_URL), Value(self.api_path)),
         }
 
@@ -125,10 +125,13 @@ class GeosearchTableQuery:
         return queryset
 
     def _get_point_from_context(self) -> Point | Transform:
-        """Return a point in WGS84, transforming from RD if necessary."""
-        if self.context.use_rd:
-            return Transform(Point(self.context.x, self.context.y, srid=28992), 4326)
-        return Point(self.context.x, self.context.y, srid=4326)
+        """
+        Return a point in the table geometry SRID, transforming input coordinates if necessary.
+        """
+        target_srid = self.table._meta.get_field(self.main_geometry_field.db_name).srid
+        input_srid = 28992 if self.context.use_rd else 4326
+        geom = Point(self.context.x, self.context.y, srid=input_srid)
+        return geom if input_srid == target_srid else Transform(geom, target_srid)
 
     async def get_features(self):
         async for row in self._get_queryset():
