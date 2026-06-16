@@ -436,9 +436,9 @@ flask==3.0.3 \
     # via
     #   -r requirements.in
     #   flask-cors
-flask-cors==6.0.4 \
-    --hash=sha256:adb537b3923788b327187dd375ddb09be4ed0b5595cab016bac2ed30a0de7b79 \
-    --hash=sha256:cf3db91a0874aecde0a276565bf4adf4a458edcfd42e668fb0a260549f129317
+flask-cors==6.0.5 \
+    --hash=sha256:30c5031552cd59f620ac0c8211dac45b345d3b2df310e7721879e4f46ef9c601 \
+    --hash=sha256:68fcf75693e961f3af26683b23c4b9a8fb6b64de17d20d0c37b95e8de7ab2ed8
     # via -r requirements.in
 fqdn==1.5.1 \
     --hash=sha256:105ed3677e767fb5ca086a0c1f4bb66ebc3c100be518f0e0d755d9eae164d89f \
@@ -1148,9 +1148,9 @@ pyparsing==3.3.2 \
     --hash=sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d \
     --hash=sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc
     # via -r requirements.in
-pytest==9.0.3 \
-    --hash=sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9 \
-    --hash=sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c
+pytest==9.1.0 \
+    --hash=sha256:41dd9148c08072446394cefd3d79701701335a9f4cae69ba92e39f6c7f5c061c \
+    --hash=sha256:8ebb0e7888bdf2bdfc602ec51f8f62d50200af37356c74e503c79a94f5c81f32
     # via
     #   -r requirements.in
     #   -r requirements_dev.in
