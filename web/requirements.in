@@ -9,11 +9,11 @@ psycopg2-binary==2.9.12
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.34.2
-sentry-sdk==2.62.0
+sentry-sdk==2.63.0
 six==1.17.0
 Werkzeug==3.1.8
 jwcrypto==1.5.7
-pytest==9.1.0
+pytest==9.1.1
 PyYAML==6.0.3
 python-string-utils==1.0.0
 amsterdam-schema-tools==8.0.0rc7
