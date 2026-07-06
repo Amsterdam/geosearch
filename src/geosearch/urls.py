@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from drf_spectacular.views import SpectacularJSONAPIView
 
 from .views import catalogus, geosearch, health_check, pulse
 
@@ -8,6 +9,7 @@ urlpatterns = [
     path("pulse", pulse),
     path("health-check", health_check),
     path("geosearch/catalogus/", catalogus),
+    path("geosearch/openapi.json", SpectacularJSONAPIView.as_view(), name="schema-json"),
     path("geosearch/", geosearch),
 ]
 
