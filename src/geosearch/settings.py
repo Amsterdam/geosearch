@@ -36,6 +36,7 @@ TIME_ZONE = "Europe/Amsterdam"
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "geosearch",
     # Own apps
     "schematools.contrib.django",
@@ -349,9 +350,23 @@ REST_FRAMEWORK = dict(
     UNAUTHENTICATED_TOKEN=None,
     URL_FORMAT_OVERRIDE="_format",  # use ?_format=.. instead of ?format=..
     DEFAULT_AUTHENTICATION_CLASSES=[],
+    DEFAULT_SCHEMA_CLASS="drf_spectacular.openapi.AutoSchema",
 )
 
 if DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"].append(  # ty:ignore[possibly-missing-attribute]
         "rest_framework.renderers.BrowsableAPIRenderer"
     )
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Geosearch ",
+    "DESCRIPTION": "API for geospatial search across multiple datasets.",
+    "VERSION": "2.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+    "CONTACT": {
+        "name": "Datapunt Amsterdam",
+        "url": "https://api.data.amsterdam.nl",
+        "email": "datapunt@amsterdam.nl",
+    },
+}
