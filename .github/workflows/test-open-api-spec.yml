@@ -1,0 +1,47 @@
+name: Validate openapi spec
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  push:
+    branches:
+    - features/**
+    - feature/**
+  pull_request:
+    branches:
+    - main
+    - master
+    - feature/**
+
+jobs:
+  docker:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Start containers
+      run: docker compose up -d --build
+
+    - name: Setup tests
+      run: |
+        mkdir spectral
+        # Create spectral config file
+        echo 'extends: ["https://static.developer.overheid.nl/adr/ruleset.yaml"]' > ./spectral/.spectral.yaml
+
+        docker compose exec web curl -q -o /dev/null --silent --retry-connrefused --retry 5 --retry-delay 1 --fail http://web:8000/pulse
+
+        docker compose exec web curl 'http://web:8000/geosearch/openapi.json'  > ./spectral/openapi.json
+
+    - name: Setup spectral
+      run: npm install -g @stoplight/spectral-cli
+
+    - name: Run spectral tests
+      run: spectral lint ./spectral/openapi.json --ruleset ./spectral/.spectral.yaml
+
+    - name: Stop containers
+      if: always()
+      run: docker compose down
