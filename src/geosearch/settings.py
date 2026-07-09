@@ -369,4 +369,21 @@ SPECTACULAR_SETTINGS = {
         "url": "https://api.data.amsterdam.nl",
         "email": "datapunt@amsterdam.nl",
     },
+    "LICENSE": {
+        "name": "European Union Public License, version 1.2 (EUPL-1.2)",
+        "url": "https://eupl.eu/1.2/nl/",
+    },
+    "SERVERS": [
+        {
+            "url": "https://api.data.amsterdam.nl/geosearch",
+            "description": "Productieomgeving",
+        },
+        {
+            "url": "https://acc.api.data.amsterdam.nl/geosearch",
+            "description": "Acceptatieomgeving",
+        },
+    ],
+    "POSTPROCESSING_HOOKS": [
+        "geosearch.openapi.postprocessors.postprocessing_add_openapi_cors_header",
+    ],
 }
