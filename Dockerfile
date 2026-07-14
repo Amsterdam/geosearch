@@ -16,6 +16,8 @@ COPY /tests /app/tests
 
 RUN uv sync --frozen --all-groups
 
+RUN pip install azure-identity
+
 # Start runtime image,
 FROM ghcr.io/astral-sh/uv:0.11-python3.14-trixie-slim
 
