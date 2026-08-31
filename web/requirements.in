@@ -9,10 +9,10 @@ psycopg2-binary==2.9.12
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.34.2
-sentry-sdk==2.68.0
+sentry-sdk==2.68.1
 six==1.17.0
 Werkzeug==3.1.8
-jwcrypto==1.5.8
+jwcrypto==1.5.9
 pytest==9.1.1
 PyYAML==6.0.3
 python-string-utils==1.0.0
@@ -22,7 +22,7 @@ azure-identity==1.25.3
 azure-monitor-opentelemetry==1.8.9
 # The packages below are indirect dependencies that have minimum versions specified
 # to avoid vulnerabilities
-idna>=3.18
-msal==1.37.0
+idna>=3.19
+msal==1.38.0
 uwsgi-readiness-check==0.2.0
 uwsgitop==0.12.0
