@@ -5,11 +5,11 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
 packaging==26.3
-psycopg2-binary==2.9.12
+psycopg2-binary==2.9.13
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.34.2
-sentry-sdk==2.68.1
+sentry-sdk==2.69.1
 six==1.17.0
 Werkzeug==3.1.8
 jwcrypto==1.6.0
