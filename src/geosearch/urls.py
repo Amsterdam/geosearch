@@ -11,6 +11,9 @@ urlpatterns = [
     path("geosearch/catalogus/", catalogus),
     path("geosearch/openapi.json", SpectacularJSONAPIView.as_view(), name="schema-json"),
     path("geosearch/", geosearch),
+    # Legacy urls to match the old geosearch service. These are kept for backwards compatibility.
+    path("catalogus/", catalogus, name="legacy-catalogus"),
+    path("", geosearch, name="legacy-geosearch"),
 ]
 
 if settings.DEBUG:
