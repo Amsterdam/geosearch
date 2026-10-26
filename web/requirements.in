@@ -19,9 +19,10 @@ python-string-utils==1.0.0
 amsterdam-schema-tools==8.0.0rc7
 cachetools==7.2.2
 azure-identity==1.26.0
-azure-monitor-opentelemetry==1.8.9
+azure-monitor-opentelemetry==1.8.11
 # The packages below are indirect dependencies that have minimum versions specified
 # to avoid vulnerabilities
+opentelemetry-api==1.45.1
 idna>=3.20
 msal==1.39.0
 uwsgi-readiness-check==0.2.0
