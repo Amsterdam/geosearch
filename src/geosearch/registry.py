@@ -1,5 +1,6 @@
 from schematools.contrib.django.factories import DjangoModelFactory
 from schematools.contrib.django.models import Dataset, DynamicModel
+from schematools.exceptions import DatasetFieldNotFound
 from schematools.naming import to_snake_case
 from schematools.types import DatasetSchema
 
@@ -62,13 +63,18 @@ class DatasetRegistry:
                 if not version.enable_geosearch:
                     continue
                 for table in version.get_tables():
-                    if table.has_geometry_fields:
-                        table_id = to_snake_case(table.id)
+                    try:
+                        if table.has_geometry_fields:
+                            table_id = to_snake_case(table.id)
 
-                        if version.is_default:
-                            all_paths.append(f"{dataset_id}/{table.id}")
+                            if version.is_default:
+                                all_paths.append(f"{dataset_id}/{table_id}")
 
-                        all_paths.append(f"{dataset_id}/{vmajor}/{table_id}")
+                            all_paths.append(f"{dataset_id}/{vmajor}/{table_id}")
+                    except DatasetFieldNotFound:
+                        # Skip tables for which the geometry field is not allowed for the
+                        # given scopes.
+                        continue
 
         # Cache the tables for the given scope
         self._tables_for_scopes[scopes] = all_paths

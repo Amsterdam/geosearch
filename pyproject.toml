@@ -66,6 +66,7 @@ norecursedirs = ["node_modules", ".tox", ".git"]
 filterwarnings = [
     "once::DeprecationWarning",
     "once::PendingDeprecationWarning",
+    "ignore:Model '.*' was already registered. Reloading models is not advised.*:RuntimeWarning",
 ]
 xfail_strict = true
 
