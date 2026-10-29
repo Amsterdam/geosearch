@@ -30,7 +30,7 @@ make install  # installs all packages and pre-commit hooks.
 Start the Django application:
 
 ```shell
-uv run uvicorn geosearch.asgi:application --host 0.0.0.0 --port 8097
+uv run gunicorn geosearch.wsgi:application --bind 0.0.0.0:8097
 ```
 
 # Developer Notes

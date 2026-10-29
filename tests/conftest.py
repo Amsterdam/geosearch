@@ -6,7 +6,6 @@ import pytest
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
 from django.core.management import call_command
 from django.db import connection
-from django.test import AsyncClient
 from rest_framework.test import APIClient
 from schematools.types import DatasetSchema, Scope
 
@@ -39,13 +38,6 @@ def api_client() -> APIClient:
     api_client = APIClient()
     api_client.default_format = "json"
     return api_client
-
-
-@pytest.fixture()
-def async_api_client() -> AsyncClient:
-    async_api_client = AsyncClient()
-    async_api_client.default_format = "json"
-    return async_api_client
 
 
 @pytest.fixture()

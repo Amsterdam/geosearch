@@ -28,9 +28,9 @@ def build_jwt_token(
     return token.serialize()
 
 
-async def read_stream(response) -> dict:
+def read_stream(response) -> dict:
     chunks = []
-    async for c in response.streaming_content:
+    for c in response.streaming_content:
         # Django may yield str or bytes
         if isinstance(c, bytes):
             chunks.append(c.decode("utf-8"))

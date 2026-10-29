@@ -3,4 +3,4 @@ services:
     ports:
       - "8097:8000"
       - "5678:5678"
-    command: ["/bin/bash", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 uvicorn geosearch.asgi:application --host 0.0.0.0 --reload"]
+    command: ["/bin/bash", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 gunicorn geosearch.wsgi:application --bind 0.0.0.0:8000 --reload"]

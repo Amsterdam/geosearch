@@ -133,8 +133,8 @@ class GeosearchTableQuery:
         geom = Point(self.context.x, self.context.y, srid=input_srid)
         return geom if input_srid == target_srid else Transform(geom, target_srid)
 
-    async def get_features(self):
-        async for row in self._get_queryset():
+    def get_features(self):
+        for row in self._get_queryset().iterator(chunk_size=2000):
             data = {
                 "properties": {
                     **{
@@ -158,16 +158,15 @@ class GeosearchTableQuery:
             yield data
 
 
-async def get_features(tables: dict[str, DynamicModel], context: GeosearchContext):
+def get_features(tables: dict[str, DynamicModel], context: GeosearchContext):
     """
-    Return all features for the requested tables as an async generator
+    Return all features for the requested tables as a generator
     """
     first_item = True
     yield '{"type": "FeatureCollection", "features": ['
     for path, table in tables.items():
         query = GeosearchTableQuery(table, path, context)
-        features = query.get_features()
-        async for row in features:
+        for row in query.get_features():
             if first_item:
                 first_item = False
             else:

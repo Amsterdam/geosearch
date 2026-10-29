@@ -203,7 +203,7 @@ LOGGING: dict[str, Any] = {
         "handlers": ["console"],
     },
     "loggers": {
-        "uvicorn": {
+        "gunicorn.error": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
             "propagate": False,

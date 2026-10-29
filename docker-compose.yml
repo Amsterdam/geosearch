@@ -43,8 +43,7 @@ services:
       CLOUD_ENV: "${CLOUD_ENV:-local}"
       DJANGO_DEBUG: 1
       INITIALIZE_DB: "${INITIALIZE_DB:-true}"
-    command: >
-      /bin/bash -c "uv run uvicorn geosearch.asgi:application --host 0.0.0.0 --reload"
+    command: uwsgi --py-auto-reload=1 --enable-threads --lazy-apps --buffer-size=65535
     develop:
       watch:
         - action: sync

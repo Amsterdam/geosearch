@@ -1,9 +1,8 @@
-from adrf.decorators import api_view
-from asgiref.sync import sync_to_async
 from django.db import OperationalError
 from django.http import JsonResponse, StreamingHttpResponse
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers, status
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset
@@ -15,7 +14,7 @@ from geosearch.serializers import GeosearchInputSerializer
 
 @extend_schema(exclude=True)
 @api_view(["GET"])
-async def pulse(request):
+def pulse(request):
     """
     Simple health probe.
     """
@@ -24,12 +23,12 @@ async def pulse(request):
 
 @extend_schema(exclude=True)
 @api_view(["GET"])
-async def health_check(request):
+def health_check(request):
     """
     Verify connection to the database and that the service is running.
     """
     try:
-        _ = await Dataset.objects.afirst()
+        _ = Dataset.objects.first()
     except OperationalError as e:
         raise APIException("Failed to connect to the database") from e
     return Response({"status": "OK", "database": "OK"})
@@ -48,11 +47,9 @@ async def health_check(request):
     ),
 )
 @api_view(["GET"])
-async def catalogus(request):
-    registry = await sync_to_async(get_registry)()
-    all_routes = await sync_to_async(registry.get_table_paths)(
-        scopes=frozenset(request.get_token_scopes)
-    )
+def catalogus(request):
+    registry = get_registry()
+    all_routes = registry.get_table_paths(scopes=frozenset(request.get_token_scopes))
 
     return JsonResponse(
         {
@@ -94,7 +91,7 @@ async def catalogus(request):
     ),
 )
 @api_view(["GET"])
-async def geosearch(request):
+def geosearch(request):
     """
     Search endpoint for geospatial queries.
     Query params:
@@ -127,7 +124,7 @@ async def geosearch(request):
     )
     # Get the tables to query based on the path(s)
     paths = serializer.validated_data.get("datasets", [])
-    registry = await sync_to_async(get_registry)()
+    registry = get_registry()
     tables = {}
     for path in paths:
         try:

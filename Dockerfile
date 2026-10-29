@@ -34,11 +34,14 @@ COPY --from=builder --chown=geosearch:geosearch /app /app
 USER geosearch
 # Have some defaults so the container is easier to start
 ENV DJANGO_SETTINGS_MODULE=geosearch.settings \
-    DJANGO_DEBUG=false
+    DJANGO_DEBUG=false \
+    UWSGI_HTTP_SOCKET=:8000 \
+    UWSGI_MODULE=geosearch.wsgi \
+    UWSGI_CALLABLE=application \
+    UWSGI_MASTER=1
 
 RUN uv run src/manage.py collectstatic --noinput
-ENV PATH="/app/.venv/bin:$PATH"
-ENTRYPOINT []
-EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "geosearch.asgi", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8000
+USER geosearch
+CMD ["uwsgi"]
