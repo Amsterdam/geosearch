@@ -8,7 +8,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset
 
-from geosearch.registry import get_registry
+from geosearch.registry import TableNotFoundException, get_registry
 from geosearch.search import GeosearchContext, get_features
 from geosearch.serializers import GeosearchInputSerializer
 
@@ -130,7 +130,10 @@ async def geosearch(request):
     registry = await sync_to_async(get_registry)()
     tables = {}
     for path in paths:
-        tables.update(registry.get_tables_by_path(path))
+        try:
+            tables.update(registry.get_tables_by_path(path))
+        except TableNotFoundException:
+            continue
 
     return StreamingHttpResponse(
         get_features(tables, context),
