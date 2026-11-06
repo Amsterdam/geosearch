@@ -19,3 +19,21 @@ updates:
     directory: "/web" # Location of package manifests
     schedule:
       interval: "weekly"
+    
+  # Add Dependabot updates for "feature/geosearch-v2" branch
+  - package-ecosystem: "uv"
+    directory: "/"
+    target-branch: "feature/geosearch-v2"
+    schedule:
+      interval: "weekly"
+    groups:
+      uv-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "docker"
+    directory: "/"
+    target-branch: "feature/geosearch-v2"
+    schedule:
+      interval: "weekly"
