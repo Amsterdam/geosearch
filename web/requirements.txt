@@ -41,9 +41,9 @@ azure-core-tracing-opentelemetry==1.0.0b13 \
     --hash=sha256:4dacd3a9f117f11f98e89305e161c951b8df85b984f3b56130614de9cd9887f9 \
     --hash=sha256:6cb2f8dfd5dee6c11843db0205fc92e2434e1a272c169c953afe92483aafc7eb
     # via azure-monitor-opentelemetry
-azure-identity==1.26.0 \
-    --hash=sha256:3c60d9682b3ac01507388d474cb5a5ffbe54152a96b6cdcaa7013da9315cf186 \
-    --hash=sha256:61b4538b87df10d2d6d44b77cd5ea28a8929fd4929d58b45bf3f230f7daba02e
+azure-identity==1.27.0 \
+    --hash=sha256:6a4c50e25e8e9a47b324a95ad024897e56cb3c6241e0094e93b126a2bf71edc5 \
+    --hash=sha256:92fd2a93c0d2f777dac6c04e5fd7d5734f6643582b983544ef66b4575844e46d
     # via
     #   -r requirements.in
     #   azure-monitor-opentelemetry-exporter
@@ -175,9 +175,9 @@ cachebox==5.2.3 \
     --hash=sha256:fb0bdcd9e28686e3b91d5210c843542858f0f10de151181aee27a7978fe4992e \
     --hash=sha256:fdb74294bdc33e39e26606919a9b2229038d5fac0edb80c9056683c08584d4a9
     # via deepdiff
-cachetools==7.2.4 \
-    --hash=sha256:4cfbebf3eec4040d2073b19c460511ad47eef7b852dbf9a0d385099b4dafa31e \
-    --hash=sha256:e0203b04b75fe13e62098eeb5b2018c4eb1a14c04e2b5b450e70db3ee7e92ec5
+cachetools==7.2.8 \
+    --hash=sha256:09b04a85741d0019b3fb7d02b7ee9933a422fa6923af92a0fd63b893b695830c \
+    --hash=sha256:3f9b146b2160975da273e7c23ec882f3996b65df608150d52083c07de0682075
     # via -r requirements.in
 certifi==2026.10.19 \
     --hash=sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae \
@@ -1196,9 +1196,9 @@ pyparsing==3.3.3 \
     --hash=sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36 \
     --hash=sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4
     # via -r requirements.in
-pytest==9.1.1 \
-    --hash=sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313 \
-    --hash=sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c
+pytest==9.2.0 \
+    --hash=sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588 \
+    --hash=sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b
     # via -r requirements.in
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
