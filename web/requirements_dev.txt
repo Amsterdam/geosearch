@@ -41,19 +41,19 @@ azure-core-tracing-opentelemetry==1.0.0b13 \
     --hash=sha256:4dacd3a9f117f11f98e89305e161c951b8df85b984f3b56130614de9cd9887f9 \
     --hash=sha256:6cb2f8dfd5dee6c11843db0205fc92e2434e1a272c169c953afe92483aafc7eb
     # via azure-monitor-opentelemetry
-azure-identity==1.26.0 \
-    --hash=sha256:3c60d9682b3ac01507388d474cb5a5ffbe54152a96b6cdcaa7013da9315cf186 \
-    --hash=sha256:61b4538b87df10d2d6d44b77cd5ea28a8929fd4929d58b45bf3f230f7daba02e
+azure-identity==1.27.0 \
+    --hash=sha256:6a4c50e25e8e9a47b324a95ad024897e56cb3c6241e0094e93b126a2bf71edc5 \
+    --hash=sha256:92fd2a93c0d2f777dac6c04e5fd7d5734f6643582b983544ef66b4575844e46d
     # via
     #   -r requirements.in
     #   azure-monitor-opentelemetry-exporter
-azure-monitor-opentelemetry==1.8.11 \
-    --hash=sha256:034a9d7ccc0c944986963ad2a5f4da11d669538ae797f7f4edad803ca8e9127d \
-    --hash=sha256:606e41ded61f330634f997b6378671168c10e0a7fcf4dfd1238235bc17df05f4
+azure-monitor-opentelemetry==1.8.12 \
+    --hash=sha256:37e4a71b8b2626417a54c5aa1448a26ccdbdee1082f80233e338817b3b62e624 \
+    --hash=sha256:f90fd05a2bb57a5c94a35886d675aa47f26af32c5c79441eae27e65c0a39b9d7
     # via -r requirements.in
-azure-monitor-opentelemetry-exporter==1.0.0b58 \
-    --hash=sha256:5152d75bd9780fef02fcc9550e0323ba3f661a8fcba017ea04b027151ae0932e \
-    --hash=sha256:cf036f7a99515d4e6626f3c33e5ac1ae633731882239542353e1f4a17285e9fc
+azure-monitor-opentelemetry-exporter==1.0.0b59 \
+    --hash=sha256:0dfaec6b1aada54a4c8f4572fd1e1da67609459caf418298b5d91b4c67c0282e \
+    --hash=sha256:e831b74132fb899e640cddbb340f0fbfe11937f788715ce3f0acd120c8e91227
     # via azure-monitor-opentelemetry
 bandit[toml]==1.9.4 \
     --hash=sha256:b589e5de2afe70bd4d53fa0c1da6199f4085af666fde00e8a034f152a52cd628 \
@@ -506,9 +506,9 @@ filelock==4.2.1 \
     # via
     #   python-discovery
     #   virtualenv
-flake8==7.4.1 \
-    --hash=sha256:78480274a6d7289d9cb8eafeda241fac57d4ea687d26e32dfdca37b72cdeddad \
-    --hash=sha256:84ea5afcaf344487b0ea5baaebb8100f4cfaebc01f755998f75876664029f587
+flake8==7.5.0 \
+    --hash=sha256:0dab7566341aca0d80aa29b5812bdadf256caa6a63e6068e49ac2649918236a4 \
+    --hash=sha256:637ea1a443a78ed6ee461725cdf71ca93bc5cde0abf25436dbebdc3880b4e078
     # via -r requirements_dev.in
 flask==3.0.3 \
     --hash=sha256:34e815dfaa43340d1d15a5c3a02b8476004037eb4840b34910c6e21679d288f3 \
@@ -1319,9 +1319,9 @@ pycparser==3.0 \
     --hash=sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29 \
     --hash=sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992
     # via cffi
-pyflakes==4.0.0 \
-    --hash=sha256:0f7b7a78e8fcffd78b205200f045a70911f4179be1b42eac82c3323e0bf5c8aa \
-    --hash=sha256:492b27735181e3d4a6acfc08738948b666bf3e696781854ea6e0d8540d566d52
+pyflakes==4.1.0 \
+    --hash=sha256:592beb57058eb82eb190fb7514f2081c555c51000b029ff71286a681e6cf2f83 \
+    --hash=sha256:b2e05e6bac8e49b67be2a6ffa63422c60f7193fc72e8180255907b41ec997dc1
     # via flake8
 pygments==2.20.0 \
     --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
@@ -1339,9 +1339,9 @@ pyparsing==3.3.3 \
     --hash=sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36 \
     --hash=sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4
     # via -r requirements.in
-pytest==9.1.1 \
-    --hash=sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313 \
-    --hash=sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c
+pytest==9.2.0 \
+    --hash=sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588 \
+    --hash=sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b
     # via
     #   -r requirements.in
     #   -r requirements_dev.in
@@ -1641,9 +1641,9 @@ rpds-py==2026.6.3 \
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.73.0 \
-    --hash=sha256:0bcfa6928ea5adbb89591858b514d27adac27c7a3cccc31b20ed10e0b09eda9e \
-    --hash=sha256:4a2ab97b16e4693c325ab361c7bbbb346dbc7d0bc0150922d795a25bac8d5280
+sentry-sdk==2.74.0 \
+    --hash=sha256:40b205af015649df3ec9986e057ce24ce85956bee3fb75efa72c93aa7036bdff \
+    --hash=sha256:dd91d75aacaef636006b579ac3ddb2fdbc9dce35f00f4b353b6b1b110c6b256a
     # via -r requirements.in
 shapely==2.1.2 \
     --hash=sha256:0036ac886e0923417932c2e6369b6c52e38e0ff5d9120b90eef5cd9a5fc5cae9 \
